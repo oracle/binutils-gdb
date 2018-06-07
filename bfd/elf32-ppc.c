@@ -10768,7 +10768,7 @@ ppc_elf_finish_dynamic_sections (bfd *output_bfd,
 #define ELF_MACHINE_CODE	EM_PPC
 #ifdef __QNXTARGET__
 #define ELF_MAXPAGESIZE		0x1000
-#define ELF_COMMONPAGESIZE	0x1000
+#define ELF_COMMONPAGESIZE	0x10000
 #else
 #define ELF_MAXPAGESIZE		0x10000
 #define ELF_COMMONPAGESIZE	0x10000

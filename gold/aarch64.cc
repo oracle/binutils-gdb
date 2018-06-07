@@ -3433,7 +3433,7 @@ const Target::Target_info Target_aarch64<64, false>::aarch64_info =
   "/lib/ld.so.1",	// program interpreter
   0x400000,		// default_text_segment_address
   0x10000,		// abi_pagesize (overridable by -z max-page-size)
-  0x1000,		// common_pagesize (overridable by -z common-page-size)
+  0x10000,		// common_pagesize (overridable by -z common-page-size)
   false,                // isolate_execinstr
   0,                    // rosegment_gap
   elfcpp::SHN_UNDEF,	// small_common_shndx
@@ -3461,7 +3461,7 @@ const Target::Target_info Target_aarch64<32, false>::aarch64_info =
   "/lib/ld.so.1",	// program interpreter
   0x400000,		// default_text_segment_address
   0x10000,		// abi_pagesize (overridable by -z max-page-size)
-  0x1000,		// common_pagesize (overridable by -z common-page-size)
+  0x10000,		// common_pagesize (overridable by -z common-page-size)
   false,                // isolate_execinstr
   0,                    // rosegment_gap
   elfcpp::SHN_UNDEF,	// small_common_shndx
@@ -3489,7 +3489,7 @@ const Target::Target_info Target_aarch64<64, true>::aarch64_info =
   "/lib/ld.so.1",	// program interpreter
   0x400000,		// default_text_segment_address
   0x10000,		// abi_pagesize (overridable by -z max-page-size)
-  0x1000,		// common_pagesize (overridable by -z common-page-size)
+  0x10000,		// common_pagesize (overridable by -z common-page-size)
   false,                // isolate_execinstr
   0,                    // rosegment_gap
   elfcpp::SHN_UNDEF,	// small_common_shndx
@@ -3517,7 +3517,7 @@ const Target::Target_info Target_aarch64<32, true>::aarch64_info =
   "/lib/ld.so.1",	// program interpreter
   0x400000,		// default_text_segment_address
   0x10000,		// abi_pagesize (overridable by -z max-page-size)
-  0x1000,		// common_pagesize (overridable by -z common-page-size)
+  0x10000,		// common_pagesize (overridable by -z common-page-size)
   false,                // isolate_execinstr
   0,                    // rosegment_gap
   elfcpp::SHN_UNDEF,	// small_common_shndx
