@@ -69,42 +69,6 @@ run_cc_link_tests [list \
 
 run_ld_link_exec_tests [] [list \
     [list \
-	"TLS GD/LD -> LE transition without PLT (dynamic)" \
-	"tmpdir/tls-def1.o tmpdir/tls-main1.o tmpdir/tls-gd1.o \
-	 tmpdir/tls-ld1.o" \
-	"" \
-	{ dummy.s } \
-	"tls-1a" \
-	"pass.out" \
-    ] \
-    [list \
-	"TLS GD/LD -> LE transition without PLT (PIE)" \
-	"-pie tmpdir/tls-def1.o tmpdir/tls-main1.o tmpdir/tls-gd1.o \
-	 tmpdir/tls-ld1.o" \
-	"" \
-	{ dummy.s } \
-	"tls-1b" \
-	"pass.out" \
-    ] \
-    [list \
-	"TLS GD/LD -> LE transition without PLT (static)" \
-	"-static tmpdir/tls-def1.o tmpdir/tls-main1.o tmpdir/tls-gd1.o \
-	 tmpdir/tls-ld1.o" \
-	"" \
-	{ dummy.s } \
-	"tls-1c" \
-	"pass.out" \
-    ] \
-    [list \
-	"TLS GD/LD -> IE transition without PLT" \
-	"tmpdir/tls-main1.o tmpdir/tls-gd1.o tmpdir/tls-ld1.o \
-	 tmpdir/libtls-1a.so -R tmpdir" \
-	"" \
-	{ dummy.s } \
-	"tls-1d" \
-	"pass.out" \
-    ] \
-    [list \
 	"TLS without PLT (1)" \
 	"tmpdir/tls-main1.o \
 	 tmpdir/libtls-1a.so tmpdir/libtls-1b.so -R tmpdir" \

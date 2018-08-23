@@ -10655,14 +10655,7 @@ i386_validate_fix (fixS *fixp)
 	    {
 	      if (!object_64bit)
 		abort ();
-#if defined (OBJ_ELF) || defined (OBJ_MAYBE_ELF)
-	      if (fixp->fx_tcbit2)
-		fixp->fx_r_type = (fixp->fx_tcbit
-				   ? BFD_RELOC_X86_64_REX_GOTPCRELX
-				   : BFD_RELOC_X86_64_GOTPCRELX);
-	      else
-#endif
-		fixp->fx_r_type = BFD_RELOC_X86_64_GOTPCREL;
+	      fixp->fx_r_type = BFD_RELOC_X86_64_GOTPCREL;
 	    }
 	  else
 	    {
@@ -10674,14 +10667,6 @@ i386_validate_fix (fixS *fixp)
 	  fixp->fx_subsy = 0;
 	}
     }
-#if defined (OBJ_ELF) || defined (OBJ_MAYBE_ELF)
-  else if (!object_64bit)
-    {
-      if (fixp->fx_r_type == BFD_RELOC_386_GOT32
-	  && fixp->fx_tcbit2)
-	fixp->fx_r_type = BFD_RELOC_386_GOT32X;
-    }
-#endif
 }
 
 arelent *

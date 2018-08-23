@@ -55,13 +55,6 @@ set x86_64tests {
      {{readelf -WSsrl tlspic.rd} {objdump -drj.text\ -Mintel64 tlspic.dd}
       {objdump -sj.got tlspic.sd} {objdump -sj.tdata tlspic.td}}
       "libtlspic.so"}
-    {"TLS -fpic -shared transitions with r15 as GOT base"
-     "-shared -melf_x86_64 --no-ld-generated-unwind-info" ""
-     "--64 -mrelax-relocations=yes"
-     {tlspic3.s tlspic2.s}
-     {{readelf -WSsrl tlspic2.rd} {objdump -drj.text\ -Mintel64 tlspic2.dd}
-      {objdump -sj.got tlspic2.sd} {objdump -sj.tdata tlspic2.td}}
-      "libtlspic2.so"}
     {"TLS descriptor -fpic -shared transitions"
      "-shared -melf_x86_64 --no-ld-generated-unwind-info" ""
      "--64" {tlsdesc.s tlspic2.s}
@@ -76,12 +69,6 @@ set x86_64tests {
      {{readelf -WSsrl tlsbin.rd} {objdump -drj.text tlsbin.dd}
       {objdump -sj.got tlsbin.sd} {objdump -sj.tdata tlsbin.td}}
       "tlsbin"}
-    {"TLS -fpic and -fno-pic exec transitions without PLT"
-     "-melf_x86_64 tmpdir/libtlslib.so --no-ld-generated-unwind-info" ""
-     "-mrelax-relocations=yes --64" {tlsbinpic2.s tlsbin.s}
-     {{readelf -WSsrl tlsbin2.rd} {objdump -drj.text tlsbin2.dd}
-      {objdump -sj.got tlsbin2.sd} {objdump -sj.tdata tlsbin2.td}}
-      "tlsbin2"}
     {"TLS descriptor -fpic and -fno-pic exec transitions"
      "-melf_x86_64 tmpdir/libtlslib.so --no-ld-generated-unwind-info" ""
      "--64" {tlsbindesc.s tlsbin.s}
@@ -128,19 +115,11 @@ set x86_64tests {
     {"TLS GD->IE transition" "-melf_x86_64 tmpdir/libtlsgd5.so" ""
      "--64" {tlsgd5a.s}
      {{objdump -dwr tlsgd5.dd}} "tlsgd5a"}
-    {"TLS GD->IE transition without PLT"
-     "-melf_x86_64 tmpdir/libtlsgd5.so" ""
-     "-mrelax-relocations=yes --64" {tlsgd5c.s}
-     {{objdump -dwr tlsgd5.dd}} "tlsgd5b"}
     {"Helper TLS X32 GD->IE transition DSO" "-shared -melf32_x86_64" ""
      "--x32" {tlsgd6b.s} {} "libtlsgd6.so"}
     {"TLS X32 GD->IE transition" "-melf32_x86_64 tmpdir/libtlsgd6.so" ""
      "--x32" {tlsgd6a.s}
      {{objdump -dwr tlsgd6.dd}} "tlsgd6a"}
-    {"TLS X32 GD->IE transition without PLT"
-     "-melf32_x86_64 tmpdir/libtlsgd6.so" ""
-     "-mrelax-relocations=yes --x32" {tlsgd6c.s}
-     {{objdump -dwr tlsgd6.dd}} "tlsgd6b"}
     {"TLS X32 LD->LE transition" "-melf32_x86_64" ""
      "--x32" {tlsld2.s}
      {{objdump -dwr tlsld2.dd}} "tlsld2"}
@@ -154,15 +133,6 @@ set x86_64tests {
      "-melf_x86_64" ""
      "--64" {tlsld4.s}
      {{objdump -dwr tlsld4.dd}} "tlsld4"}
-    {"TLS LD->LE transition without PLT"
-     "-melf_x86_64" ""
-     "--64 -mrelax-relocations=yes"
-     {tlsld5.s}
-     {{objdump -dwr tlsld5.dd}} "tlsld5"}
-    {"TLS X32 LD->LE transition without PLT" "-melf32_x86_64" ""
-     "--x32 -mrelax-relocations=yes"
-     {tlsld6.s}
-     {{objdump -dwr tlsld6.dd}} "tlsld6"}
     {"TLS -mcmodel=large GD->IE transition" "-melf_x86_64 tmpdir/libtlsgd5.so" ""
      "--64" {tlsgd8.s}
      {{objdump -dwrj.text tlsgd8.dd}} "tlsgd8"}
@@ -620,7 +590,7 @@ if { [isnative] && [which $CC] != 0 } {
 	    "" \
 	    "-fPIC -Wa,-mrelax-relocations=yes" \
 	    { plt-main1.c } \
-	    {{readelf {-Wr} plt-main1.rd}} \
+	    {} \
 	    "libplt-main1.a" \
 	] \
 	[list \
@@ -644,7 +614,7 @@ if { [isnative] && [which $CC] != 0 } {
 	    "" \
 	    "-fPIC -Wa,-mrelax-relocations=yes $PLT_CFLAGS" \
 	    { plt-main4.c } \
-	    {{readelf {-Wr} plt-main4.rd}} \
+	    {} \
 	    "libplt-main4.a" \
 	] \
 	[list \
@@ -797,14 +767,6 @@ if { [isnative] && [which $CC] != 0 } {
 	    "" \
 	    "-Wa,-mrelax-relocations=yes" \
 	    { gotpcrel1a.S gotpcrel1b.c gotpcrel1c.c } \
-	] \
-	[list \
-	    "Build gotpcrel1" \
-	    "-Wl,--as-needed tmpdir/gotpcrel1a.o tmpdir/gotpcrel1b.o tmpdir/gotpcrel1c.o tmpdir/gotpcrel1d.so" \
-	    { dummy.s } \
-	    "" \
-	    {{objdump {-dw} gotpcrel1.dd}} \
-	    "gotpcrel1" \
 	] \
 	[list \
 	    "Build pr19319.so" \

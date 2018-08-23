@@ -2,6 +2,8 @@
 #as: --32 -mrelax-relocations=yes
 #ld: -melf_i386 -pie -z call-nop=suffix-nop
 #objdump: -dwr
+#xfail: *-*-*
+# XFAILed because generation of the R_386_GOT32X relocs is currently suppressed.
 
 .*: +file format .*
 
