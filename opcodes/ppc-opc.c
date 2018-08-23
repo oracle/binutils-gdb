@@ -2374,6 +2374,12 @@ extract_vleil (unsigned long insn,
 #define OPVUP(x,vup) (OP (x) | ((((unsigned long)(vup)) & 0xff) << 8))
 #define OPVUP_MASK OPVUP (0x3f,  0xff)
 
+/* The main opcode combined with an update code and the RT fields specified in
+   D form instruction.  Used for VLE volatile context save/restore
+   instructions.  */
+#define OPVUPRT(x,vup,rt) (OPVUP (x, vup) | ((((unsigned long)(rt)) & 0x1f) << 21))
+#define OPVUPRT_MASK OPVUPRT (0x3f, 0xff, 0x1f)
+
 /* An A form instruction.  */
 #define A(op, xop, rc) (OP (op) | ((((unsigned long)(xop)) & 0x1f) << 1) | (((unsigned long)(rc)) & 1))
 #define A_MASK A (0x3f, 0x1f, 1)
@@ -3055,6 +3061,7 @@ extract_vleil (unsigned long insn,
 #define E6500	PPC_OPCODE_E6500
 #define PPCVLE  PPC_OPCODE_VLE
 #define PPCHTM  PPC_OPCODE_HTM
+#define E200Z4  PPC_OPCODE_E200Z4
 /* The list of embedded processors that use the embedded operand ordering
    for the 3 operand dcbt and dcbtst instructions.  */
 #define DCBT_EO	(PPC_OPCODE_E500 | PPC_OPCODE_E500MC | PPC_OPCODE_476 \
@@ -3161,7 +3168,6 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 {"machhwu.",	XO (4,	12,0,1), XO_MASK,    MULHW,	0,		{RT, RA, RB}},
 {"ps_muls1",	A  (4,	13,0),	AFRB_MASK,   PPCPS,	0,		{FRT, FRA, FRC}},
 {"ps_muls1.",	A  (4,	13,1),	AFRB_MASK,   PPCPS,	0,		{FRT, FRA, FRC}},
-{"rldixor",	VXASH(4,26),	VXASH_MASK,  POWER9,	0,		{RA, RS, SH6, RB}},
 {"ps_madds0",	A  (4,	14,0),	A_MASK,	     PPCPS,	0,		{FRT, FRA, FRC, FRB}},
 {"ps_madds0.",	A  (4,	14,1),	A_MASK,	     PPCPS,	0,		{FRT, FRA, FRC, FRB}},
 {"ps_madds1",	A  (4,	15,0),	A_MASK,	     PPCPS,	0,		{FRT, FRA, FRC, FRB}},
@@ -3203,8 +3209,6 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 {"ps_msub.",	A  (4,	28,1),	A_MASK,	     PPCPS,	0,		{FRT, FRA, FRC, FRB}},
 {"ps_madd",	A  (4,	29,0),	A_MASK,	     PPCPS,	0,		{FRT, FRA, FRC, FRB}},
 {"ps_madd.",	A  (4,	29,1),	A_MASK,	     PPCPS,	0,		{FRT, FRA, FRC, FRB}},
-{"xor3",	VXA(4,	54),	VXA_MASK,    POWER9,	0,		{RA, RS, RB, RC}},
-{"nandxor",	VXA(4,	55),	VXA_MASK,    POWER9,	0,		{RA, RS, RB, RC}},
 {"vpermr",	VXA(4,	59),	VXA_MASK,    PPCVEC3,	0,		{VD, VA, VB, VC}},
 {"ps_nmsub",	A  (4,	30,0),	A_MASK,	     PPCPS,	0,		{FRT, FRA, FRC, FRB}},
 {"vaddeuqm",	VXA(4,	60),	VXA_MASK,    PPCVEC2,	0,		{VD, VA, VB, VC}},
@@ -4943,8 +4947,7 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 
 {"dcbfep",	XRT(31,127,0),	XRT_MASK, E500MC|PPCA2, 0,		{RA0, RB}},
 
-{"setb",	VX(31,256),  VXVB_MASK|(3<<16), POWER9,	0,		{RT, BFA}},
-{"setbool",	VX(31,257),  VXVB_MASK,         POWER9,	0,		{RT, BA}},
+{"setb",	X(31,128),	XRB_MASK|(3<<16), POWER9, 0,		{RT, BFA}},
 
 {"wrtee",	X(31,131), XRARB_MASK, PPC403|BOOKE|PPCA2|PPC476, 0,	{RS}},
 
@@ -4994,8 +4997,6 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 
 {"prtyw",	X(31,154),    XRB_MASK, POWER6|PPCA2|PPC476, 0,		{RA, RS}},
 
-{"brw",		X(31,155),	XRB_MASK,    POWER9,	0,		{RA, RS}},
-
 {"stdepx",	X(31,157),	X_MASK,	  E500MC|PPCA2, 0,		{RS, RA0, RB}},
 
 {"stwepx",	X(31,159),	X_MASK,	  E500MC|PPCA2, 0,		{RS, RA0, RB}},
@@ -5008,7 +5009,6 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 {"sthfcmx",	APU(31,167,0),	APU_MASK,    PPC405,	0,		{FCRT, RA, RB}},
 
 {"addex",	ZRC(31,170,0),	Z2_MASK,     POWER9,	0,		{RT, RA, RB, CY}},
-{"addex.",	ZRC(31,170,1),	Z2_MASK,     POWER9,	0,		{RT, RA, RB, CY}},
 
 {"msgclrp",	XRTRA(31,174,0,0), XRTRA_MASK, POWER8,	0,		{RB}},
 {"dcbtlse",	X(31,174),	X_MASK,	     PPCCHLK,	E500MC,		{CT, RA0, RB}},
@@ -5032,8 +5032,6 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 {"sliq.",	XRC(31,184,1),	X_MASK,	     M601,	0,		{RA, RS, SH}},
 
 {"prtyd",	X(31,186),	XRB_MASK, POWER6|PPCA2,	0,		{RA, RS}},
-
-{"brd",		X(31,187),	XRB_MASK,    POWER9,	0,		{RA, RS}},
 
 {"cmprb",	X(31,192),	XCMP_MASK,   POWER9,	0,		{BF, L, RA, RB}},
 
@@ -5072,8 +5070,6 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 
 {"sleq",	XRC(31,217,0),	X_MASK,	     M601,	0,		{RA, RS, RB}},
 {"sleq.",	XRC(31,217,1),	X_MASK,	     M601,	0,		{RA, RS, RB}},
-
-{"brh",		X(31,219),	XRB_MASK,    POWER9,	0,		{RA, RS}},
 
 {"stbepx",	X(31,223),	X_MASK,	  E500MC|PPCA2, 0,		{RS, RA0, RB}},
 
@@ -5541,8 +5537,6 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 
 {"mtvsrdd",	X(31,435),	XX1_MASK,    PPCVSX3,	0,		{XT6, RA0, RB}},
 
-{"lwzmx",	X(31,437),	X_MASK,	     POWER9,	0,		{RT, RA0, RB}},
-
 {"ecowx",	X(31,438),	X_MASK,	     PPC,	E500|TITAN,	{RT, RA0, RB}},
 
 {"sthux",	X(31,439),	X_MASK,	     COM,	0,		{RS, RAS, RB}},
@@ -5815,6 +5809,7 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 
 {"mcrxr",	X(31,512),	XBFRARB_MASK, COM,	POWER7,		{BF}},
 
+{"lbdcbx",	X(31,514),	X_MASK,      E200Z4,	0,		{RT, RA, RB}},
 {"lbdx",	X(31,515),	X_MASK,	     E500MC,	0,		{RT, RA, RB}},
 
 {"bblels",	X(31,518),	X_MASK,	     PPCBRLK,	0,		{0}},
@@ -5865,6 +5860,7 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 {"maskir",	XRC(31,541,0),	X_MASK,	     M601,	0,		{RA, RS, RB}},
 {"maskir.",	XRC(31,541,1),	X_MASK,	     M601,	0,		{RA, RS, RB}},
 
+{"lhdcbx",	X(31,546),	X_MASK,      E200Z4,	0,		{RT, RA, RB}},
 {"lhdx",	X(31,547),	X_MASK,	     E500MC,	0,		{RT, RA, RB}},
 
 {"lvtrx",	X(31,549),	X_MASK,	     PPCVEC2,	0,		{VD, RA0, RB}},
@@ -5888,6 +5884,7 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 
 {"mcrxrx",	X(31,576),     XBFRARB_MASK, POWER9,	0,		{BF}},
 
+{"lwdcbx",	X(31,578),	X_MASK,      E200Z4,	0,		{RT, RA, RB}},
 {"lwdx",	X(31,579),	X_MASK,	     E500MC,	0,		{RT, RA, RB}},
 
 {"lvtlx",	X(31,581),	X_MASK,	     PPCVEC2,	0,		{VD, RA0, RB}},
@@ -5906,8 +5903,8 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 {"hwsync",	XSYNC(31,598,0), 0xffffffff, POWER4,	BOOKE|PPC476,	{0}},
 {"lwsync",	XSYNC(31,598,1), 0xffffffff, PPC,	E500,		{0}},
 {"ptesync",	XSYNC(31,598,2), 0xffffffff, PPC64,	0,		{0}},
-{"sync",	X(31,598),     XSYNCLE_MASK, POWER9|E6500, 0,		{LS, ESYNC}},
-{"sync",	X(31,598),     XSYNC_MASK, PPCCOM, BOOKE|PPC476|POWER9, {LS}},
+{"sync",	X(31,598),     XSYNCLE_MASK, E6500,	0,		{LS, ESYNC}},
+{"sync",	X(31,598),     XSYNC_MASK,   PPCCOM,	BOOKE|PPC476,	{LS}},
 {"msync",	X(31,598),     0xffffffff, BOOKE|PPCA2|PPC476, 0,	{0}},
 {"sync",	X(31,598),     0xffffffff,   BOOKE|PPC476, E6500,	{0}},
 {"lwsync",	X(31,598),     0xffffffff,   E500,	0,		{0}},
@@ -5938,6 +5935,7 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 
 {"lfdux",	X(31,631),	X_MASK,	     COM,	PPCEFS,		{FRT, RAS, RB}},
 
+{"stbdcbx",	X(31,642),	X_MASK,      E200Z4,	0,		{RS, RA, RB}},
 {"stbdx",	X(31,643),	X_MASK,	     E500MC,	0,		{RS, RA, RB}},
 
 {"stvlx",	X(31,647),	X_MASK,	     CELL,	0,		{VS, RA0, RB}},
@@ -5975,6 +5973,7 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 {"sre",		XRC(31,665,0),	X_MASK,	     M601,	0,		{RA, RS, RB}},
 {"sre.",	XRC(31,665,1),	X_MASK,	     M601,	0,		{RA, RS, RB}},
 
+{"sthdcbx",	X(31,674),	X_MASK,      E200Z4,	0,		{RS, RA, RB}},
 {"sthdx",	X(31,675),	X_MASK,	     E500MC,	0,		{RS, RA, RB}},
 
 {"stvfrx",	X(31,677),	X_MASK,	     PPCVEC2,	0,		{VS, RA0, RB}},
@@ -5992,6 +5991,7 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 {"sriq",	XRC(31,696,0),	X_MASK,	     M601,	0,		{RA, RS, SH}},
 {"sriq.",	XRC(31,696,1),	X_MASK,	     M601,	0,		{RA, RS, SH}},
 
+{"stwdcbx",	X(31,706),	X_MASK,	     E200Z4,	0,		{RS, RA, RB}},
 {"stwdx",	X(31,707),	X_MASK,	     E500MC,	0,		{RS, RA, RB}},
 
 {"stvflx",	X(31,709),	X_MASK,	     PPCVEC2,	0,		{VS, RA0, RB}},
@@ -6072,8 +6072,7 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 
 {"lvsm",	X(31,773),	X_MASK,	     PPCVEC2,	0,		{VD, RA0, RB}},
 
-{"copy_first",	XOPL(31,774,1),	XRT_MASK,    POWER9,	0,		{RA0, RB}},
-{"copy",	X(31,774),	XLRT_MASK,   POWER9,	0,		{RA0, RB, L}},
+{"copy",	XOPL(31,774,1),	XRT_MASK,    POWER9,	0,		{RA0, RB}},
 
 {"stvepxl",	X(31,775),	X_MASK,	     PPCVEC2,	0,		{VS, RA0, RB}},
 {"lvlxl",	X(31,775),	X_MASK,	     CELL,	0,		{VD, RA0, RB}},
@@ -6143,7 +6142,7 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 
 {"lvtlxl",	X(31,837),	X_MASK,	     PPCVEC2,	0,		{VD, RA0, RB}},
 
-{"cp_abort",	X(31,838),	XRTRARB_MASK,POWER9,	0,		{0}},
+{"cpabort",	X(31,838),	XRTRARB_MASK,POWER9,	0,		{0}},
 
 {"divo",	XO(31,331,1,0),	XO_MASK,     M601,	0,		{RT, RA, RB}},
 {"divo.",	XO(31,331,1,1),	XO_MASK,     M601,	0,		{RT, RA, RB}},
@@ -6155,6 +6154,7 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 
 {"tlbsrx.",	XRC(31,850,1),	XRT_MASK,    PPCA2,	0,		{RA0, RB}},
 
+{"slbiag",	X(31,850),	XRARB_MASK,  POWER9,	0,		{RS}},
 {"slbmfev",	X(31,851),	XRLA_MASK,   POWER9,	0,		{RT, RB, A_L}},
 {"slbmfev",	X(31,851),	XRA_MASK,    PPC64,	POWER9,		{RT, RB}},
 
@@ -6190,9 +6190,7 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 {"extswsli",	XS(31,445,0),	XS_MASK,     POWER9,	0,		{RA, RS, SH6}},
 {"extswsli.",	XS(31,445,1),	XS_MASK,     POWER9,	0,		{RA, RS, SH6}},
 
-{"paste",	XRC(31,902,0),	XLRT_MASK,   POWER9,	0,		{RA0, RB, L0}},
-{"paste_last",	XRCL(31,902,1,1),XRT_MASK,   POWER9,	0,		{RA0, RB}},
-{"paste.",	XRC(31,902,1),	XLRT_MASK,   POWER9,	0,		{RA0, RB, L1}},
+{"paste.",	XRCL(31,902,1,1),XRT_MASK,   POWER9,	0,		{RA0, RB}},
 
 {"stvlxl",	X(31,903),	X_MASK,	     CELL,	0,		{VS, RA0, RB}},
 {"stdfcmux",	APU(31,903,0),	APU_MASK,    PPC405,	0,		{FCRT, RA, RB}},
@@ -7070,7 +7068,9 @@ const struct powerpc_opcode vle_opcodes[] = {
 {"se_cmphl",	SE_RR(3,3),	SE_RR_MASK,	PPCVLE,	0,		{RX, RY}},
 
 {"e_cmpi",	SCI8BF(6,0,21),	SCI8BF_MASK,	PPCVLE,	0,		{CRD32, RA, SCLSCI8}},
+{"e_cmpwi",	SCI8BF(6,0,21),	SCI8BF_MASK,	PPCVLE,	0,		{CRD32, RA, SCLSCI8}},
 {"e_cmpli",	SCI8BF(6,1,21),	SCI8BF_MASK,	PPCVLE,	0,		{CRD32, RA, SCLSCI8}},
+{"e_cmplwi",	SCI8BF(6,1,21),	SCI8BF_MASK,	PPCVLE,	0,		{CRD32, RA, SCLSCI8}},
 {"e_addi",	SCI8(6,16),	SCI8_MASK,	PPCVLE,	0,		{RT, RA, SCLSCI8}},
 {"e_subi",	SCI8(6,16),	SCI8_MASK,	PPCVLE,	0,		{RT, RA, SCLSCI8N}},
 {"e_addi.",	SCI8(6,17),	SCI8_MASK,	PPCVLE,	0,		{RT, RA, SCLSCI8}},
@@ -7097,6 +7097,16 @@ const struct powerpc_opcode vle_opcodes[] = {
 {"e_sthu",	OPVUP(6,5),	OPVUP_MASK,	PPCVLE,	0,		{RT, D8, RA0}},
 {"e_stwu",	OPVUP(6,6),	OPVUP_MASK,	PPCVLE,	0,		{RT, D8, RA0}},
 {"e_stmw",	OPVUP(6,9),	OPVUP_MASK,	PPCVLE,	0,		{RT, D8, RA0}},
+{"e_ldmvgprw",	OPVUPRT(6,16,0),OPVUPRT_MASK,	PPCVLE,	0,		{D8, RA0}},
+{"e_stmvgprw",	OPVUPRT(6,17,0),OPVUPRT_MASK,	PPCVLE,	0,		{D8, RA0}},
+{"e_ldmvsprw",	OPVUPRT(6,16,1),OPVUPRT_MASK,	PPCVLE,	0,		{D8, RA0}},
+{"e_stmvsprw",	OPVUPRT(6,17,1),OPVUPRT_MASK,	PPCVLE,	0,		{D8, RA0}},
+{"e_ldmvsrrw",	OPVUPRT(6,16,4),OPVUPRT_MASK,	PPCVLE,	0,		{D8, RA0}},
+{"e_stmvsrrw",	OPVUPRT(6,17,4),OPVUPRT_MASK,	PPCVLE,	0,		{D8, RA0}},
+{"e_ldmvcsrrw",	OPVUPRT(6,16,5),OPVUPRT_MASK,	PPCVLE,	0,		{D8, RA0}},
+{"e_stmvcsrrw",	OPVUPRT(6,17,5),OPVUPRT_MASK,	PPCVLE,	0,		{D8, RA0}},
+{"e_ldmvdsrrw",	OPVUPRT(6,16,6),OPVUPRT_MASK,	PPCVLE,	0,		{D8, RA0}},
+{"e_stmvdsrrw",	OPVUPRT(6,17,6),OPVUPRT_MASK,	PPCVLE,	0,		{D8, RA0}},
 {"e_add16i",	OP(7),		OP_MASK,	PPCVLE,	0,		{RT, RA, SI}},
 {"e_la",	OP(7),		OP_MASK,	PPCVLE,	0,		{RT, D, RA0}},
 {"e_sub16i",	OP(7),		OP_MASK,	PPCVLE,	0,		{RT, RA, NSI}},
@@ -7144,10 +7154,8 @@ const struct powerpc_opcode vle_opcodes[] = {
 {"e_cmphl16i",	IA16(28,23),	IA16_MASK,	PPCVLE,	0,		{RA, VLEUIMM}},
 {"e_cmph16i",	IA16(28,22),	IA16_MASK,	PPCVLE,	0,		{RA, VLESIMM}},
 {"e_cmpl16i",	I16A(28,21),	I16A_MASK,	PPCVLE,	0,		{RA, VLEUIMM}},
-{"e_cmplwi",	I16A(28,21),	I16A_MASK,	PPCVLE,	0,		{RA, VLESIMM}},
 {"e_mull2i",	I16A(28,20),	I16A_MASK,	PPCVLE,	0,		{RA, VLESIMM}},
 {"e_cmp16i",	IA16(28,19),	IA16_MASK,	PPCVLE,	0,		{RA, VLESIMM}},
-{"e_cmpwi",	IA16(28,19),	IA16_MASK,	PPCVLE,	0,		{RA, VLESIMM}},
 {"e_sub2is",	I16A(28,18),	I16A_MASK,	PPCVLE,	0,		{RA, VLENSIMM}},
 {"e_add2is",	I16A(28,18),	I16A_MASK,	PPCVLE,	0,		{RA, VLESIMM}},
 {"e_sub2i.",	I16A(28,17),	I16A_MASK,	PPCVLE,	0,		{RA, VLENSIMM}},
