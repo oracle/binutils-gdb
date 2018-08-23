@@ -366,6 +366,8 @@ main (void)
 	min_cpu = S390_OPCODE_ZEC12;
       else if (strcmp (cpu_string, "z13") == 0)
 	min_cpu = S390_OPCODE_Z13;
+      else if (strcmp (cpu_string, "arch12") == 0)
+	min_cpu = S390_OPCODE_ARCH12;
       else {
 	fprintf (stderr, "Couldn't parse cpu string %s\n", cpu_string);
 	exit (1);
@@ -409,6 +411,10 @@ main (void)
 		&& (str[2] == 0 || str[2] == ',')) {
 	      flag_bits |= S390_INSTR_FLAG_VX;
 	      str += 2;
+	    } else if (strncmp (str, "vx2", 3) == 0
+		&& (str[3] == 0 || str[3] == ',')) {
+	      flag_bits |= S390_INSTR_FLAG_VX2;
+	      str += 3;
 	    } else {
 	      fprintf (stderr, "Couldn't parse flags string %s\n",
 		       flags_string);
