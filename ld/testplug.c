@@ -238,10 +238,11 @@ parse_symdefstr (const char *str, struct ld_plugin_symbol *sym)
     sym->version = NULL;
   if (colon5 && colon5[1])
     {
-      sym->comdat_key = malloc (strlen (colon5 + 1) + 1);
+      ++colon5;
+      sym->comdat_key = malloc (strlen (colon5) + 1);
       if (!sym->comdat_key)
 	return LDPS_ERR;
-      strcpy (sym->comdat_key, colon5 + 1);
+      strcpy (sym->comdat_key, colon5);
     }
   else
     sym->comdat_key = 0;
