@@ -3982,7 +3982,9 @@ elf_i386_relocate_section (bfd *output_bfd,
 			      - gotplt->output_section->vma
 			      - gotplt->output_offset);
 
-	      if ((*(contents + rel->r_offset - 1) & 0xc7) == 0x5)
+	      if (rel->r_offset > 1
+		  && (*(contents + rel->r_offset - 1) & 0xc7) == 0x5
+		  && *(contents + rel->r_offset - 2) != 0x8d)
 		{
 		  if (bfd_link_pic (info))
 		    goto disallow_got32;
@@ -4252,7 +4254,9 @@ r_386_got32:
 
 	  relocation = (htab->elf.sgot->output_section->vma
 			+ htab->elf.sgot->output_offset + off);
-	  if ((*(contents + rel->r_offset - 1) & 0xc7) == 0x5)
+	  if (rel->r_offset > 1
+	      && (*(contents + rel->r_offset - 1) & 0xc7) == 0x5
+	      && *(contents + rel->r_offset - 2) != 0x8d)
 	    {
 	      if (bfd_link_pic (info))
 		{
