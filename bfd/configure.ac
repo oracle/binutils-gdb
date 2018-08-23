@@ -172,11 +172,13 @@ if test "x${ac_cv_sizeof_long}" = "x8"; then
   BFD_HOST_64BIT_LONG=1
   test -n "${HOST_64BIT_TYPE}" || HOST_64BIT_TYPE="long"
   test -n "${HOST_U_64BIT_TYPE}" || HOST_U_64BIT_TYPE="unsigned long"
-elif test "x${ac_cv_sizeof_long_long}" = "x8"; then
+fi
+if test "x${ac_cv_sizeof_long_long}" = "x8"; then
   BFD_HOST_64BIT_LONG_LONG=1
   test -n "${HOST_64BIT_TYPE}" || HOST_64BIT_TYPE="long long"
   test -n "${HOST_U_64BIT_TYPE}" || HOST_U_64BIT_TYPE="unsigned long long"
-  if test "x${ac_cv_sizeof_void_p}" = "x8"; then
+  if test "x${ac_cv_sizeof_void_p}" = "x8" \
+          -a "x${ac_cv_sizeof_long}" != "x8"; then
     BFD_HOSTPTR_T="unsigned long long"
   fi
 fi
