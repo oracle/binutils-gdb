@@ -5195,6 +5195,13 @@ display_debug_ranges (struct dwarf_section *section,
 	  continue;
 	}
 
+      if (next < section_begin || next >= finish)
+	{
+	  warn (_("Corrupt offset (%#8.8lx) in range entry %u\n"),
+		(unsigned long) offset, i);
+	  continue;
+	}
+
       if (dwarf_check != 0 && i > 0)
 	{
 	  if (start < next)
