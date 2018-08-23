@@ -370,9 +370,10 @@ elf_s390_info_to_howto (bfd *abfd ATTRIBUTE_UNUSED,
 	{
 	  (*_bfd_error_handler) (_("%B: invalid relocation type %d"),
 				 abfd, (int) r_type);
-	  r_type = R_390_NONE;
+	  cache_ptr->howto = NULL;
 	}
-      cache_ptr->howto = &elf_howto_table[r_type];
+      else
+	cache_ptr->howto = &elf_howto_table[r_type];
     }
 }
 
