@@ -531,6 +531,13 @@ run_cc_link_tests [list \
     ] \
 ]
 
+# IFUNC support for AArch64 is still experimental, and in particular
+# function resolution is not yet stable.  So skip these tests for now.
+# NC Feb 2017.
+if {[istarget "aarch64-*-*"]} {
+    return
+}
+
 run_ld_link_exec_tests [] [list \
     [list \
 	"Run pr18808" \
