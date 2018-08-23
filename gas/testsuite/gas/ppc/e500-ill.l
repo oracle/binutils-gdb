@@ -5,4 +5,3 @@
 .*: Error: unrecognized opcode: `mfdcr'
 .*: Error: unrecognized opcode: `mtdcr'
 .*: Error: unrecognized opcode: `tlbia'
-.*: Error: unrecognized opcode: `tlbie'

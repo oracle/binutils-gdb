@@ -75,6 +75,5 @@ Disassembly of section \.text:
 .*:	(7c 00 03 e4|e4 03 00 7c) 	slbia   
 .*:	(7c e0 03 e4|e4 03 e0 7c) 	slbia   7
 .*:	(7c 00 52 64|64 52 00 7c) 	tlbie   r10
-.*:	(7c 00 52 64|64 52 00 7c) 	tlbie   r10
 .*:	(7c 20 52 64|64 52 20 7c) 	tlbie   r10,1
 #pass
