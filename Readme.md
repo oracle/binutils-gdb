@@ -12,6 +12,6 @@
     upstream. These branches offer a convenient way to view accepted 
     contributions by Oracle developers in full context.
     
-    The code in this repository is to be considered as a technology preview 
+    The code in this repository is to be considered a technology preview 
     and is not officially supported. 
     
