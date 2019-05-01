@@ -1,5 +1,6 @@
 
-    This is an unofficial mirror of the sourceware binutils-gdb repository. 
+    This is an unofficial mirror of the http://sourceware.org/git/binutils-gdb.git
+    binutils-gdb repository. 
     In addition to frequent updates from the upstream source, it contains:
 
     1. Branches with patches and work-in-progress from Oracle developers not 
