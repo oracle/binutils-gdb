@@ -1,4 +1,5 @@
 
+    [readme-only-branch readme.md]
     This is an unofficial mirror of the http://sourceware.org/git/binutils-gdb.git
     binutils-gdb repository. 
     In addition to frequent updates from the upstream source, it contains:
