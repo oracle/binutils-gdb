@@ -15,3 +15,6 @@
     The code in this repository is to be considered a technology preview 
     and is not officially supported. 
     
+This file (Readme.md) resides in its own branch due to technical
+requirements of the GitHub software. The contents of this Readme.md
+apply to the all code in this repository which resides in other branches.
