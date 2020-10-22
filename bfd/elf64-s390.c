@@ -3895,8 +3895,13 @@ elf_s390_additional_program_headers (bfd *abfd ATTRIBUTE_UNUSED,
 {
   struct elf_s390_link_hash_table *htab;
 
-  htab = elf_s390_hash_table (info);
-  return htab->params->pgste;
+  if (info)
+    {
+      htab = elf_s390_hash_table (info);
+      if (htab)
+	return htab->params->pgste;
+    }
+  return 0;
 }
 
 
@@ -3908,6 +3913,9 @@ elf_s390_modify_segment_map (bfd *abfd ATTRIBUTE_UNUSED,
 {
   struct elf_s390_link_hash_table *htab;
   struct elf_segment_map *m, *pm = NULL;
+
+  if (!abfd || !info)
+    return TRUE;
 
   htab = elf_s390_hash_table (info);
   if (!htab->params->pgste)
@@ -3944,8 +3952,12 @@ bfd_elf_s390_set_options (struct bfd_link_info *info,
 {
   struct elf_s390_link_hash_table *htab;
 
-  htab = elf_s390_hash_table (info);
-  htab->params = params;
+  if (info)
+    {
+      htab = elf_s390_hash_table (info);
+      if (htab)
+	htab->params = params;
+    }
 
   return TRUE;
 }
