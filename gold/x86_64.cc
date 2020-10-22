@@ -2361,7 +2361,7 @@ Target_x86_64<size>::Scan::check_non_pic(Relobj* object, unsigned int r_type,
 	      && !gsym->is_undefined()
 	      && !gsym->is_preemptible()))
 	return;
-      /* Fall through.  */
+      // Fall through.
     case elfcpp::R_X86_64_32:
       // R_X86_64_32 is OK for x32.
       if (size == 32 && r_type == elfcpp::R_X86_64_32)
@@ -3505,6 +3505,7 @@ Target_x86_64<size>::Relocate::relocate(
   if (this->skip_call_tls_get_addr_)
     {
       if ((r_type != elfcpp::R_X86_64_PLT32
+	   && r_type != elfcpp::R_X86_64_GOTPCREL
 	   && r_type != elfcpp::R_X86_64_GOTPCRELX
 	   && r_type != elfcpp::R_X86_64_PLT32_BND
 	   && r_type != elfcpp::R_X86_64_PC32_BND
@@ -3514,6 +3515,7 @@ Target_x86_64<size>::Relocate::relocate(
 	{
 	  gold_error_at_location(relinfo, relnum, rela.get_r_offset(),
 				 _("missing expected TLS relocation"));
+	  this->skip_call_tls_get_addr_ = false;
 	}
       else
 	{

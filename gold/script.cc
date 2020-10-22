@@ -1755,6 +1755,7 @@ script_keyword_parsecodes[] =
   { "FLOAT", FLOAT },
   { "FORCE_COMMON_ALLOCATION", FORCE_COMMON_ALLOCATION },
   { "GROUP", GROUP },
+  { "HIDDEN", HIDDEN },
   { "HLL", HLL },
   { "INCLUDE", INCLUDE },
   { "INFO", INFO },

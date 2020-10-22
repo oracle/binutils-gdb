@@ -23,6 +23,6 @@
 
 set -e
 
-egrep -q "..debug_mac[ro|info][ ]+*" pr18689.stdout
+egrep -q "..debug_str[ ]+*" pr18689.stdout
 
 exit 0
