@@ -385,7 +385,7 @@ elf_i386_rtype_to_howto (bfd *abfd, unsigned r_type)
     {
       (*_bfd_error_handler) (_("%B: invalid relocation type %d"),
 			     abfd, (int) r_type);
-      indx = R_386_NONE;
+      return NULL;
     }
   /* PR 17512: file: 0f67f69d.  */
   if (elf_howto_table [indx].type != r_type)

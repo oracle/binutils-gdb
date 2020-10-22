@@ -2492,9 +2492,12 @@ ppc64_elf_info_to_howto (bfd *abfd ATTRIBUTE_UNUSED, arelent *cache_ptr,
     {
       (*_bfd_error_handler) (_("%B: invalid relocation type %d"),
 			     abfd, (int) type);
-      type = R_PPC64_NONE;
+      cache_ptr->howto = NULL;
     }
-  cache_ptr->howto = ppc64_elf_howto_table[type];
+  else
+    cache_ptr->howto = ppc64_elf_howto_table[type];
+  if (cache_ptr->howto == NULL || cache_ptr->howto->name == NULL)
+    _bfd_error_handler (_("%B: invalid relocation type %d"), abfd, type);
 }
 
 /* Handle the R_PPC64_ADDR16_HA and similar relocs.  */
