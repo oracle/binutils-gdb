@@ -1049,8 +1049,8 @@ DISTCLEANFILES = $(BUILD_CFILES) $(BUILD_HFILES) libtool-soversion
 bfdver.h: $(srcdir)/version.h $(srcdir)/development.sh $(srcdir)/Makefile.in
 	@echo "creating $@"
 	@bfd_version=`echo "$(VERSION)" | $(SED) -e 's/\([^\.]*\)\.*\([^\.]*\)\.*\([^\.]*\)\.*\([^\.]*\)\.*\([^\.]*\).*/\1.00\2.00\3.00\4.00\5/' -e 's/\([^\.]*\)\..*\(..\)\..*\(..\)\..*\(..\)\..*\(..\)$$/\1\2\3\4\5/'` ;\
-	bfd_version_string="\"$(VERSION)-%{release}\"" ;\
-	bfd_soversion="$(VERSION)-%{release}" ;\
+	bfd_version_string="\"$(VERSION)-44.base.0.400.el7\"" ;\
+	bfd_soversion="$(VERSION)-44.base.0.400.el7" ;\
 	bfd_version_package="\"$(PKGVERSION)\"" ;\
 	report_bugs_to="\"$(REPORT_BUGS_TO)\"" ;\
 	. $(srcdir)/development.sh ;\

@@ -3651,7 +3651,7 @@ fi
 
 
 # Define the identity of the package.
- PACKAGE='gprof'
+ PACKAGE=arm-unknown-linux-gnueabi-'gprof'
  VERSION='2.27'
 
 
@@ -11381,7 +11381,7 @@ fi
 
 
 case "${host}" in
-  sparc-*-solaris*|i[3-7]86-*-solaris*)
+  sparc-*-solaris*|i[34567]86-*-solaris*)
     # On native 32bit sparc and ia32 solaris, large-file and procfs support
     # are mutually exclusive; and without procfs support, the bfd/ elf module
     # cannot provide certain routines such as elfcore_write_prpsinfo

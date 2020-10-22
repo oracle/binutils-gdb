@@ -1345,7 +1345,7 @@ Target::Target_info Target_powerpc<32, true>::powerpc_info =
   "/usr/lib/ld.so.1",	// dynamic_linker
   0x10000000,		// default_text_segment_address
   64 * 1024,		// abi_pagesize (overridable by -z max-page-size)
-  4 * 1024,		// common_pagesize (overridable by -z common-page-size)
+  64 * 1024,		// common_pagesize (overridable by -z common-page-size)
   false,		// isolate_execinstr
   0,			// rosegment_gap
   elfcpp::SHN_UNDEF,	// small_common_shndx
@@ -1373,7 +1373,7 @@ Target::Target_info Target_powerpc<32, false>::powerpc_info =
   "/usr/lib/ld.so.1",	// dynamic_linker
   0x10000000,		// default_text_segment_address
   64 * 1024,		// abi_pagesize (overridable by -z max-page-size)
-  4 * 1024,		// common_pagesize (overridable by -z common-page-size)
+  64 * 1024,		// common_pagesize (overridable by -z common-page-size)
   false,		// isolate_execinstr
   0,			// rosegment_gap
   elfcpp::SHN_UNDEF,	// small_common_shndx
@@ -1401,7 +1401,7 @@ Target::Target_info Target_powerpc<64, true>::powerpc_info =
   "/usr/lib/ld.so.1",	// dynamic_linker
   0x10000000,		// default_text_segment_address
   64 * 1024,		// abi_pagesize (overridable by -z max-page-size)
-  4 * 1024,		// common_pagesize (overridable by -z common-page-size)
+  64 * 1024,		// common_pagesize (overridable by -z common-page-size)
   false,		// isolate_execinstr
   0,			// rosegment_gap
   elfcpp::SHN_UNDEF,	// small_common_shndx
@@ -1429,7 +1429,7 @@ Target::Target_info Target_powerpc<64, false>::powerpc_info =
   "/usr/lib/ld.so.1",	// dynamic_linker
   0x10000000,		// default_text_segment_address
   64 * 1024,		// abi_pagesize (overridable by -z max-page-size)
-  4 * 1024,		// common_pagesize (overridable by -z common-page-size)
+  64 * 1024,		// common_pagesize (overridable by -z common-page-size)
   false,		// isolate_execinstr
   0,			// rosegment_gap
   elfcpp::SHN_UNDEF,	// small_common_shndx

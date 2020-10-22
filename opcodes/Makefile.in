@@ -610,8 +610,8 @@ libopcodes_la_SOURCES = dis-buf.c disassemble.c dis-init.c
 # old version of libbfd, or to pick up libbfd for the wrong architecture
 # if host != build. So for building with shared libraries we use a
 # hardcoded path to libbfd.so instead of relying on the entries in libbfd.la.
-libopcodes_la_DEPENDENCIES = $(OFILES) @SHARED_DEPENDENCIES@
-libopcodes_la_LIBADD = $(OFILES) @SHARED_LIBADD@
+libopcodes_la_DEPENDENCIES = $(OFILES) @SHARED_DEPENDENCIES@ ../bfd/libbfd.la
+libopcodes_la_LIBADD = $(OFILES) @SHARED_LIBADD@ ../bfd/libbfd.la
 # Allow dependency tracking to work on all the source files.
 EXTRA_libopcodes_la_SOURCES = $(LIBOPCODES_CFILES)
 

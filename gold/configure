@@ -3201,7 +3201,7 @@ fi
 
 
 # Define the identity of the package.
- PACKAGE='gold'
+ PACKAGE=arm-unknown-linux-gnueabi-'gold'
  VERSION='0.1'
 
 

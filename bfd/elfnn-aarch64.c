@@ -9367,7 +9367,7 @@ const struct elf_size_info elfNN_aarch64_size_info =
 #define ELF_MACHINE_CODE		EM_AARCH64
 #define ELF_MAXPAGESIZE			0x10000
 #define ELF_MINPAGESIZE			0x1000
-#define ELF_COMMONPAGESIZE		0x1000
+#define ELF_COMMONPAGESIZE		0x10000
 
 #define bfd_elfNN_close_and_cleanup             \
   elfNN_aarch64_close_and_cleanup

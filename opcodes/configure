@@ -3717,7 +3717,7 @@ fi
 
 
 # Define the identity of the package.
- PACKAGE='opcodes'
+ PACKAGE=arm-unknown-linux-gnueabi-'opcodes'
  VERSION='2.27'
 
 

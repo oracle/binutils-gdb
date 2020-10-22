@@ -2798,7 +2798,7 @@ fi
 
 
 # Define the identity of the package.
- PACKAGE=zlib
+ PACKAGE=arm-unknown-linux-gnueabi-zlib
  VERSION=1.1.4
 
 
