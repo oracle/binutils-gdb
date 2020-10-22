@@ -11110,7 +11110,7 @@ _bfd_elf_slurp_secondary_reloc_section (bfd *      abfd,
   bfd_vma (*r_sym) (bfd_vma);
 
 
-#ifdef BFD64
+#if BFD_DEFAULT_TARGET_SIZE > 32
   if (bfd_arch_bits_per_address (abfd) != 32)
     r_sym = elf64_r_sym;
   else
@@ -11297,7 +11297,7 @@ _bfd_elf_write_secondary_reloc_section (bfd *abfd, asection *sec)
   asection * relsec;
   bfd_vma (*r_info) (bfd_vma, bfd_vma);
 
-#ifdef BFD64
+#if BFD_DEFAULT_TARGET_SIZE > 32
   if (bfd_arch_bits_per_address (abfd) != 32)
     r_info = elf64_r_info;
   else
