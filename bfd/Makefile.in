@@ -378,6 +378,7 @@ libbfd_la_LDFLAGS = $(am__append_1) -release `cat libtool-soversion` \
 @INSTALL_LIBBFD_FALSE@bfdinclude_HEADERS = $(am__append_2)
 @INSTALL_LIBBFD_TRUE@bfdinclude_HEADERS = $(BFD_H) \
 @INSTALL_LIBBFD_TRUE@	$(INCDIR)/ansidecl.h $(INCDIR)/symcat.h \
+@INSTALL_LIBBFD_TRUE@	$(INCDIR)/demangle.h \
 @INSTALL_LIBBFD_TRUE@	$(INCDIR)/bfdlink.h $(am__append_2)
 @INSTALL_LIBBFD_FALSE@rpath_bfdlibdir = @bfdlibdir@
 @INSTALL_LIBBFD_FALSE@noinst_LTLIBRARIES = libbfd.la
