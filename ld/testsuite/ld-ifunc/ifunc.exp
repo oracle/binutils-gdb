@@ -563,20 +563,4 @@ run_ld_link_exec_tests [] [list \
 	"pr18841c" \
 	"pr18841.out" \
     ] \
-    [list \
-	"Run pr19784a" \
-	"tmpdir/pr19784a.o tmpdir/libpr19784a.so" \
-	"" \
-	{ dummy.c } \
-	"pr19784a" \
-	"pass.out" \
-    ] \
-    [list \
-	"Run pr19784b" \
-	"--as-needed tmpdir/pr19784a.o tmpdir/libpr19784b.so" \
-	"" \
-	{ dummy.c } \
-	"pr19784b" \
-	"pass.out" \
-    ] \
 ]
