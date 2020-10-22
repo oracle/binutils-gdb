@@ -2382,6 +2382,10 @@ fragment <<EOF
 	  link_info.noexecstack = TRUE;
 	  link_info.execstack = FALSE;
 	}
+      else if (strcmp (optarg, "globalaudit") == 0)
+	{
+	  link_info.flags_1 |= DF_1_GLOBAUDIT;
+	}
 EOF
 
 if test x"$GENERATE_SHLIB_SCRIPT" = xyes; then
