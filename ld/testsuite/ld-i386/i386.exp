@@ -133,13 +133,6 @@ set i386tests {
      {{readelf -Ssrl tlspic.rd} {objdump -drj.text tlspic.dd}
       {objdump -sj.got tlspic.sd} {objdump -sj.tdata tlspic.td}}
       "libtlspic.so"}
-    {"TLS -fpic -shared transitions without PLT"
-     "-shared -melf_i386 --no-ld-generated-unwind-info" ""
-     "-mrelax-relocations=yes --32"
-     {tlspic3.s tlspic2.s}
-     {{readelf -Ssrl tlspic2.rd} {objdump -drj.text tlspic2.dd}
-      {objdump -sj.got tlspic2.sd} {objdump -sj.tdata tlspic2.td}}
-      "libtlspic2.so"}
     {"TLS descriptor -fpic -shared transitions"
      "-shared -melf_i386 --no-ld-generated-unwind-info" ""
      "--32" {tlsdesc.s tlspic2.s}
@@ -154,13 +147,6 @@ set i386tests {
      {{readelf -Ssrl tlsbin.rd} {objdump -drj.text tlsbin.dd}
       {objdump -sj.got tlsbin.sd} {objdump -sj.tdata tlsbin.td}}
       "tlsbin"}
-    {"TLS -fpic and -fno-pic exec transitions without PLT"
-     "-melf_i386 tmpdir/libtlslib.so --no-ld-generated-unwind-info" ""
-     "-mrelax-relocations=yes --32"
-     {tlsbinpic2.s tlsbin.s}
-     {{readelf -Ssrl tlsbin2.rd} {objdump -drj.text tlsbin2.dd}
-      {objdump -sj.got tlsbin2.sd} {objdump -sj.tdata tlsbin2.td}}
-      "tlsbin2"}
     {"TLS descriptor -fpic and -fno-pic exec transitions"
      "-melf_i386 tmpdir/libtlslib.so --no-ld-generated-unwind-info" ""
      "--32" {tlsbindesc.s tlsbin.s}
@@ -191,17 +177,9 @@ set i386tests {
     {"TLS GD->LE transition" "-melf_i386" ""
      "--32" {tlsgd1.s}
      {{objdump -dwr tlsgd1.dd}} "tlsgd1"}
-    {"TLS GD->LE transition without PLT" "-melf_i386" ""
-     "-mrelax-relocations=yes --32"
-     {tlsgd3.s}
-     {{objdump -dwr tlsgd3.dd}} "tlsgd3"}
     {"TLS LD->LE transition" "-melf_i386" ""
      "--32" {tlsld1.s}
      {{objdump -dwr tlsld1.dd}} "tlsld1"}
-    {"TLS LD->LE transition without PLT" "-melf_i386" ""
-     "-mrelax-relocations=yes --32"
-     {tlsld2.s}
-     {{objdump -dwr tlsld2.dd}} "tlsld2"}
     {"TLS IE->LE transition" "-melf_i386" ""
      "--32" {tlsie1.s}
      {{objdump -dwr tlsie1.dd}} "tlsie1"}

@@ -2,6 +2,8 @@
 #as: --32 -mrelax-relocations=yes
 #objdump: -dw
 #target: x86_64-*-* i?86-*-*
+#xfail: *-*-*
+# XFAILed because generation of the R_386_GOT32X relocs is currently suppressed.
 
 .*: +file format .*
 

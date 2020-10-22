@@ -4,6 +4,8 @@
 #as: --32 -mrelax-relocations=yes
 #readelf: -r --wide
 #target: x86_64-*-* i?86-*-*
+#xfail: *-*-*
+# XFAILed because generation of the R_386_GOT32X relocs is currently suppressed.
 
 Relocation section '.rel.ifunc' at offset 0x[0-9a-f]+ contains 1 entries:
 [ ]+Offset[ ]+Info[ ]+Type[ ]+.*
