@@ -576,9 +576,12 @@ const struct powerpc_operand powerpc_operands[] =
 #define RD RS
   { 0x1f, 21, NULL, NULL, PPC_OPERAND_GPR },
 
+#define RSLL RS + 1
+  { 0x1f, 21, NULL, NULL, PPC_OPERAND_GPR | PPC_OPERAND_OPTIONAL32 },
+
   /* The RS and RT fields of the DS form stq and DQ form lq instructions,
      which have special value restrictions.  */
-#define RSQ RS + 1
+#define RSQ RSLL + 1
 #define RTQ RSQ
   { 0x1e, 21, NULL, NULL, PPC_OPERAND_GPR },
 
@@ -5138,8 +5141,8 @@ const struct powerpc_opcode powerpc_opcodes[] = {
 {"mfbhrbe",	X(31,302),	X_MASK,	     POWER8,	0,		{RT, BHRBE}},
 
 {"tlbie",	X(31,306),	X_MASK|1<<20,POWER9,	TITAN,		{RB, RS, RIC, PRS, X_R}},
-{"tlbie",	X(31,306),	XRA_MASK,    POWER7,	POWER9|TITAN,	{RB, RS}},
-{"tlbie",	X(31,306),	XRTLRA_MASK, PPC,    E500|POWER7|TITAN,	{RB, L}},
+{"tlbie",	X(31,306),	XRA_MASK,    POWER7,	POWER9|TITAN,	{RB, RSLL}},
+{"tlbie",	X(31,306),	XRTLRA_MASK, PPC,    E500|POWER7|TITAN,	{RB, LOPT}},
 {"tlbi",	X(31,306),	XRT_MASK,    POWER,	0,		{RA0, RB}},
 
 {"mfvsrld",	X(31,307),	XX1RB_MASK,  PPCVSX3,	0,		{RA, XS6}},

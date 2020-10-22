@@ -69,6 +69,5 @@ start:
 	slbia
 	slbia   0
 	slbia   7
-	tlbie   10
 	tlbie   10,0
 	tlbie   10,1

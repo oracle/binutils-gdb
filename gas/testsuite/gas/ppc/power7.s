@@ -98,4 +98,4 @@ power7:
 	mfppr32	  11
 	mtppr	  12
 	mtppr32	  13
-	tlbie     10,11
+
