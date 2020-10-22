@@ -137,6 +137,7 @@ struct work_stuff
   string* previous_argument; /* The last function argument demangled.  */
   int nrepeats;         /* The number of times to repeat the previous
 			   argument.  */
+  unsigned int recursion_level;
 };
 
 #define PRINT_ANSI_QUALIFIERS (work -> options & DMGL_ANSI)
@@ -1237,11 +1238,15 @@ squangle_mop_up (struct work_stuff *work)
     {
       free ((char *) work -> btypevec);
       work->btypevec = NULL;
+      work->bsize = 0;
+      work->numb = 0;
     }
   if (work -> ktypevec != NULL)
     {
       free ((char *) work -> ktypevec);
       work->ktypevec = NULL;
+      work->ksize = 0;
+      work->numk = 0;
     }
 }
 
@@ -1275,8 +1280,15 @@ work_stuff_copy_to_from (struct work_stuff *to, struct work_stuff *from)
 
   for (i = 0; i < from->numk; i++)
     {
-      int len = strlen (from->ktypevec[i]) + 1;
+      int len;
 
+      if (from->ktypevec[i] == NULL)
+	{
+	  to->ktypevec[i] = NULL;
+	  continue;
+	}
+
+      len = strlen (from->ktypevec[i]) + 1;
       to->ktypevec[i] = XNEWVEC (char, len);
       memcpy (to->ktypevec[i], from->ktypevec[i], len);
     }
@@ -1286,8 +1298,15 @@ work_stuff_copy_to_from (struct work_stuff *to, struct work_stuff *from)
 
   for (i = 0; i < from->numb; i++)
     {
-      int len = strlen (from->btypevec[i]) + 1;
+      int len;
 
+      if (from->btypevec[i] == NULL)
+	{
+	  to->btypevec[i] = NULL;
+	  continue;
+	}
+
+      len = strlen (from->btypevec[i]) + 1;
       to->btypevec[i] = XNEWVEC (char , len);
       memcpy (to->btypevec[i], from->btypevec[i], len);
     }
@@ -1335,6 +1354,7 @@ delete_non_B_K_work_stuff (struct work_stuff *work)
 
       free ((char*) work->tmpl_argvec);
       work->tmpl_argvec = NULL;
+      work->ntmpl_args = 0;
     }
   if (work->previous_argument)
     {
@@ -3347,6 +3367,20 @@ demangle_qualified (struct work_stuff *work, const char **mangled,
       success = 0;
     }
 
+  if ((work->options & DMGL_NO_RECURSE_LIMIT) == 0)
+    {
+      /* PR 87241: Catch malicious input that will try to trick this code into
+	 allocating a ridiculous amount of memory via the remember_Ktype()
+	 function.
+	 The choice of DEMANGLE_RECURSION_LIMIT is somewhat arbitrary.  Possibly
+	 a better solution would be to track how much memory remember_Ktype
+	 allocates and abort when some upper limit is reached.  */
+      if (qualifiers > DEMANGLE_RECURSION_LIMIT)
+	/* FIXME: We ought to have some way to tell the user that
+	   this limit has been reached.  */
+	success = 0;
+    }
+
   if (!success)
     return success;
 
@@ -4335,6 +4369,7 @@ remember_Btype (struct work_stuff *work, const char *start,
 }
 
 /* Lose all the info related to B and K type codes. */
+
 static void
 forget_B_and_K_types (struct work_stuff *work)
 {
@@ -4360,6 +4395,7 @@ forget_B_and_K_types (struct work_stuff *work)
 	}
     }
 }
+
 /* Forget the remembered types, but not the type vector itself.  */
 
 static void
@@ -4551,6 +4587,16 @@ demangle_nested_args (struct work_stuff *work, const char **mangled,
   int result;
   int saved_nrepeats;
 
+  if ((work->options & DMGL_NO_RECURSE_LIMIT) == 0)
+    {
+      if (work->recursion_level > DEMANGLE_RECURSION_LIMIT)
+	/* FIXME: There ought to be a way to report
+	   that the recursion limit has been reached.  */
+	return 0;
+
+      work->recursion_level ++;
+    }
+
   /* The G++ name-mangling algorithm does not remember types on nested
      argument lists, unless -fsquangling is used, and in that case the
      type vector updated by remember_type is not used.  So, we turn
@@ -4576,6 +4622,9 @@ demangle_nested_args (struct work_stuff *work, const char **mangled,
   work->previous_argument = saved_previous_argument;
   --work->forgetting_types;
   work->nrepeats = saved_nrepeats;
+
+  if ((work->options & DMGL_NO_RECURSE_LIMIT) == 0)
+    --work->recursion_level;
 
   return result;
 }
