@@ -1713,7 +1713,13 @@ NAME (aout, translate_symbol_table) (bfd *abfd,
       else if (x < strsize)
 	in->symbol.name = str + x;
       else
-	return FALSE;
+       {
+         _bfd_error_handler
+           (_("%B: invalid string offset %lx >= %lx"),
+            abfd, (long) x, (long) strsize);
+         bfd_set_error (bfd_error_bad_value);
+         return FALSE;
+       }
 
       in->symbol.value = GET_SWORD (abfd,  ext->e_value);
       in->desc = H_GET_16 (abfd, ext->e_desc);
@@ -2261,10 +2267,12 @@ NAME (aout, swap_std_reloc_in) (bfd *abfd,
   if (r_baserel)
     r_extern = 1;
 
-  if (r_extern && r_index > symcount)
+  if (r_extern && r_index >= symcount)
     {
       /* We could arrange to return an error, but it might be useful
-         to see the file even if it is bad.  */
+	 to see the file even if it is bad.  FIXME: Of course this
+	 means that objdump -r *doesn't* see the actual reloc, and
+	 objcopy silently writes a different reloc.  */
       r_extern = 0;
       r_index = N_ABS;
     }
