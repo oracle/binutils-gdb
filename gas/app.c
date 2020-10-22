@@ -1187,7 +1187,7 @@ do_scrub_chars (size_t (*get) (char *, size_t), char *tostart, size_t tolen)
 		  state = -2;
 		  break;
 		}
-	      else
+	      else if (ch2 != EOF)
 		{
 		  UNGET (ch2);
 		}
