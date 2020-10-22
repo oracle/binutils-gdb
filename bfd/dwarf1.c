@@ -208,6 +208,7 @@ parse_die (bfd *             abfd,
   /* Then the attributes.  */
   while (xptr < (this_die + aDieInfo->length))
     {
+      unsigned int   block_len;
       unsigned short attr;
 
       /* Parse the attribute based on its form.  This section
@@ -223,12 +224,15 @@ parse_die (bfd *             abfd,
 	  break;
 	case FORM_DATA4:
 	case FORM_REF:
-	  if (attr == AT_sibling)
-	    aDieInfo->sibling = bfd_get_32 (abfd, (bfd_byte *) xptr);
-	  else if (attr == AT_stmt_list)
+	  if (xptr + 4 <= aDiePtrEnd)
 	    {
-	      aDieInfo->stmt_list_offset = bfd_get_32 (abfd, (bfd_byte *) xptr);
-	      aDieInfo->has_stmt_list = 1;
+	      if (attr == AT_sibling)
+		aDieInfo->sibling = bfd_get_32 (abfd, xptr);
+	      else if (attr == AT_stmt_list)
+		{
+		  aDieInfo->stmt_list_offset = bfd_get_32 (abfd, xptr);
+		  aDieInfo->has_stmt_list = 1;
+		}
 	    }
 	  xptr += 4;
 	  break;
@@ -236,22 +240,41 @@ parse_die (bfd *             abfd,
 	  xptr += 8;
 	  break;
 	case FORM_ADDR:
-	  if (attr == AT_low_pc)
-	    aDieInfo->low_pc = bfd_get_32 (abfd, (bfd_byte *) xptr);
-	  else if (attr == AT_high_pc)
-	    aDieInfo->high_pc = bfd_get_32 (abfd, (bfd_byte *) xptr);
+	  if (xptr + 4 <= aDiePtrEnd)
+	    {
+	      if (attr == AT_low_pc)
+		aDieInfo->low_pc = bfd_get_32 (abfd, xptr);
+	      else if (attr == AT_high_pc)
+		aDieInfo->high_pc = bfd_get_32 (abfd, xptr);
+	    }
 	  xptr += 4;
 	  break;
 	case FORM_BLOCK2:
-	  xptr += 2 + bfd_get_16 (abfd, (bfd_byte *) xptr);
+	  if (xptr + 2 <= aDiePtrEnd)
+	    {
+	      block_len = bfd_get_16 (abfd, xptr);
+	      if (xptr + block_len > aDiePtrEnd
+		  || xptr + block_len < xptr)
+		return FALSE;
+	      xptr += block_len;
+	    }
+	  xptr += 2;
 	  break;
 	case FORM_BLOCK4:
-	  xptr += 4 + bfd_get_32 (abfd, (bfd_byte *) xptr);
+	  if (xptr + 4 <= aDiePtrEnd)
+	    {
+	      block_len = bfd_get_32 (abfd, xptr);
+	      if (xptr + block_len > aDiePtrEnd
+		  || xptr + block_len < xptr)
+		return FALSE;
+	      xptr += block_len;
+	    }
+	  xptr += 4;
 	  break;
 	case FORM_STRING:
 	  if (attr == AT_name)
 	    aDieInfo->name = (char *) xptr;
-	  xptr += strlen ((char *) xptr) + 1;
+	  xptr += strnlen ((char *) xptr, aDiePtrEnd - xptr) + 1;
 	  break;
 	}
     }
