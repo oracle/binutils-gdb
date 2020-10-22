@@ -14737,6 +14737,9 @@ ppc64_elf_relocate_section (bfd *output_bfd,
 		{
 		  BFD_ASSERT (h->elf.dynindx != -1);
 		  outrel.r_info = ELF64_R_INFO (h->elf.dynindx, r_type);
+		  if (h->elf.dynindx == -1
+		      && h->elf.root.type == bfd_link_hash_undefweak)
+		    memset (&outrel, 0, sizeof outrel);
 		}
 	      else
 		{
