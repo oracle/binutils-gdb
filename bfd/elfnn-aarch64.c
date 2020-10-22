@@ -4947,6 +4947,7 @@ elfNN_aarch64_final_link_relocate (reloc_howto_type *howto,
      it here if it is defined in a non-shared object.  */
   if (h != NULL
       && h->type == STT_GNU_IFUNC
+      && (input_section->flags & SEC_ALLOC)
       && h->def_regular)
     {
       asection *plt;
