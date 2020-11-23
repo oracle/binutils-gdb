@@ -504,6 +504,11 @@ class Target
   should_include_section(elfcpp::Elf_Word sh_type) const
   { return this->do_should_include_section(sh_type); }
 
+  // Finalize the target-specific properties in the .note.gnu.property section.
+  void
+  finalize_gnu_properties(Layout* layout) const
+  { this->do_finalize_gnu_properties(layout); }
+
  protected:
   // This struct holds the constant information for a child class.  We
   // use a struct to avoid the overhead of virtual function calls for
@@ -806,6 +811,11 @@ class Target
   virtual bool
   do_should_include_section(elfcpp::Elf_Word) const
   { return true; }
+
+  // Finalize the target-specific properties in the .note.gnu.property section.
+  virtual void
+  do_finalize_gnu_properties(Layout*) const
+  { }
 
  private:
   // The implementations of the four do_make_elf_object virtual functions are
@@ -1125,6 +1135,17 @@ class Sized_target : public Target
     elfcpp::Rel<size, big_endian> rel(preloc);
     return elfcpp::elf_r_sym<size>(rel.get_r_info());
   }
+
+  // Record a target-specific program property in the .note.gnu.property
+  // section.
+  virtual void
+  record_gnu_property(int, int, size_t, const unsigned char*, const Object*)
+  { }
+
+  // Merge the target-specific program properties from the current object.
+  virtual void
+  merge_gnu_properties(const Object*)
+  { }
 
  protected:
   Sized_target(const Target::Target_info* pti)
