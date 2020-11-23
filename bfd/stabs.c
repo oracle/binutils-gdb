@@ -377,6 +377,8 @@ _bfd_link_section_stabs (bfd *abfd,
 	  amt = sizeof *ne;
 	  ne = (struct stab_excl_list *) bfd_alloc (abfd, amt);
 	  if (ne == NULL)
+	    /* There is a potential resource leak here, but it is not important.  */
+	    /* coverity[leaked_storage: FALSE] */
 	    goto error_return;
 	  ne->offset = sym - stabbuf;
 	  ne->val = sum_chars;

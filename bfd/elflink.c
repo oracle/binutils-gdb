@@ -10579,6 +10579,8 @@ elf_link_input_bfd (struct elf_final_link_info *flinfo, bfd *input_bfd)
 			   "that references a non-existent global symbol"),
 			 input_bfd, rel->r_info, o);
 		      bfd_set_error (bfd_error_bad_value);
+		      /* There is a potential resource leak here, but it is not important.  */
+		      /* coverity[leaked_storage: FALSE] */
 		      return FALSE;
 		    }
 

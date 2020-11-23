@@ -2844,6 +2844,8 @@ script_parse_option(void* closurev, const char* option, size_t length)
       // The General_options class will quite possibly store a pointer
       // into mutable_option, so we can't free it.  In cases the class
       // does not store such a pointer, this is a memory leak.  Alas. :(
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
     }
   closure->clear_skip_on_incompatible_target();
 }

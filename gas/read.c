@@ -1714,6 +1714,8 @@ read_symbol_name (void)
     {
       as_bad (_("expected symbol name"));
       ignore_rest_of_line ();
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return NULL;
     }
 

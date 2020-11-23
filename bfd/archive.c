@@ -734,6 +734,9 @@ _bfd_get_elt_at_filepos (bfd *archive, file_ptr filepos)
   /* Copy is_linker_input.  */
   n_bfd->is_linker_input = archive->is_linker_input;
 
+  /* Coverity does not realise that _bfd_add_bfd_to_archive_cache actually
+     stores the newly created bfd and so flags a resource leak.  */
+  /* coverity[noescape: FALSE] */
   if (_bfd_add_bfd_to_archive_cache (archive, filepos, n_bfd))
     return n_bfd;
 

@@ -1287,4 +1287,6 @@ cg_print_file_ordering (void)
 	printf ("%s\n", symbol_map[sym_index].file_name);
       last = symbol_map[sym_index].file_name;
     }
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }

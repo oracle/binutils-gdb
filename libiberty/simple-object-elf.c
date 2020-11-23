@@ -1151,6 +1151,8 @@ simple_object_elf_copy_lto_debug_sections (simple_object_read *sobj,
 	  *err = 0;
 	  XDELETEVEC (names);
 	  XDELETEVEC (shdrs);
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return "ELF section name out of range";
 	}
 

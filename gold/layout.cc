@@ -487,6 +487,8 @@ Layout::Layout(int number_of_input_files, Script_options* script_options)
 
   // Initialize structure needed for an incremental build.
   if (parameters->incremental())
+    /* There is a potential resource leak here, but it is not important.  */
+    /* coverity[ctor_dtor_leak: FALSE] */
     this->incremental_inputs_ = new Incremental_inputs;
 
   // The section name pool is worth optimizing in all cases, because
@@ -3239,6 +3241,8 @@ Layout::create_note(const char* name, int note_type,
 						   flags, false, order, false,
 						   false, true);
   if (os == NULL)
+    /* There is a potential resource leak here, but it is not important.  */
+    /* coverity[leaked_storage: FALSE] */
     return NULL;
 
   Output_section_data* posd = new Output_data_const_buffer(buffer, notehdrsz,
@@ -3301,6 +3305,8 @@ Layout::create_gnu_properties_note()
     }
   Output_section_data* posd = new Output_data_const(desc, descsz, 4);
   os->add_output_section_data(posd);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }
 
 // For an executable or shared library, create a note to record the
@@ -4790,6 +4796,8 @@ Layout::create_dynamic_symtab(const Input_objects* input_objects,
 
 	  if (odyn != NULL)
 	    odyn->add_section_address(elfcpp::DT_GNU_HASH, hashsec);
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	}
     }
 
@@ -4824,6 +4832,8 @@ Layout::create_dynamic_symtab(const Input_objects* input_objects,
 
       if (odyn != NULL)
 	odyn->add_section_address(elfcpp::DT_HASH, hashsec);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
     }
 }
 
@@ -5030,6 +5040,8 @@ Layout::create_interp(const Target* target)
 						     false, false, false);
   if (osec != NULL)
     osec->add_output_section_data(odata);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }
 
 // Add dynamic tags for the PLT and the dynamic relocs.  This is

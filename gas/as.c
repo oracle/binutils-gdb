@@ -934,6 +934,8 @@ This program has absolutely no warranty.\n"));
  	case OPTION_AL:
 	  listing |= LISTING_LISTING;
 	  if (optarg)
+	    /* There is a potential resource leak here, but it is not important.  */
+	    /* coverity[overwrite_var: FALSE] */
 	    listing_filename = xstrdup (optarg);
 	  break;
 
@@ -988,6 +990,8 @@ This program has absolutely no warranty.\n"));
 		      listing |= LISTING_SYMBOLS;
 		      break;
 		    case '=':
+		      /* There is a potential resource leak here, but it is not important.  */
+		      /* coverity[overwrite_var: FALSE] */
 		      listing_filename = xstrdup (optarg + 1);
 		      optarg += strlen (listing_filename);
 		      break;
@@ -1021,6 +1025,8 @@ This program has absolutely no warranty.\n"));
 	  }
 
 	case 'o':
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[overwrite_var: FALSE] */
 	  out_file_name = xstrdup (optarg);
 	  break;
 

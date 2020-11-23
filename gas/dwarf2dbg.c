@@ -1664,6 +1664,8 @@ out_file_list (void)
   /* Emit directory list.  */
   for (i = 1; i < dirs_in_use; ++i)
     {
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[overwrite_var: FALSE] */
       dir = remap_debug_filename (dirs[i]);
       size = strlen (dir) + 1;
       cp = frag_more (size);
@@ -1701,6 +1703,8 @@ out_file_list (void)
 
   /* Terminate filename list.  */
   out_byte (0);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }
 
 /* Switch to SEC and output a header length field.  Return the size of
@@ -2115,6 +2119,8 @@ out_debug_str (segT str_seg, symbolS **name_sym, symbolS **comp_dir_sym,
   len = strlen (producer) + 1;
   p = frag_more (len);
   memcpy (p, producer, len);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }
 
 void

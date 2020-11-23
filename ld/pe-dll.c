@@ -1397,6 +1397,8 @@ generate_reloc (bfd *abfd, struct bfd_link_info *info)
 	  if (!bfd_generic_link_read_symbols (b))
 	    {
 	      einfo (_("%B%F: could not read symbols: %E\n"), b);
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return;
 	    }
 
@@ -1585,6 +1587,8 @@ generate_reloc (bfd *abfd, struct bfd_link_info *info)
 
   while (reloc_sz < reloc_s->size)
     reloc_d[reloc_sz++] = 0;
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }
 
 /* Given the exiting def_file structure, print out a .DEF file that
@@ -1973,6 +1977,8 @@ make_head (bfd *parent)
     }
 
   bfd_make_readable (abfd);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return abfd;
 }
 
@@ -2043,6 +2049,8 @@ make_tail (bfd *parent)
   bfd_set_section_contents (abfd, id7, d7, 0, len);
 
   bfd_make_readable (abfd);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return abfd;
 }
 
@@ -2323,6 +2331,8 @@ make_one (def_file_export *exp, bfd *parent, bfd_boolean include_jmp_stub)
     bfd_set_section_contents (abfd, id6, d6, 0, len);
 
   bfd_make_readable (abfd);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return abfd;
 }
 
@@ -2364,6 +2374,8 @@ make_singleton_name_imp (const char *import, bfd *parent)
   bfd_set_section_contents (abfd, id5, d5, 0, PE_IDATA4_SIZE * 2);
 
   bfd_make_readable (abfd);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return abfd;
 }
 
@@ -2406,6 +2418,8 @@ make_singleton_name_thunk (const char *import, bfd *parent)
   bfd_set_section_contents (abfd, id4, d4, 0, PE_IDATA4_SIZE * 2);
 
   bfd_make_readable (abfd);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return abfd;
 }
 
@@ -2491,6 +2505,8 @@ make_import_fixup_entry (const char *name,
   bfd_set_section_contents (abfd, id2, d2, 0, 20);
 
   bfd_make_readable (abfd);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return abfd;
 }
 
@@ -2576,6 +2592,8 @@ make_runtime_pseudo_reloc (const char *name ATTRIBUTE_UNUSED,
       bfd_set_section_contents (abfd, rt_rel, rt_rel_d, 0, 8);
    }
   bfd_make_readable (abfd);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return abfd;
 }
 
@@ -2620,6 +2638,8 @@ pe_create_runtime_relocator_reference (bfd *parent)
   bfd_set_section_contents (abfd, extern_rt_rel, extern_rt_rel_d, 0, PE_IDATA5_SIZE);
 
   bfd_make_readable (abfd);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return abfd;
 }
 
@@ -2929,7 +2949,7 @@ pe_find_cdecl_alias_match (struct bfd_link_info *linfo, char *name)
 	  if (pe_details->underscored)
 	    lname[0] = '_';
 	  else
-	    strcpy (lname, lname + 1);
+	    memmove (lname, lname + 1, strlen (lname) + 1);
 	  key.key = lname;
 	  kv = bsearch (&key, udef_table, undef_count,
 			sizeof (struct key_value), undef_sort_cmp);

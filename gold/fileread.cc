@@ -873,6 +873,8 @@ File_view::~File_view()
 Input_file::Input_file(const char* name)
   : found_name_(), file_(), is_in_sysroot_(false), format_(FORMAT_NONE)
 {
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[ctor_dtor_leak: FALSE] */
   this->input_argument_ =
     new Input_file_argument(name, Input_file_argument::INPUT_FILE_TYPE_FILE,
 			    "", false, Position_dependent_options());
@@ -884,6 +886,8 @@ Input_file::Input_file(const Task* task, const char* name,
 		       const unsigned char* contents, off_t size)
   : file_()
 {
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[ctor_dtor_leak: FALSE] */
   this->input_argument_ =
     new Input_file_argument(name, Input_file_argument::INPUT_FILE_TYPE_FILE,
 			    "", false, Position_dependent_options());

@@ -1043,6 +1043,8 @@ Gdb_index::map_pubtable_to_dies(unsigned int attr,
 
   map->clear();
   if (!table->read_section(object, symbols, symbols_size))
+    /* There is a potential resource leak here, but it is not important.  */
+    /* coverity[leaked_storage: FALSE] */
     return NULL;
 
   while (table->read_header(section_offset))

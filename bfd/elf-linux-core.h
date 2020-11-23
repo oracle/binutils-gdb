@@ -69,7 +69,13 @@ swap_linux_prpsinfo32_ugid32_out
   bfd_put_32 (obfd, from->pr_ppid, to->pr_ppid);
   bfd_put_32 (obfd, from->pr_pgrp, to->pr_pgrp);
   bfd_put_32 (obfd, from->pr_sid, to->pr_sid);
+  /* Coverity flags this strncpy as possibly creating a string
+     that is not NUL terminated.  This is in fact OK.  */
+  /* coverity[buffer_size_warning: FALSE] */
   strncpy (to->pr_fname, from->pr_fname, sizeof (to->pr_fname));
+  /* Coverity flags this strncpy as possibly creating a string
+     that is not NUL terminated.  This is in fact OK.  */
+  /* coverity[buffer_size_warning: FALSE] */
   strncpy (to->pr_psargs, from->pr_psargs, sizeof (to->pr_psargs));
 }
 
@@ -121,7 +127,13 @@ swap_linux_prpsinfo32_ugid16_out
   bfd_put_32 (obfd, from->pr_ppid, to->pr_ppid);
   bfd_put_32 (obfd, from->pr_pgrp, to->pr_pgrp);
   bfd_put_32 (obfd, from->pr_sid, to->pr_sid);
+  /* Coverity flags this strncpy as possibly creating a string
+     that is not NUL terminated.  This is in fact OK.  */
+  /* coverity[buffer_size_warning: FALSE] */
   strncpy (to->pr_fname, from->pr_fname, sizeof (to->pr_fname));
+  /* Coverity flags this strncpy as possibly creating a string
+     that is not NUL terminated.  This is in fact OK.  */
+  /* coverity[buffer_size_warning: FALSE] */
   strncpy (to->pr_psargs, from->pr_psargs, sizeof (to->pr_psargs));
 }
 
@@ -174,7 +186,13 @@ swap_linux_prpsinfo64_ugid32_out
   bfd_put_32 (obfd, from->pr_ppid, to->pr_ppid);
   bfd_put_32 (obfd, from->pr_pgrp, to->pr_pgrp);
   bfd_put_32 (obfd, from->pr_sid, to->pr_sid);
+  /* Coverity flags this strncpy as possibly creating a string
+     that is not NUL terminated.  This is in fact OK.  */
+  /* coverity[buffer_size_warning: FALSE] */
   strncpy (to->pr_fname, from->pr_fname, sizeof (to->pr_fname));
+  /* Coverity flags this strncpy as possibly creating a string
+     that is not NUL terminated.  This is in fact OK.  */
+  /* coverity[buffer_size_warning: FALSE] */
   strncpy (to->pr_psargs, from->pr_psargs, sizeof (to->pr_psargs));
 }
 
@@ -227,7 +245,13 @@ swap_linux_prpsinfo64_ugid16_out
   bfd_put_32 (obfd, from->pr_ppid, to->pr_ppid);
   bfd_put_32 (obfd, from->pr_pgrp, to->pr_pgrp);
   bfd_put_32 (obfd, from->pr_sid, to->pr_sid);
+  /* Coverity flags this strncpy as possibly creating a string
+     that is not NUL terminated.  This is in fact OK.  */
+  /* coverity[buffer_size_warning: FALSE] */
   strncpy (to->pr_fname, from->pr_fname, sizeof (to->pr_fname));
+  /* Coverity flags this strncpy as possibly creating a string
+     that is not NUL terminated.  This is in fact OK.  */
+  /* coverity[buffer_size_warning: FALSE] */
   strncpy (to->pr_psargs, from->pr_psargs, sizeof (to->pr_psargs));
 }
 

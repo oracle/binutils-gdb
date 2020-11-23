@@ -86,6 +86,8 @@ read_debugging_info (bfd *abfd, asymbol **syms, long symcount, bfd_boolean no_me
       if (! no_messages)
 	non_fatal (_("%s: no recognized debugging information"),
 		   bfd_get_filename (abfd));
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return NULL;
     }
 
@@ -300,6 +302,8 @@ read_symbol_stabs_debugging_info (bfd *abfd, asymbol **syms, long symcount,
 
 	  s = i.name;
 	  if (s == NULL || strlen (s) < 1)
+	    /* There is a potential resource leak here, but it is not important.  */
+	    /* coverity[leaked_storage: FALSE] */
 	    return FALSE;
 	  f = NULL;
 

@@ -896,6 +896,8 @@ Sized_relobj_file<size, big_endian>::base_read_symbols(Read_symbols_data* sd)
   if (strtab_shndx >= this->shnum())
     {
       this->error(_("invalid symbol table name index: %u"), strtab_shndx);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return;
     }
   typename This::Shdr strtabshdr(pshdrs + strtab_shndx * This::shdr_size);
@@ -903,6 +905,8 @@ Sized_relobj_file<size, big_endian>::base_read_symbols(Read_symbols_data* sd)
     {
       this->error(_("symbol table name section has wrong type: %u"),
 		  static_cast<unsigned int>(strtabshdr.get_sh_type()));
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return;
     }
 

@@ -9272,6 +9272,8 @@ cmdline_fopen_temp (const char *path, const char *target,
   fd = open (tmpname, O_RDWR | O_CREAT | O_EXCL, 0600);
 #endif
   if (fd == -1)
+    /* There is a potential resource leak here, but it is not important.  */
+    /* coverity[leaked_storage: FALSE] */
     return NULL;
   return bfd_fopen (tmpname, target, mode, fd);
 }

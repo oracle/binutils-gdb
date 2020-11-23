@@ -391,6 +391,8 @@ Cref::print_symbol_counts(const Symbol_table* symtab) const
 	}
       if (f != NULL)
 	this->inputs_->print_symbol_counts(symtab, f);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
     }
 }
 

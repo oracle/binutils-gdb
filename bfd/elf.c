@@ -10549,7 +10549,13 @@ elfcore_write_prpsinfo (bfd  *abfd,
 #endif
 
       memset (&data, 0, sizeof (data));
+      /* Coverity flags this strncpy as possibly creating a string
+	 that is not NUL terminated.  This is in fact OK.  */
+      /* coverity[buffer_size_warning: FALSE] */
       strncpy (data.pr_fname, fname, sizeof (data.pr_fname));
+      /* Coverity flags this strncpy as possibly creating a string
+	 that is not NUL terminated.  This is in fact OK.  */
+      /* coverity[buffer_size_warning: FALSE] */
       strncpy (data.pr_psargs, psargs, sizeof (data.pr_psargs));
       return elfcore_write_note (abfd, buf, bufsiz,
 				 "CORE", note_type, &data, sizeof (data));
@@ -10566,7 +10572,13 @@ elfcore_write_prpsinfo (bfd  *abfd,
 #endif
 
       memset (&data, 0, sizeof (data));
+      /* Coverity flags this strncpy as possibly creating a string
+	 that is not NUL terminated.  This is in fact OK.  */
+      /* coverity[buffer_size_warning: FALSE] */
       strncpy (data.pr_fname, fname, sizeof (data.pr_fname));
+      /* Coverity flags this strncpy as possibly creating a string
+	 that is not NUL terminated.  This is in fact OK.  */
+      /* coverity[buffer_size_warning: FALSE] */
       strncpy (data.pr_psargs, psargs, sizeof (data.pr_psargs));
       return elfcore_write_note (abfd, buf, bufsiz,
 				 "CORE", note_type, &data, sizeof (data));

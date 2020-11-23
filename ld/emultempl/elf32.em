@@ -1776,6 +1776,9 @@ gld${EMULATION_NAME}_before_allocation (void)
 		if (cp != NULL && *cp != '\0')
 		  gld${EMULATION_NAME}_append_to_separated_string (&depaudit, cp);
 
+		/* There is a potential resource leak here, but it is not important.  */
+		/* coverity[overwrite_var: FALSE] */
+		/* coverity[leaked_storage: FALSE] */
 		cp = more ? ++cp2 : NULL;
 	      }
 	    while (cp != NULL);

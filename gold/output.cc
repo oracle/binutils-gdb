@@ -2392,6 +2392,8 @@ Output_section::Output_section(const char* name, elfcpp::Elf_Word type,
     extra_segment_flags_(0),
     segment_alignment_(0),
     checkpoint_(NULL),
+    /* There is a potential resource leak here, but it is not important.  */
+    /* coverity[ctor_dtor_leak: FALSE] */
     lookup_maps_(new Output_section_lookup_maps),
     free_list_(),
     free_space_fill_(NULL),

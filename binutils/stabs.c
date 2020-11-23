@@ -758,6 +758,8 @@ parse_stab_string (void *dhandle, struct stab_handle *info, int stabtype,
       if (*p != '=')
 	{
 	  bad_stab (string);
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 	}
       ++p;
@@ -791,6 +793,8 @@ parse_stab_string (void *dhandle, struct stab_handle *info, int stabtype,
 	  if (*p != ',')
 	    {
 	      bad_stab (string);
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    }
 	  if (! debug_record_typed_const (dhandle, name, dtype, atoi (p)))
@@ -798,6 +802,8 @@ parse_stab_string (void *dhandle, struct stab_handle *info, int stabtype,
 	  break;
 	default:
 	  bad_stab (string);
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 	}
 
@@ -810,6 +816,8 @@ parse_stab_string (void *dhandle, struct stab_handle *info, int stabtype,
       if (dtype == DEBUG_TYPE_NULL)
 	return FALSE;
       if (! debug_record_label (dhandle, name, dtype, value))
+	/* There is a potential resource leak here, but it is not important.  */
+	/* coverity[leaked_storage: FALSE] */
 	return FALSE;
       break;
 
@@ -1114,6 +1122,8 @@ parse_stab_string (void *dhandle, struct stab_handle *info, int stabtype,
 	  while (*p != ';')
 	    ++p;
 	  ++p;
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return TRUE;
 	}
       /* TODO SUNPro C++ support:
@@ -1127,12 +1137,16 @@ parse_stab_string (void *dhandle, struct stab_handle *info, int stabtype,
 
     default:
       bad_stab (string);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return FALSE;
     }
 
   /* FIXME: gdb converts structure values to structure pointers in a
      couple of cases, depending upon the target.  */
 
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return TRUE;
 }
 
@@ -1499,6 +1513,8 @@ parse_stab_type (void *dhandle, struct stab_handle *info, const char *type_name,
 	      if (**pp != ',')
 		{
 		  bad_stab (orig);
+		  /* There is a potential resource leak here, but it is not important.  */
+		  /* coverity[leaked_storage: FALSE] */
 		  return DEBUG_TYPE_NULL;
 		}
 	      ++*pp;
@@ -1513,6 +1529,8 @@ parse_stab_type (void *dhandle, struct stab_handle *info, const char *type_name,
 	      args[n] = parse_stab_type (dhandle, info, (const char *) NULL,
 					 pp, (debug_type **) NULL);
 	      if (args[n] == DEBUG_TYPE_NULL)
+		/* There is a potential resource leak here, but it is not important.  */
+		/* coverity[leaked_storage: FALSE] */
 		return DEBUG_TYPE_NULL;
 	      ++n;
 	    }
@@ -2290,6 +2308,8 @@ parse_stab_struct_fields (void *dhandle, struct stab_handle *info,
 
       if (! parse_stab_one_struct_field (dhandle, info, pp, p, fields + c,
 					 staticsp))
+	/* There is a potential resource leak here, but it is not important.  */
+	/* coverity[leaked_storage: FALSE] */
 	return FALSE;
 
       ++c;
@@ -2365,6 +2385,8 @@ parse_stab_cpp_abbrev (void *dhandle, struct stab_handle *info,
   if (**pp != ':')
     {
       bad_stab (orig);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return FALSE;
     }
   ++*pp;
@@ -2374,6 +2396,8 @@ parse_stab_cpp_abbrev (void *dhandle, struct stab_handle *info,
   if (**pp != ',')
     {
       bad_stab (orig);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return FALSE;
     }
   ++*pp;
@@ -2382,6 +2406,8 @@ parse_stab_cpp_abbrev (void *dhandle, struct stab_handle *info,
   if (**pp != ';')
     {
       bad_stab (orig);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return FALSE;
     }
   ++*pp;
@@ -2787,6 +2813,8 @@ parse_stab_members (void *dhandle, struct stab_handle *info,
 	      if (return_type == DEBUG_TYPE_NULL)
 		{
 		  bad_stab (orig);
+		  /* There is a potential resource leak here, but it is not important.  */
+		  /* coverity[leaked_storage: FALSE] */
 		  goto fail;
 		}
 	      type = parse_stab_argtypes (dhandle, info, class_type, name,
@@ -3104,6 +3132,8 @@ parse_stab_array_type (void *dhandle, struct stab_handle *info,
   if (**pp != ';')
     {
       bad_stab (orig);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return DEBUG_TYPE_NULL;
     }
   ++*pp;
@@ -3120,6 +3150,8 @@ parse_stab_array_type (void *dhandle, struct stab_handle *info,
   if (**pp != ';')
     {
       bad_stab (orig);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return DEBUG_TYPE_NULL;
     }
   ++*pp;
@@ -3134,6 +3166,8 @@ parse_stab_array_type (void *dhandle, struct stab_handle *info,
   if (**pp != ';')
     {
       bad_stab (orig);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return DEBUG_TYPE_NULL;
     }
   ++*pp;
@@ -3141,6 +3175,8 @@ parse_stab_array_type (void *dhandle, struct stab_handle *info,
   element_type = parse_stab_type (dhandle, info, (const char *) NULL, pp,
 				  (debug_type **) NULL);
   if (element_type == DEBUG_TYPE_NULL)
+    /* There is a potential resource leak here, but it is not important.  */
+    /* coverity[leaked_storage: FALSE] */
     return DEBUG_TYPE_NULL;
 
   if (adjustable)
@@ -5366,6 +5402,8 @@ stab_demangle_v3_arg (void *dhandle, struct stab_handle *info,
 					  dc->u.s_binary.right,
 					  &varargs);
 	if (pargs == NULL)
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return NULL;
 
 	return debug_make_function_type (dhandle, dt, pargs, varargs);
