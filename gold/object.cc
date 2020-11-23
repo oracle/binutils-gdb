@@ -1674,6 +1674,13 @@ Sized_relobj_file<size, big_endian>::do_layout(Symbol_table* symtab,
 	      omit[i] = true;
 	    }
 
+	  // Skip empty sections without flags.
+	  if (!(shdr.get_sh_flags() & ~elfcpp::SHF_GROUP)
+	      && !shdr.get_sh_size())
+	    {
+	      omit[i] = true;
+	    }
+
 	  bool discard = omit[i];
 	  if (!discard)
 	    {
