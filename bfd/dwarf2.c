@@ -2803,8 +2803,8 @@ lookup_symbol_in_variable_table (struct comp_unit *unit,
 
 static bfd_boolean
 find_abstract_instance_name (struct comp_unit *unit,
-			     bfd_byte *orig_info_ptr,
 			     struct attribute *attr_ptr,
+			     unsigned int recur_count,
 			     const char **pname,
 			     bfd_boolean *is_linkage)
 {
@@ -2816,6 +2816,14 @@ find_abstract_instance_name (struct comp_unit *unit,
   bfd_uint64_t die_ref = attr_ptr->u.val;
   struct attribute attr;
   const char *name = NULL;
+
+  if (recur_count == 100)
+    {
+      _bfd_error_handler
+       (_("DWARF error: abstract instance recursion detected"));
+      bfd_set_error (bfd_error_bad_value);
+      return FALSE;
+    }
 
   /* DW_FORM_ref_addr can reference an entry in a different CU. It
      is an offset from the .debug_info section, not the current CU.  */
@@ -2934,15 +2942,7 @@ find_abstract_instance_name (struct comp_unit *unit,
 					 info_ptr, info_ptr_end);
 	      if (info_ptr == NULL)
 		break;
-	      /* It doesn't ever make sense for DW_AT_specification to
-		 refer to the same DIE.  Stop simple recursion.  */
-	      if (info_ptr == orig_info_ptr)
-		{
-		  _bfd_error_handler
-		    (_("Dwarf Error: Abstract instance recursion detected."));
-		  bfd_set_error (bfd_error_bad_value);
-		  return FALSE;
-		}
+
 	      switch (attr.name)
 		{
 		case DW_AT_name:
@@ -2956,7 +2956,7 @@ find_abstract_instance_name (struct comp_unit *unit,
 		    }
 		  break;
 		case DW_AT_specification:
-		  if (!find_abstract_instance_name (unit, info_ptr, &attr,
+		  if (!find_abstract_instance_name (unit, &attr, recur_count + 1,
 						    pname, is_linkage))
 		    return FALSE;
 		  break;
@@ -3162,7 +3162,7 @@ scan_unit_for_symbols (struct comp_unit *unit)
 
 		case DW_AT_abstract_origin:
 		case DW_AT_specification:
-		  if (!find_abstract_instance_name (unit, info_ptr, &attr,
+		  if (!find_abstract_instance_name (unit, &attr, 0,
 						    &func->name,
 						    &func->is_linkage))
 		    goto fail;
