@@ -265,10 +265,13 @@ Symbol_table::resolve(Sized_symbol<size>* to,
     return;
 
   // Likewise for an absolute symbol defined twice with the same value.
+  // Plugin-symbols are always absolute with same value here, so ignore those.
   if (!is_ordinary
       && st_shndx == elfcpp::SHN_ABS
       && !to_is_ordinary
       && to_shndx == elfcpp::SHN_ABS
+      && object->pluginobj() == NULL
+      && to->object()->pluginobj() == NULL
       && to->value() == sym.get_st_value())
     return;
 
