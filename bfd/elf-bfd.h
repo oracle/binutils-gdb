@@ -2722,6 +2722,8 @@ extern unsigned int _bfd_elf_symbol_section_index
   (bfd *, elf_symbol_type *);
 
 
+extern bfd_boolean is_debuginfo_file (bfd *);
+
 /* Large common section.  */
 extern asection _bfd_elf_large_com_section;
 
