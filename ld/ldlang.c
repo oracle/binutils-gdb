@@ -25,6 +25,7 @@
 #include "safe-ctype.h"
 #include "obstack.h"
 #include "bfdlink.h"
+#include "ctf-api.h"
 
 #include "ld.h"
 #include "ldmain.h"
@@ -44,9 +45,6 @@
 #ifdef ENABLE_PLUGINS
 #include "plugin.h"
 #endif /* ENABLE_PLUGINS */
-
-/* FIXME: Put it here to avoid NAME conflict from ldgram.h.  */
-#include "elf-bfd.h"
 
 #ifndef offsetof
 #define offsetof(TYPE, MEMBER) ((size_t) & (((TYPE*) 0)->MEMBER))
@@ -122,6 +120,9 @@ bfd_boolean delete_output_file_on_failure = FALSE;
 struct lang_phdr *lang_phdr_list;
 struct lang_nocrossrefs *nocrossref_list;
 struct asneeded_minfo **asneeded_list_tail;
+#ifdef ENABLE_LIBCTF
+static ctf_file_t *ctf_output;
+#endif
 
  /* Functions that traverse the linker script and might evaluate
     DEFINED() need to increment this at the start of the traversal.  */
@@ -144,6 +145,12 @@ int lang_statement_iteration = 0;
   ((q)->value + outside_section_address (q->section))
 
 #define SECTION_NAME_MAP_LENGTH (16)
+
+/* CTF sections smaller than this are not compressed: compression of
+   dictionaries this small doesn't gain much, and this lets consumers mmap the
+   sections directly out of the ELF file and use them with no decompression
+   overhead if they want to.  */
+#define CTF_COMPRESSION_THRESHOLD 4096
 
 void *
 stat_alloc (size_t size)
@@ -3391,6 +3398,217 @@ open_input_bfds (lang_statement_union_type *s, enum open_bfd_mode mode)
   if (input_flags.missing_file)
     einfo ("%F");
 }
+
+#ifdef ENABLE_LIBCTF
+/* Open the CTF sections in the input files with libctf: if any were opened,
+   create a fake input file that we'll write the merged CTF data to later
+   on.  */
+
+static void
+ldlang_open_ctf (void)
+{
+  int any_ctf = 0;
+  int err;
+
+  LANG_FOR_EACH_INPUT_STATEMENT (file)
+    {
+      asection *sect;
+
+      /* Incoming files from the compiler have a single ctf_file_t in them
+	 (which is presented to us by the libctf API in a ctf_archive_t
+	 wrapper): files derived from a previous relocatable link have a CTF
+         archive containing possibly many CTF files.  */
+      if ((file->the_ctf = ctf_bfdopen (file->the_bfd, &err)) == NULL)
+	{
+	  if (err != ECTF_NOCTFDATA)
+	    einfo (_("%P: warning: CTF section in `%pI' not loaded: "
+		     "its types will be discarded: `%s'\n"), file,
+		   ctf_errmsg (err));
+	  continue;
+	}
+
+      /* Prevent the contents of this section from being written, while
+	 requiring the section itself to be duplicated in the output.  */
+      /* This section must exist if ctf_bfdopen() succeeded.  */
+      sect = bfd_get_section_by_name (file->the_bfd, ".ctf");
+      sect->size = 0;
+      sect->flags |= SEC_NEVER_LOAD | SEC_HAS_CONTENTS | SEC_LINKER_CREATED;
+
+      any_ctf = 1;
+    }
+
+  if (!any_ctf)
+    {
+      ctf_output = NULL;
+      return;
+    }
+
+  if ((ctf_output = ctf_create (&err)) != NULL)
+    return;
+
+  einfo (_("%P: warning: CTF output not created: `s'\n"),
+	 ctf_errmsg (err));
+
+  LANG_FOR_EACH_INPUT_STATEMENT (errfile)
+    ctf_close (errfile->the_ctf);
+}
+
+/* Merge together CTF sections.  After this, only the symtab-dependent
+   function and data object sections need adjustment.  */
+
+static void
+lang_merge_ctf (void)
+{
+  asection *output_sect;
+
+  if (!ctf_output)
+    return;
+
+  output_sect = bfd_get_section_by_name (link_info.output_bfd, ".ctf");
+
+  /* If the section was discarded, don't waste time merging.  */
+  if (output_sect == NULL)
+    {
+      ctf_file_close (ctf_output);
+      ctf_output = NULL;
+
+      LANG_FOR_EACH_INPUT_STATEMENT (file)
+	{
+	  ctf_close (file->the_ctf);
+	  file->the_ctf = NULL;
+	}
+      return;
+    }
+
+  LANG_FOR_EACH_INPUT_STATEMENT (file)
+    {
+      if (!file->the_ctf)
+	continue;
+
+      /* Takes ownership of file->the_ctf.  */
+      if (ctf_link_add_ctf (ctf_output, file->the_ctf, file->filename,
+			    NULL, 0) < 0)
+	{
+	  einfo (_("%F%P: cannot link with CTF in %pB: %s\n"), file->the_bfd,
+		 ctf_errmsg (ctf_errno (ctf_output)));
+	  ctf_close (file->the_ctf);
+	  file->the_ctf = NULL;
+	  continue;
+	}
+    }
+
+  if (ctf_link (ctf_output, CTF_LINK_SHARE_UNCONFLICTED) < 0)
+    {
+      einfo (_("%F%P: CTF linking failed; output will have no CTF section: %s\n"),
+	     ctf_errmsg (ctf_errno (ctf_output)));
+      if (output_sect)
+	{
+	  output_sect->size = 0;
+	  output_sect->flags |= SEC_EXCLUDE;
+	}
+    }
+}
+
+/* Let the emulation examine the symbol table and strtab to help it optimize the
+   CTF, if supported.  */
+
+void
+ldlang_ctf_apply_strsym (struct elf_sym_strtab *syms, bfd_size_type symcount,
+                         struct elf_strtab_hash *symstrtab)
+{
+  ldemul_examine_strtab_for_ctf (ctf_output, syms, symcount, symstrtab);
+}
+
+/* Write out the CTF section.  Called early, if the emulation isn't going to
+   need to dedup against the strtab and symtab, then possibly called from the
+   target linker code if the dedup has happened.  */
+static void
+lang_write_ctf (int late)
+{
+  size_t output_size;
+  asection *output_sect;
+
+  if (!ctf_output)
+    return;
+
+  if (late)
+    {
+      /* Emit CTF late if this emulation says it can do so.  */
+      if (ldemul_emit_ctf_early ())
+	return;
+    }
+  else
+    {
+      if (!ldemul_emit_ctf_early ())
+	return;
+    }
+
+  /* Emit CTF.  */
+
+  output_sect = bfd_get_section_by_name (link_info.output_bfd, ".ctf");
+  if (output_sect)
+    {
+      output_sect->contents = ctf_link_write (ctf_output, &output_size,
+					      CTF_COMPRESSION_THRESHOLD);
+      output_sect->size = output_size;
+      output_sect->flags |= SEC_IN_MEMORY | SEC_KEEP;
+
+      if (!output_sect->contents)
+	{
+	  einfo (_("%F%P: CTF section emission failed; output will have no "
+		   "CTF section: %s\n"), ctf_errmsg (ctf_errno (ctf_output)));
+	  output_sect->size = 0;
+	  output_sect->flags |= SEC_EXCLUDE;
+	}
+    }
+  /* This also closes every CTF input file used in the link.  */
+  ctf_file_close (ctf_output);
+  ctf_output = NULL;
+
+  LANG_FOR_EACH_INPUT_STATEMENT (file)
+    file->the_ctf = NULL;
+}
+/* Write out the CTF section late, if the emulation needs that.  */
+
+void
+ldlang_write_ctf_late (void)
+{
+  /* Trigger a "late call", if the emulation needs one.  */
+
+  lang_write_ctf (1);
+}
+#else
+static void
+ldlang_open_ctf (void)
+{
+  LANG_FOR_EACH_INPUT_STATEMENT (file)
+    {
+      asection *sect;
+
+      /* If built without CTF, warn and delete all CTF sections from the output.
+	 (The alternative would be to simply concatenate them, which does not
+	 yield a valid CTF section.)  */
+
+      if ((sect = bfd_get_section_by_name (file->the_bfd, ".ctf")) != NULL)
+	{
+	    einfo (_("%P: warning: CTF section in `%pI' not linkable: "
+		     "%P was built without support for CTF\n"), file);
+	    sect->size = 0;
+	    sect->flags |= SEC_EXCLUDE;
+	}
+    }
+}
+
+static void lang_merge_ctf (void) {}
+void
+ldlang_ctf_apply_strsym (struct elf_sym_strtab *syms ATTRIBUTE_UNUSED,
+			 bfd_size_type symcount ATTRIBUTE_UNUSED,
+			 struct elf_strtab_hash *symstrtab ATTRIBUTE_UNUSED)
+{
+}
+static void lang_write_ctf (int late ATTRIBUTE_UNUSED) {}
+void ldlang_write_ctf_late (void) {}
+#endif
 
 /* Add the supplied name to the symbol table as an undefined reference.
    This is a two step process as the symbol table doesn't even exist at
@@ -7260,6 +7478,8 @@ lang_process (void)
   if (config.map_file != NULL)
     lang_print_asneeded ();
 
+  ldlang_open_ctf ();
+
   bfd_section_already_linked_table_free ();
 
   /* Make sure that we're not mixing architectures.  We call this
@@ -7335,6 +7555,14 @@ lang_process (void)
 	    found->flags &= ~SEC_READONLY;
 	}
     }
+
+  /* Merge together CTF sections.  After this, only the symtab-dependent
+     function and data object sections need adjustment.  */
+  lang_merge_ctf ();
+
+  /* Emit the CTF, iff the emulation doesn't need to do late emission after
+     examining things laid out late, like the strtab.  */
+  lang_write_ctf (0);
 
   /* Copy forward lma regions for output sections in same lma region.  */
   lang_propagate_lma_regions ();

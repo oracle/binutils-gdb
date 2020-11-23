@@ -22,6 +22,7 @@
 #include "libiberty.h"
 #include "bfd.h"
 #include "bfdlink.h"
+#include "ctf-api.h"
 #include "bfdver.h"
 #include "ld.h"
 #include "ldmain.h"

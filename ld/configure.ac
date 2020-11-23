@@ -203,6 +203,12 @@ case "${enable_default_hash_style}" in
   *) ac_default_emit_gnu_hash=0 ;;
 esac
 
+GCC_ENABLE([libctf], [yes], [], [Handle .ctf type-info sections])
+if test "${enable_libctf}" = yes; then
+    AC_DEFINE(ENABLE_LIBCTF, 1, [Handle .ctf type-info sections])
+fi
+AM_CONDITIONAL(ENABLE_LIBCTF, test "${enable_libctf}" = yes)
+
 AM_BINUTILS_WARNINGS
 
 AM_LC_MESSAGES
@@ -283,6 +289,10 @@ fi
 BFD_BINARY_FOPEN
 
 AC_CHECK_DECLS([strstr, free, sbrk, getenv, environ])
+
+# Link in zlib if we can.  This allows us to read and write
+# compressed CTF sections.
+AM_ZLIB
 
 # When converting linker scripts into strings for use in emulation
 # files, use astring.sed if the compiler supports ANSI string
@@ -471,10 +481,16 @@ AC_SUBST(EMULATION_LIBPATH)
 
 if test x${enable_static} = xno; then
   TESTBFDLIB="-Wl,--rpath,../bfd/.libs ../bfd/.libs/libbfd.so"
+  TESTCTFLIB="-Wl,--rpath,../libctf/.libs ../libctf/.libs/libctf.so"
 else
   TESTBFDLIB="../bfd/.libs/libbfd.a"
+  TESTCTFLIB="../libctf/.libs/libctf.a"
+fi
+if test "${enable_libctf}" = no; then
+    TESTCTFLIB=
 fi
 AC_SUBST(TESTBFDLIB)
+AC_SUBST(TESTCTFLIB)
 
 target_vendor=${target_vendor=$host_vendor}
 case "$target_vendor" in

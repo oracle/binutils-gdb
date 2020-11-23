@@ -1,3 +1,32 @@
+2019-07-30  Nick Alcock  <nick.alcock@oracle.com>
+
+	* Makefile.def (host_modules): libctf is no longer no_install.
+	* Makefile.in: Regenerated.
+
+2019-07-13  Nick Alcock  <nick.alcock@oracle.com>
+
+	* Makefile.def (dependencies): all-ld depends on all-libctf.
+	* Makefile.in: Regenerated.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* Makefile.def (dependencies): configure-libctf depends on all-bfd
+	and all its deps.
+	* Makefile.in: Regenerated.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* MAINTAINERS: Add libctf.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* Makefile.def (host_modules): Add libctf.
+	* Makefile.def (dependencies): Likewise.
+	libctf depends on zlib, libiberty, and bfd.
+	* Makefile.in: Regenerated.
+	* configure.ac (host_libs): Add libctf.
+	* configure: Regenerated.
+
 2018-01-10  Nick Clifton  <nickc@redhat.com>
 
 	* config-ml.in: Sync with gcc sources.

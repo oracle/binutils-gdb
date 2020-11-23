@@ -22,6 +22,7 @@
 #include "sysdep.h"
 #include "bfd.h"
 #include "bfdlink.h"
+#include "ctf-api.h"
 #include "libiberty.h"
 #include "filenames.h"
 #include "safe-ctype.h"

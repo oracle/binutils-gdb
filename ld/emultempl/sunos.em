@@ -35,6 +35,7 @@ fragment <<EOF
 #include "sysdep.h"
 #include "bfd.h"
 #include "bfdlink.h"
+#include "ctf-api.h"
 #include "libiberty.h"
 #include "safe-ctype.h"
 
@@ -1037,6 +1038,7 @@ struct ld_emulation_xfer_struct ld_${EMULATION_NAME}_emulation =
   NULL,	/* recognized file */
   NULL,	/* find_potential_libraries */
   NULL,	/* new_vers_pattern */
-  NULL	/* extra_map_file_text */
+  NULL, /* extra_map_file_text */
+  NULL, NULL /* CTF */
 };
 EOF

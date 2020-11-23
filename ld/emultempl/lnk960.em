@@ -26,6 +26,7 @@ fragment <<EOF
 #include "libiberty.h"
 #include "bfd.h"
 #include "bfdlink.h"
+#include "ctf-api.h"
 
 /*#include "archures.h"*/
 #include "ld.h"

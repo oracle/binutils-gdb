@@ -30,6 +30,7 @@ fragment <<EOF
 #include "sysdep.h"
 #include "bfd.h"
 #include "bfdlink.h"
+#include "ctf-api.h"
 
 #include "ld.h"
 #include "getopt.h"
@@ -859,7 +860,9 @@ struct ld_emulation_xfer_struct ld_${EMULATION_NAME}_emulation =
   ${LDEMUL_RECOGNIZED_FILE-NULL},
   ${LDEMUL_FIND_POTENTIAL_LIBRARIES-NULL},
   ${LDEMUL_NEW_VERS_PATTERN-NULL},
-  ${LDEMUL_EXTRA_MAP_FILE_TEXT-NULL}
+  ${LDEMUL_EXTRA_MAP_FILE_TEXT-NULL},
+  ${LDEMUL_EMIT_CTF_EARLY-NULL},
+  ${LDEMUL_EXAMINE_STRTAB_FOR_CTF-NULL}
 };
 EOF
 # 

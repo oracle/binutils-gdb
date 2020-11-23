@@ -21,6 +21,7 @@
 #include "sysdep.h"
 #include "bfd.h"
 #include "bfdver.h"
+#include "ctf-api.h"
 
 #include "ld.h"
 #include "ldver.h"

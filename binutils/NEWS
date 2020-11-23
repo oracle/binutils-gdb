@@ -12,6 +12,9 @@ Changes in 2.30:
   option to objdump which causes indirect links into separate debug info files
   to be followed when dumping other DWARF sections.
 
+ * Add support for dumping types encoded in the Compact Type Format
+   to objdump and readelf.
+
 Changes in 2.29:
 
 * The MIPS port now supports microMIPS eXtended Physical Addressing (XPA)
