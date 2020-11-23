@@ -19019,75 +19019,85 @@ process_file (char * file_name)
   Filedata * filedata = NULL;
   struct stat statbuf;
   char armag[SARMAG];
-  bfd_boolean ret = TRUE;
+  bfd_boolean ret = FALSE;
+  char * name;
+  char * saved_program_name;
+
+  /* Overload program_name to include file_name.  Doing this means
+     that warning/error messages will positively identify the file
+     concerned even when multiple instances of readelf are running.  */
+  name = xmalloc (strlen (program_name) + strlen (file_name) + 3);
+  sprintf (name, "%s: %s", program_name, file_name);
+  saved_program_name = program_name;
+  program_name = name;
 
   if (stat (file_name, &statbuf) < 0)
     {
       if (errno == ENOENT)
-	error (_("'%s': No such file\n"), file_name);
+	error (_("No such file\n"));
       else
-	error (_("Could not locate '%s'.  System error message: %s\n"),
-	       file_name, strerror (errno));
-      return FALSE;
+	error (_("Could not locate file.  System error message: %s\n"),
+	       strerror (errno));
+      goto done;
     }
 
   if (! S_ISREG (statbuf.st_mode))
     {
-      error (_("'%s' is not an ordinary file\n"), file_name);
-      return FALSE;
+      error (_("Not an ordinary file\n"));
+      goto done;
     }
 
   filedata = calloc (1, sizeof * filedata);
   if (filedata == NULL)
     {
       error (_("Out of memory allocating file data structure\n"));
-      return FALSE;
+      goto done;
     }
 
   filedata->file_name = file_name;
   filedata->handle = fopen (file_name, "rb");
   if (filedata->handle == NULL)
     {
-      error (_("Input file '%s' is not readable.\n"), file_name);
-      free (filedata);
-      return FALSE;
+      error (_("Not readable\n"));
+      goto done;
     }
 
   if (fread (armag, SARMAG, 1, filedata->handle) != 1)
     {
-      error (_("%s: Failed to read file's magic number\n"), file_name);
-      fclose (filedata->handle);
-      free (filedata);
-      return FALSE;
-    }
-
-  filedata->file_size = (bfd_size_type) statbuf.st_size;
-
-  if (memcmp (armag, ARMAG, SARMAG) == 0)
-    {
-      if (! process_archive (filedata, FALSE))
-	ret = FALSE;
-    }
-  else if (memcmp (armag, ARMAGT, SARMAG) == 0)
-    {
-      if ( ! process_archive (filedata, TRUE))
-	ret = FALSE;
+      error (_("Failed to read file's magic number\n"));
     }
   else
     {
-      if (do_archive_index)
-	error (_("File %s is not an archive so its index cannot be displayed.\n"),
-	       file_name);
+      filedata->file_size = (bfd_size_type) statbuf.st_size;
 
-      rewind (filedata->handle);
-      archive_file_size = archive_file_offset = 0;
+      if (memcmp (armag, ARMAG, SARMAG) == 0)
+	{
+	  if (process_archive (filedata, FALSE))
+	    ret = TRUE;
+	}
+      else if (memcmp (armag, ARMAGT, SARMAG) == 0)
+	{
+	  if (process_archive (filedata, TRUE))
+	    ret = TRUE;
+	}
+      else
+	{
+	  if (do_archive_index)
+	    error (_("Not an archive so its index cannot be displayed.\n"));
 
-      if (! process_object (filedata))
-	ret = FALSE;
+	  rewind (filedata->handle);
+	  archive_file_size = archive_file_offset = 0;
+
+	  if (process_object (filedata))
+	    ret = TRUE;
+	}
     }
 
   fclose (filedata->handle);
+ done:
   free (filedata);
+  free (program_name);
+  program_name = saved_program_name;
 
   return ret;
 }
