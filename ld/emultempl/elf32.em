@@ -2406,17 +2406,41 @@ echo '             && link_info.combreloc'		>> e${EMULATION_NAME}.c
 echo '             && link_info.relro'			>> e${EMULATION_NAME}.c
 echo '             && (link_info.flags & DF_BIND_NOW)) return' >> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xdw			>> e${EMULATION_NAME}.c
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+echo '  ; else if (bfd_link_pie (&link_info)'          >> e${EMULATION_NAME}.c
+echo '             && link_info.combreloc'             >> e${EMULATION_NAME}.c
+echo '             && link_info.separate_code'         >> e${EMULATION_NAME}.c
+echo '             && link_info.relro) return'         >> e${EMULATION_NAME}.c
+sed $sc ldscripts/${EMULATION_NAME}.xdceo              >> e${EMULATION_NAME}.c
+fi
 echo '  ; else if (bfd_link_pie (&link_info)'		>> e${EMULATION_NAME}.c
 echo '             && link_info.separate_code'		>> e${EMULATION_NAME}.c
 echo '             && link_info.combreloc) return'	>> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xdce		>> e${EMULATION_NAME}.c
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+echo '  ; else if (bfd_link_pie (&link_info)'          >> e${EMULATION_NAME}.c
+echo '             && link_info.combreloc'             >> e${EMULATION_NAME}.c
+echo '             && link_info.relro) return'         >> e${EMULATION_NAME}.c
+sed $sc ldscripts/${EMULATION_NAME}.xdco               >> e${EMULATION_NAME}.c
+fi
 echo '  ; else if (bfd_link_pie (&link_info)'		>> e${EMULATION_NAME}.c
 echo '             && link_info.combreloc) return'	>> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xdc			>> e${EMULATION_NAME}.c
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+echo '  ; else if (bfd_link_pie (&link_info)'          >> e${EMULATION_NAME}.c
+echo '             && link_info.separate_code'         >> e${EMULATION_NAME}.c
+echo '             && link_info.relro) return'         >> e${EMULATION_NAME}.c
+sed $sc ldscripts/${EMULATION_NAME}.xdeo               >> e${EMULATION_NAME}.c
+fi
 fi
 echo '  ; else if (bfd_link_pie (&link_info)'		>> e${EMULATION_NAME}.c
 echo '             && link_info.separate_code) return'	>> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xde			>> e${EMULATION_NAME}.c
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+echo '  ; else if (bfd_link_pie (&link_info)'          >> e${EMULATION_NAME}.c
+echo '             && link_info.relro) return'         >> e${EMULATION_NAME}.c
+sed $sc ldscripts/${EMULATION_NAME}.xdo                >> e${EMULATION_NAME}.c
+fi
 echo '  ; else if (bfd_link_pie (&link_info)) return'	>> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xd			>> e${EMULATION_NAME}.c
 fi
@@ -2432,17 +2456,41 @@ echo '             && link_info.combreloc'		>> e${EMULATION_NAME}.c
 echo '             && link_info.relro'			>> e${EMULATION_NAME}.c
 echo '             && (link_info.flags & DF_BIND_NOW)) return' >> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xsw			>> e${EMULATION_NAME}.c
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+echo '  ; else if (bfd_link_dll (&link_info)'          >> e${EMULATION_NAME}.c
+echo '             && link_info.combreloc'             >> e${EMULATION_NAME}.c
+echo '             && link_info.separate_code'         >> e${EMULATION_NAME}.c
+echo '             && link_info.relro) return'         >> e${EMULATION_NAME}.c
+sed $sc ldscripts/${EMULATION_NAME}.xsceo              >> e${EMULATION_NAME}.c
+fi
 echo '  ; else if (bfd_link_dll (&link_info)'		>> e${EMULATION_NAME}.c
 echo '             && link_info.combreloc'		>> e${EMULATION_NAME}.c
 echo '             && link_info.separate_code) return'	>> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xsce			>> e${EMULATION_NAME}.c
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+echo '  ; else if (bfd_link_dll (&link_info)'          >> e${EMULATION_NAME}.c
+echo '             && link_info.combreloc'             >> e${EMULATION_NAME}.c
+echo '             && link_info.relro) return'         >> e${EMULATION_NAME}.c
+sed $sc ldscripts/${EMULATION_NAME}.xsco               >> e${EMULATION_NAME}.c
+fi
 echo '  ; else if (bfd_link_dll (&link_info)'		>> e${EMULATION_NAME}.c
 echo '             && link_info.combreloc) return'	>> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xsc			>> e${EMULATION_NAME}.c
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+echo '  ; else if (bfd_link_dll (&link_info)'          >> e${EMULATION_NAME}.c
+echo '             && link_info.separate_code'         >> e${EMULATION_NAME}.c
+echo '             && link_info.relro) return'         >> e${EMULATION_NAME}.c
+sed $sc ldscripts/${EMULATION_NAME}.xseo               >> e${EMULATION_NAME}.c
+fi
 fi
 echo '  ; else if (bfd_link_dll (&link_info)'		>> e${EMULATION_NAME}.c
 echo '             && link_info.separate_code) return'	>> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xse			>> e${EMULATION_NAME}.c
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+echo '  ; else if (bfd_link_dll (&link_info)'          >> e${EMULATION_NAME}.c
+echo '             && link_info.relro) return'         >> e${EMULATION_NAME}.c
+sed $sc ldscripts/${EMULATION_NAME}.xso               >> e${EMULATION_NAME}.c
+fi
 echo '  ; else if (bfd_link_dll (&link_info)) return'	>> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xs			>> e${EMULATION_NAME}.c
 fi
@@ -2455,14 +2503,34 @@ echo '  ; else if (link_info.combreloc'			>> e${EMULATION_NAME}.c
 echo '             && link_info.relro'			>> e${EMULATION_NAME}.c
 echo '             && (link_info.flags & DF_BIND_NOW)) return' >> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xw			>> e${EMULATION_NAME}.c
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+echo '  ; else if (link_info.combreloc'                 >> e${EMULATION_NAME}.c
+echo '             && link_info.separate_code'		>> e${EMULATION_NAME}.c
+echo '             && link_info.relro) return'          >> e${EMULATION_NAME}.c
+sed $sc ldscripts/${EMULATION_NAME}.xceo                >> e${EMULATION_NAME}.c
+fi
 echo '  ; else if (link_info.combreloc'			>> e${EMULATION_NAME}.c
 echo '             && link_info.separate_code) return'	>> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xce			>> e${EMULATION_NAME}.c
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+echo '  ; else if (link_info.combreloc'                 >> e${EMULATION_NAME}.c
+echo '             && link_info.relro) return'          >> e${EMULATION_NAME}.c
+sed $sc ldscripts/${EMULATION_NAME}.xco                 >> e${EMULATION_NAME}.c
+fi
 echo '  ; else if (link_info.combreloc) return'		>> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xc			>> e${EMULATION_NAME}.c
 fi
-echo '  ; else if (link_info.separate_code) return'		>> e${EMULATION_NAME}.c
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+echo '  ; else if (link_info.separate_code'             >> e${EMULATION_NAME}.c
+echo '             && link_info.relro) return'          >> e${EMULATION_NAME}.c
+sed $sc ldscripts/${EMULATION_NAME}.xeo                 >> e${EMULATION_NAME}.c
+fi
+echo '  ; else if (link_info.separate_code) return'     >> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.xe			>> e${EMULATION_NAME}.c
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+echo '  ; else if (link_info.relro) return'             >> e${EMULATION_NAME}.c
+sed $sc ldscripts/${EMULATION_NAME}.xo                  >> e${EMULATION_NAME}.c
+fi
 echo '  ; else return'					>> e${EMULATION_NAME}.c
 sed $sc ldscripts/${EMULATION_NAME}.x			>> e${EMULATION_NAME}.c
 echo '; }'						>> e${EMULATION_NAME}.c
@@ -2501,6 +2569,21 @@ fragment <<EOF
       else
 	return "ldscripts/${EMULATION_NAME}.xdw";
     }
+EOF
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+fragment <<EOF
+  else if (bfd_link_pie (&link_info)
+	   && link_info.combreloc
+	   && link_info.relro)
+    {
+      if (link_info.separate_code)
+	return "ldscripts/${EMULATION_NAME}.xdceo";
+      else
+	return "ldscripts/${EMULATION_NAME}.xdco";
+    }
+EOF
+fi
+fragment <<EOF
   else if (bfd_link_pie (&link_info)
 	   && link_info.combreloc)
     {
@@ -2508,6 +2591,18 @@ fragment <<EOF
 	return "ldscripts/${EMULATION_NAME}.xdce";
       else
 	return "ldscripts/${EMULATION_NAME}.xdc";
+    }
+EOF
+fi
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+fragment <<EOF
+  else if (bfd_link_pie (&link_info)
+	   && link_info.relro)
+    {
+      if (link_info.separate_code)
+	return "ldscripts/${EMULATION_NAME}.xdeo";
+      else
+	return "ldscripts/${EMULATION_NAME}.xdo";
     }
 EOF
 fi
@@ -2532,12 +2627,39 @@ fragment <<EOF
       else
 	return "ldscripts/${EMULATION_NAME}.xsw";
     }
+EOF
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+fragment <<EOF
+  else if (bfd_link_dll (&link_info)
+	   && link_info.combreloc
+	   && link_info.relro)
+    {
+      if (link_info.separate_code)
+	return "ldscripts/${EMULATION_NAME}.xsceo";
+      else
+	return "ldscripts/${EMULATION_NAME}.xsco";
+    }
+EOF
+fi
+fragment <<EOF
   else if (bfd_link_dll (&link_info) && link_info.combreloc)
     {
       if (link_info.separate_code)
 	return "ldscripts/${EMULATION_NAME}.xsce";
       else
 	return "ldscripts/${EMULATION_NAME}.xsc";
+    }
+EOF
+fi
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+fragment <<EOF
+  else if (bfd_link_dll (&link_info)
+	   && link_info.relro)
+    {
+      if (link_info.separate_code)
+	return "ldscripts/${EMULATION_NAME}.xseo";
+      else
+	return "ldscripts/${EMULATION_NAME}.xso";
     }
 EOF
 fi
@@ -2561,12 +2683,37 @@ fragment <<EOF
       else
 	return "ldscripts/${EMULATION_NAME}.xw";
     }
+EOF
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+fragment <<EOF
+  else if (link_info.combreloc
+	   && link_info.relro)
+    {
+      if (link_info.separate_code)
+	return "ldscripts/${EMULATION_NAME}.xceo";
+      else
+	return "ldscripts/${EMULATION_NAME}.xco";
+    }
+EOF
+fi
+fragment <<EOF
   else if (link_info.combreloc)
     {
       if (link_info.separate_code)
 	return "ldscripts/${EMULATION_NAME}.xce";
       else
 	return "ldscripts/${EMULATION_NAME}.xc";
+    }
+EOF
+fi
+if test -n "$GENERATE_RELRO_SCRIPT" ; then
+fragment <<EOF
+  else if (link_info.relro)
+    {
+      if (link_info.separate_code)
+	return "ldscripts/${EMULATION_NAME}.xeo";
+      else
+	return "ldscripts/${EMULATION_NAME}.xo";
     }
 EOF
 fi
