@@ -5133,6 +5133,7 @@ const Layout::Section_name_mapping Layout::section_name_mapping[] =
   MAPPING_INIT(".gnu.linkonce.armextab.", ".ARM.extab"),
   MAPPING_INIT(".ARM.exidx", ".ARM.exidx"),
   MAPPING_INIT(".gnu.linkonce.armexidx.", ".ARM.exidx"),
+  MAPPING_INIT(".gnu.build.attributes.", ".gnu.build.attributes"),
 };
 #undef MAPPING_INIT
 #undef MAPPING_INIT_EXACT
