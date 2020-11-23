@@ -293,6 +293,7 @@ case $basic_machine in
 	| mt \
 	| msp430 \
 	| nds32 | nds32le | nds32be \
+	| nfp \
 	| nios | nios2 | nios2eb | nios2el \
 	| ns16k | ns32k \
 	| open8 | or1k | or1knd | or32 \
