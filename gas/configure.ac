@@ -113,6 +113,17 @@ AC_ARG_ENABLE(generate_build_notes,
   no)   ac_default_generate_build_notes=0 ;;
 esac])dnl
 
+# Decide if the x86 ELF assembler should default to generating GNU x86
+# used ISA and feature properties.
+ac_default_generate_x86_used_note=unset
+# Provide a configuration option to override the default.
+AC_ARG_ENABLE(x86-used-note,
+	      AS_HELP_STRING([--enable-x86-used-note],
+	      [generate GNU x86 used ISA and feature properties]),
+[case "${enableval}" in
+  yes)  ac_default_generate_x86_used_note=1 ;;
+  no)   ac_default_generate_x86_used_note=0 ;;
+esac])dnl
 
 using_cgen=no
 
@@ -628,6 +639,25 @@ AC_DEFINE_UNQUOTED(DEFAULT_GENERATE_BUILD_NOTES,
   $ac_default_generate_build_notes,
   [Define to 1 if you want to generate GNU Build attribute notes
    by default, if none are contained in the input.])
+
+if test ${ac_default_generate_x86_used_note} = unset; then
+  ac_default_generate_x86_used_note=0
+fi
+AC_DEFINE_UNQUOTED(DEFAULT_X86_USED_NOTE,
+  $ac_default_generate_x86_used_note,
+  [Define to 1 if you want to generate GNU x86 used ISA and feature
+   properties by default.])
+
+if test ${ac_default_generate_riscv_attr} = unset; then
+    case ${target_os} in
+      elf)
+	ac_default_generate_riscv_attr=1
+	;;
+      *)
+	ac_default_generate_riscv_attr=0
+	;;
+  esac
+fi
 
 if test x$ac_default_compressed_debug_sections = xyes ; then
   AC_DEFINE(DEFAULT_FLAG_COMPRESS_DEBUG, 1, [Define if you want compressed debug sections by default.])

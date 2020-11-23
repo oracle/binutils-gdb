@@ -489,6 +489,9 @@ struct bfd_link_info
   /* TRUE if GNU_PROPERTY_X86_FEATURE_1_SHSTK should be generated.  */
   unsigned int shstk: 1;
 
+  /* 0 = > no report, 1 => warn, 2=> error.  */
+  unsigned int cet_report: 2;
+
   /* TRUE if generation of .interp/PT_INTERP should be suppressed.  */
   unsigned int nointerp: 1;
 
