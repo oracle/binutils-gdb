@@ -9851,6 +9851,10 @@ load_dwo_file (const char * main_filename)
 void *
 load_separate_debug_file (void * file, const char * filename)
 {
+  /* Skip this operation if we are not interested in debug links.  */
+  if (! do_follow_links && ! do_debug_links)
+    return NULL;
+
   /* See if there is a dwo link.  */
   if (load_debug_section (str, file)
       && load_debug_section (abbrev, file)
