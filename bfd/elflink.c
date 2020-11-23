@@ -11514,6 +11514,10 @@ elf_final_link_free (bfd *obfd, struct elf_final_link_info *flinfo)
     }
 }
 
+#define is_reloc_section(ESDO)			\
+  (   (ESDO)->this_hdr.sh_type == SHT_REL	\
+   || (ESDO)->this_hdr.sh_type == SHT_RELA)
+
 /* Do the final step of an ELF link.  */
 
 bfd_boolean
@@ -11685,8 +11689,7 @@ bfd_elf_final_link (bfd *abfd, struct bfd_link_info *info)
 		      && elf_symtab_shndx_list (sec->owner) != NULL)
 		    max_sym_shndx_count = sym_count;
 
-		  if (esdo->this_hdr.sh_type == SHT_REL
-		      || esdo->this_hdr.sh_type == SHT_RELA)
+		  if (is_reloc_section (esdo))
 		    /* Some backends use reloc_count in relocation sections
 		       to count particular types of relocs.  Of course,
 		       reloc sections themselves can't have relocations.  */
@@ -12289,6 +12292,9 @@ bfd_elf_final_link (bfd *abfd, struct bfd_link_info *info)
     {
       struct bfd_elf_section_data *esdo = elf_section_data (o);
       bfd_boolean sort;
+
+      if (esdo == NULL)
+	continue;
 
       if ((o->flags & SEC_RELOC) == 0)
 	continue;
