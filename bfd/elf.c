@@ -707,11 +707,23 @@ setup_group (bfd *abfd, Elf_Internal_Shdr *hdr, asection *newsect)
 			      |= SEC_LINK_ONCE | SEC_LINK_DUPLICATES_DISCARD;
 			  break;
 			}
-		      if (idx >= shnum)
+		      if (idx < shnum)
+			{
+			  dest->shdr = elf_elfsections (abfd)[idx];
+			  /* PR binutils/23199: All sections in a
+			     section group should be marked with
+			     SHF_GROUP.  But some tools generate
+			     broken objects without SHF_GROUP.  Fix
+			     them up here.  */
+			  dest->shdr->sh_flags |= SHF_GROUP;
+			}
+		      if (idx >= shnum
+			  || dest->shdr->sh_type == SHT_GROUP)
 			{
 			  _bfd_error_handler
-			    (_("%B: invalid SHT_GROUP entry"), abfd);
-			  idx = 0;
+			    (_("%B: invalid entry in SHT_GROUP section [%u]"),
+			     abfd, i);
+			  dest->shdr = NULL;
 			}
 		      dest->shdr = elf_elfsections (abfd)[idx];
 		    }
@@ -779,7 +791,8 @@ setup_group (bfd *abfd, Elf_Internal_Shdr *hdr, asection *newsect)
 		idx = (Elf_Internal_Group *) shdr->contents;
 		n_elt = shdr->sh_size / 4;
 		while (--n_elt != 0)
-		  if ((s = (++idx)->shdr->bfd_section) != NULL
+		  if ((++idx)->shdr != NULL
+		      && (s = idx->shdr->bfd_section) != NULL
 		      && elf_next_in_group (s) != NULL)
 		    break;
 		if (n_elt != 0)
