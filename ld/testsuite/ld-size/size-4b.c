@@ -2,7 +2,7 @@ extern char bar[];
 extern char size_of_bar asm ("bar@SIZE");
 
 char *bar_size_1 = &size_of_bar;
-static char *bar_size_2 = &size_of_bar;
+char *bar_size_2 = &size_of_bar;
 
 char *
 bar_size1 (void)
@@ -20,7 +20,7 @@ extern char foo[];
 extern char size_of_foo asm ("foo@SIZE");
 
 char *foo_size_1 = &size_of_foo;
-static char *foo_size_2 = &size_of_foo;
+char *foo_size_2 = &size_of_foo;
 
 char *
 foo_size1 (void)

@@ -118,6 +118,12 @@ if { $can_compile && !$failed_compile } {
     }
 }
 
+# I do not know why, but the underscore prefix test is going
+# wrong on ppc64le targets.  So override it here.
+if { [istarget powerpc*-*-linux*] || [istarget x86_64*-*-linux*] } {
+    set _ ""
+}
+
 set testobjfiles "tmpdir/main.o tmpdir/func.o tmpdir/text.o"
 set testobjfiles_notext "tmpdir/main.o tmpdir/func.o"
 set testsrcfiles "tmpdir/main.o $srcdir/$subdir/func.c tmpdir/text.o"
@@ -293,11 +299,13 @@ if { !$can_compile || $failed_compile } {
 
 run_ld_link_tests $plugin_tests
 
+if { ! [istarget "ppc*-*-*"] && ![istarget "powerpc*-*-linux*"] } {
 if { [is_elf_format] \
      && [ld_compile "$CC $CFLAGS" $srcdir/$subdir/func1p.c tmpdir/func1p.o] \
      && [ld_compile "$CC $CFLAGS" $srcdir/$subdir/func2i.c tmpdir/func2i.o] \
      && [ld_compile "$CC $CFLAGS" $srcdir/$subdir/func3h.c tmpdir/func3h.o] } {
     run_ld_link_tests $plugin_extra_elf_tests
+}
 }
 
 if {![ar_simple_create $ar "" "tmpdir/libtext.a" "tmpdir/text.o"] || \

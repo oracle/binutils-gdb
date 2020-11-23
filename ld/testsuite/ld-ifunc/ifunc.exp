@@ -284,11 +284,14 @@ if {! [check_osabi tmpdir/static_nonifunc_prog $expected_none]} {
 # The linked ifunc using executables and the shared library containing
 # ifunc should contain an IFUNC symbol.  The non-ifunc using executable
 # should not.
-
+if { ![istarget "ppc*-*-*"] && ![istarget "powerpc*-*-linux*"] } {
 if {[contains_ifunc_symbol tmpdir/libshared_ifunc.so] != 1} {
     fail "Shared libraries containing ifunc does not contain an IFUNC symbol"
     set fails [expr $fails + 1]
 }
+}
+
+if { ![istarget "ppc*-*-*"] && ![istarget "powerpc*-*-linux*"] } {
 if {[contains_ifunc_symbol tmpdir/local_prog] != 1} {
     fail "Local ifunc-using executable does not contain an IFUNC symbol"
     set fails [expr $fails + 1]
@@ -296,6 +299,7 @@ if {[contains_ifunc_symbol tmpdir/local_prog] != 1} {
 if {[contains_ifunc_symbol tmpdir/static_prog] != 1} {
     fail "Static ifunc-using executable does not contain an IFUNC symbol"
     set fails [expr $fails + 1]
+}
 }
 if {[contains_ifunc_symbol tmpdir/dynamic_prog] != 0} {
     fail "Dynamic ifunc-using executable contains an IFUNC symbol"

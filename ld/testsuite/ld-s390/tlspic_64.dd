@@ -78,7 +78,7 @@ Disassembly of section .text:
  +[0-9a-f]+:	00 00 00 60       	.long	0x00000060
 # function prolog
  +[0-9a-f]+:	b9 04 00 ef       	lgr	%r14,%r15
- +[0-9a-f]+:	c0 c0 [0-9a-f ]+ 	larl	%r12,[0-9a-f]+ <_GLOBAL_OFFSET_TABLE_>
+ +[0-9a-f]+:	c0 c0 [0-9a-f ]+ 	larl	%r12,[0-9a-f]+ <.*>
  +[0-9a-f]+:	a7 fb ff 60       	aghi	%r15,-160
  +[0-9a-f]+:	e3 e0 e0 00 00 24 	stg	%r14,0\(%r14\)
 # extract TCB

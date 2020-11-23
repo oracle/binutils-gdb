@@ -393,7 +393,7 @@ icf_sht_rel_addend_test: icf_sht_rel_addend_test_1.o icf_sht_rel_addend_test_2.o
 icf_sht_rel_addend_test.stdout: icf_sht_rel_addend_test
 	$(TEST_NM) icf_sht_rel_addend_test > icf_sht_rel_addend_test.stdout
 
-check_PROGRAMS += large_symbol_alignment
+# check_PROGRAMS += large_symbol_alignment
 large_symbol_alignment_SOURCES = large_symbol_alignment.cc
 large_symbol_alignment_DEPENDENCIES = gcctestdir/ld
 large_symbol_alignment_LDFLAGS = -Bgcctestdir/
@@ -783,7 +783,7 @@ weak_test_DEPENDENCIES = gcctestdir/ld
 weak_test_LDFLAGS = -Bgcctestdir/
 weak_test_LDADD =
 
-check_PROGRAMS += weak_undef_test
+# check_PROGRAMS += weak_undef_test
 MOSTLYCLEANFILES += alt/weak_undef_lib.so
 weak_undef_test_SOURCES = weak_undef_test.cc
 weak_undef_test_DEPENDENCIES = gcctestdir/ld weak_undef_lib.so alt/weak_undef_lib.so
@@ -1409,7 +1409,7 @@ initpri2_DEPENDENCIES = gcctestdir/ld
 initpri2_LDFLAGS = -Bgcctestdir/ -Wl,--ctors-in-init-array
 initpri2_LDADD =
 
-check_PROGRAMS += initpri3a
+# check_PROGRAMS += initpri3a
 initpri3a_SOURCES = initpri3.c
 initpri3a_DEPENDENCIES = gcctestdir/ld
 initpri3a_LDFLAGS = -Bgcctestdir/
@@ -1897,19 +1897,19 @@ relro_script_test_LDADD = relro_script_test.so
 relro_script_test.so: gcctestdir/ld relro_script_test.t relro_test_pic.o
 	$(CXXLINK) -Bgcctestdir/ -shared -Wl,-z,relro -Wl,-T,$(srcdir)/relro_script_test.t relro_test_pic.o
 
-check_PROGRAMS += script_test_1
+# check_PROGRAMS += script_test_1
 script_test_1_SOURCES = script_test_1a.cc script_test_1b.cc
 script_test_1_DEPENDENCIES = gcctestdir/ld script_test_1.t
 script_test_1_LDFLAGS = -Bgcctestdir/ -Wl,-R,. -Wl,-T,$(srcdir)/script_test_1.t
 script_test_1_LDADD =
 
-check_PROGRAMS += script_test_2
+# check_PROGRAMS += script_test_2
 script_test_2_SOURCES = script_test_2.cc script_test_2a.cc script_test_2b.cc
 script_test_2_DEPENDENCIES = gcctestdir/ld script_test_2.t
 script_test_2_LDFLAGS = -Bgcctestdir/ -Wl,-R,. -Wl,-T,$(srcdir)/script_test_2.t
 script_test_2_LDADD =
 
-check_PROGRAMS += justsyms
+# check_PROGRAMS += justsyms
 justsyms_SOURCES = justsyms_1.cc
 justsyms_DEPENDENCIES = gcctestdir/ld justsyms_2r.o
 justsyms_LDFLAGS = -Bgcctestdir/ -Wl,-R,justsyms_2r.o
@@ -1919,7 +1919,7 @@ justsyms_2.o: justsyms_2.cc
 justsyms_2r.o: justsyms_2.o gcctestdir/ld $(srcdir)/justsyms.t
 	gcctestdir/ld -o $@ -r -T $(srcdir)/justsyms.t justsyms_2.o
 
-check_PROGRAMS += justsyms_exec
+# check_PROGRAMS += justsyms_exec
 justsyms_exec_SOURCES = justsyms_exec.c
 justsyms_exec_DEPENDENCIES = gcctestdir/ld justsyms_lib
 justsyms_exec_LDFLAGS = -Bgcctestdir/ -Wl,-R,justsyms_lib
@@ -1930,7 +1930,7 @@ justsyms_lib.o: justsyms_lib.c
 justsyms_lib: justsyms_lib.o gcctestdir/ld
 	gcctestdir/ld -o $@ -Ttext=0x1000200 -Tdata=0x2000000 -e exported_func justsyms_lib.o
 
-check_PROGRAMS += binary_test
+# check_PROGRAMS += binary_test
 MOSTLYCLEANFILES += binary.txt
 binary_test_SOURCES = binary_test.cc
 binary_test_DEPENDENCIES = gcctestdir/ld binary.txt
@@ -1952,7 +1952,7 @@ ver_matching_def_pic.o: ver_matching_def.cc
 ver_matching_test.stdout: ver_matching_def.so
 	$(TEST_OBJDUMP) -T ver_matching_def.so | $(TEST_CXXFILT) > ver_matching_test.stdout
 
-check_PROGRAMS += script_test_3
+# check_PROGRAMS += script_test_3
 check_SCRIPTS += script_test_3.sh
 check_DATA += script_test_3.stdout
 MOSTLYCLEANFILES += script_test_3.stdout
@@ -1961,7 +1961,7 @@ script_test_3: basic_test.o gcctestdir/ld script_test_3.t
 script_test_3.stdout: script_test_3
 	$(TEST_READELF) -SlW script_test_3 > script_test_3.stdout
 
-check_PROGRAMS += tls_phdrs_script_test
+# check_PROGRAMS += tls_phdrs_script_test
 tls_phdrs_script_test_SOURCES = $(tls_test_SOURCES)
 tls_phdrs_script_test_DEPENDENCIES = $(tls_test_DEPENDENCIES) $(srcdir)/script_test_3.t
 tls_phdrs_script_test_LDFLAGS = $(tls_test_LDFLAGS) -Wl,-T,$(srcdir)/script_test_3.t
@@ -2043,7 +2043,7 @@ check_PROGRAMS += script_test_12
 script_test_12: gcctestdir/ld $(srcdir)/script_test_12.t script_test_12a.o script_test_12b.o
 	$(LINK) -Bgcctestdir/ -Wl,-T,$(srcdir)/script_test_12.t script_test_12a.o script_test_12b.o
 
-check_PROGRAMS += script_test_12i
+# check_PROGRAMS += script_test_12i
 script_test_12i: gcctestdir/ld $(srcdir)/script_test_12i.t script_test_12a.o script_test_12b.o
 	$(LINK) -Bgcctestdir/ -Wl,-T,$(srcdir)/script_test_12i.t script_test_12a.o script_test_12b.o
 script_test_12a.o: script_test_12a.c
@@ -3023,7 +3023,7 @@ two_file_test_2_ndebug.o: two_file_test_2.cc
 two_file_test_main_ndebug.o: two_file_test_main.cc
 	$(CXXCOMPILE) -O0 -g0 -c -o $@ $<
 
-check_PROGRAMS += incremental_test_2
+# check_PROGRAMS += incremental_test_2
 MOSTLYCLEANFILES += two_file_test_tmp_2.o
 incremental_test_2: two_file_test_1_v1_ndebug.o two_file_test_1_ndebug.o two_file_test_1b_ndebug.o \
 		    two_file_test_2_ndebug.o two_file_test_main_ndebug.o gcctestdir/ld
@@ -3033,7 +3033,7 @@ incremental_test_2: two_file_test_1_v1_ndebug.o two_file_test_1_ndebug.o two_fil
 	cp -f two_file_test_1_ndebug.o two_file_test_tmp_2.o
 	$(CXXLINK) -Wl,--incremental-update -Wl,-z,norelro,-no-pie -Bgcctestdir/ two_file_test_tmp_2.o two_file_test_1b_ndebug.o two_file_test_2_ndebug.o two_file_test_main_ndebug.o
 
-check_PROGRAMS += incremental_test_3
+# check_PROGRAMS += incremental_test_3
 MOSTLYCLEANFILES += two_file_test_tmp_3.o
 incremental_test_3: two_file_test_1.o two_file_test_1b_v1.o two_file_test_1b.o \
 		    two_file_test_2.o two_file_test_main.o gcctestdir/ld
@@ -3043,7 +3043,7 @@ incremental_test_3: two_file_test_1.o two_file_test_1b_v1.o two_file_test_1b.o \
 	cp -f two_file_test_1b.o two_file_test_tmp_3.o
 	$(CXXLINK) -Wl,--incremental-update -Wl,-z,norelro,-no-pie -Bgcctestdir/ two_file_test_1.o two_file_test_tmp_3.o two_file_test_2.o two_file_test_main.o
 
-check_PROGRAMS += incremental_test_4
+# check_PROGRAMS += incremental_test_4
 MOSTLYCLEANFILES += incremental_test_4.base two_file_test_tmp_4.o
 incremental_test_4: two_file_test_1.o two_file_test_1b.o two_file_test_2_v1.o \
 		    two_file_test_2.o two_file_test_main.o gcctestdir/ld
@@ -3054,7 +3054,7 @@ incremental_test_4: two_file_test_1.o two_file_test_1b.o two_file_test_2_v1.o \
 	cp -f two_file_test_2.o two_file_test_tmp_4.o
 	$(CXXLINK) -Wl,--incremental-update,--incremental-base=incremental_test_4.base -Wl,-z,norelro,-no-pie -Bgcctestdir/ two_file_test_1.o two_file_test_1b.o two_file_test_tmp_4.o two_file_test_main.o
 
-check_PROGRAMS += incremental_test_5
+# check_PROGRAMS += incremental_test_5
 MOSTLYCLEANFILES += two_file_test_5.a
 incremental_test_5: two_file_test_1.o two_file_test_1b_v1.o two_file_test_1b.o \
 		    two_file_test_2.o two_file_test_main.o gcctestdir/ld
@@ -3068,7 +3068,7 @@ incremental_test_5: two_file_test_1.o two_file_test_1b_v1.o two_file_test_1b.o \
 
 # Test the --incremental-unchanged flag with an archive library.
 # The second link should not update the library.
-check_PROGRAMS += incremental_test_6
+# check_PROGRAMS += incremental_test_6
 MOSTLYCLEANFILES += two_file_test_6.a
 incremental_test_6: two_file_test_1.o two_file_test_1b_v1.o two_file_test_1b.o \
 		    two_file_test_2.o two_file_test_main.o gcctestdir/ld
@@ -3080,7 +3080,7 @@ incremental_test_6: two_file_test_1.o two_file_test_1b_v1.o two_file_test_1b.o \
 	$(TEST_AR) rc two_file_test_6.a two_file_test_1.o two_file_test_tmp_6.o two_file_test_2.o
 	$(CXXLINK) -Wl,--incremental-update -Wl,-z,norelro,-no-pie -Bgcctestdir/ two_file_test_main.o -Wl,--incremental-unchanged two_file_test_6.a -Wl,--incremental-unknown
 
-check_PROGRAMS += incremental_copy_test
+# check_PROGRAMS += incremental_copy_test
 incremental_copy_test: copy_test_v1.o copy_test.o copy_test_1.so copy_test_2.so
 	cp -f copy_test_v1.o copy_test_tmp.o
 	$(CXXLINK) -Wl,--incremental-full,--incremental-patch=100 -Wl,-z,norelro,-no-pie -Bgcctestdir/ -Wl,-R,. -Wl,--no-as-needed copy_test_tmp.o copy_test_1.so copy_test_2.so
@@ -3088,7 +3088,7 @@ incremental_copy_test: copy_test_v1.o copy_test.o copy_test_1.so copy_test_2.so
 	cp -f copy_test.o copy_test_tmp.o
 	$(CXXLINK) -Wl,--incremental-update -Wl,-z,norelro,-no-pie -Bgcctestdir/ -Wl,-R,. -Wl,--no-as-needed copy_test_tmp.o copy_test_1.so copy_test_2.so
 
-check_PROGRAMS += incremental_common_test_1
+# check_PROGRAMS += incremental_common_test_1
 incremental_common_test_1: common_test_1_v1.o common_test_1_v2.o gcctestdir/ld
 	cp -f common_test_1_v1.o common_test_1_tmp.o
 	$(CXXLINK) -Wl,--incremental-full,--incremental-patch=100 -Wl,-z,norelro,-no-pie -Bgcctestdir/ common_test_1_tmp.o
@@ -3096,7 +3096,7 @@ incremental_common_test_1: common_test_1_v1.o common_test_1_v2.o gcctestdir/ld
 	cp -f common_test_1_v2.o common_test_1_tmp.o
 	$(CXXLINK) -Wl,--incremental-update -Wl,-z,norelro,-no-pie -Bgcctestdir/ common_test_1_tmp.o
 
-check_PROGRAMS += incremental_comdat_test_1
+# check_PROGRAMS += incremental_comdat_test_1
 incremental_comdat_test_1: incr_comdat_test_1.o incr_comdat_test_2_v1.o incr_comdat_test_2_v2.o incr_comdat_test_2_v3.o gcctestdir/ld
 	cp -f incr_comdat_test_2_v1.o incr_comdat_test_1_tmp.o
 	$(CXXLINK) -Wl,--incremental-full,--incremental-patch=100 -Wl,-z,norelro,-no-pie -Bgcctestdir/ incr_comdat_test_1.o incr_comdat_test_1_tmp.o
