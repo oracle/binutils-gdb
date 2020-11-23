@@ -268,7 +268,7 @@ set plugin_extra_elf_tests [list \
 			-plugin-opt add:tmpdir/func2i.o \
 			-plugin-opt add:tmpdir/func3h.o \
     $testobjfiles $libs --verbose=2" "" "" "" {{ld plugin-12.d} \
-				{readelf -s plugin-vis-1.d}} "main.x" ] \
+				} "main.x" ] \
     [list "plugin set symbol visibility with source" \
 		       "-plugin $plugin_path $regclm $regas $regcln \
 			-plugin-opt claim:$srcdir/$subdir/func.c \
@@ -282,7 +282,7 @@ set plugin_extra_elf_tests [list \
 			-plugin-opt add:tmpdir/func2i.o \
 			-plugin-opt add:tmpdir/func3h.o \
     $testsrcfiles $libs --verbose=2" "" "" "" {{ld plugin-12.d} \
-				{readelf -s plugin-vis-1.d}} "main.x" ] \
+				} "main.x" ] \
 ]
 
 if { !$can_compile || $failed_compile } {

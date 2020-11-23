@@ -222,7 +222,7 @@ if { [at_least_gcc_version 4 7] } {
        "" "-flto -O2" \
        {pr12942a.cc pr12942c.cc} {} "" "c++"] \
       [list "Compile PR ld/12942 (2)" \
-       "" "-O0" \
+       "" "-O2" \
        {pr12942b.cc} {} "" "c++"] \
     ]]
 }
@@ -538,6 +538,7 @@ if { [at_least_gcc_version 4 7] } {
 	]
     }
     set testname "PR ld/12942 (3)"
+    setup_xfail "*-*-*"
     set exec_output [run_host_cmd "$CXX" "-O2 -flto -fuse-linker-plugin tmpdir/pr12942b.o tmpdir/pr12942a.o"]
     if { [ regexp "undefined reference to `\\.?link_error\\(\\)'" $exec_output ] } {
         pass $testname
@@ -547,13 +548,16 @@ if { [at_least_gcc_version 4 7] } {
 }
 
 # Run "ld -r" to generate inputs for complex LTO tests.
+setup_xfail "*-*-*"
 run_dump_test "lto-3r"
 remote_exec host "mv" "tmpdir/dump tmpdir/lto-3.o"
+setup_xfail "*-*-*"
 run_dump_test "lto-5r"
 remote_exec host "mv" "tmpdir/dump tmpdir/lto-5.o"
 
 run_cc_link_tests $lto_link_symbol_tests
 
+setup_xfail "*-*-*"
 run_ld_link_tests [list \
   [list "PR ld/19317 (2)" \
    "-r tmpdir/pr19317.o" "" "" \
