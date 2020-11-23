@@ -2499,12 +2499,19 @@ elf_x86_64_relocate_section (bfd *output_bfd,
 
 	  if ((input_section->flags & SEC_ALLOC) == 0)
 	    {
+	      /* If this is a SHT_NOTE section without SHF_ALLOC, treat
+	         STT_GNU_IFUNC symbol as STT_FUNC.  */
+	      if (elf_section_type (input_section) == SHT_NOTE)
+		goto skip_ifunc;
 	      /* Dynamic relocs are not propagated for SEC_DEBUGGING
 		 sections because such sections are not SEC_ALLOC and
 		 thus ld.so will not process them.  */
 	      if ((input_section->flags & SEC_DEBUGGING) != 0)
 		continue;
-	      abort ();
+	      _bfd_error_handler (_("%B: error: relocation againt ifunc symbol in non-alloc section %A"),
+				  input_bfd, input_section);
+	      bfd_set_error (bfd_error_invalid_operation);
+	      return FALSE;
 	    }
 
 	  switch (r_type)
@@ -2722,6 +2729,7 @@ do_ifunc_pointer:
 	    }
 	}
 
+    skip_ifunc:
       resolved_to_zero = (eh != NULL
 			  && UNDEFINED_WEAK_RESOLVED_TO_ZERO (info, eh));
 
