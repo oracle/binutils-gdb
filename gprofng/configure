@@ -16523,7 +16523,7 @@ done
 
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile libcollector/Makefile gp-display-html/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile libcollector/Makefile gp-display-html/Makefile doc/Makefile"
 
 
 ac_config_headers="$ac_config_headers common/config.h"
@@ -17652,6 +17652,7 @@ do
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "libcollector/Makefile") CONFIG_FILES="$CONFIG_FILES libcollector/Makefile" ;;
     "gp-display-html/Makefile") CONFIG_FILES="$CONFIG_FILES gp-display-html/Makefile" ;;
+    "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
     "common/config.h") CONFIG_HEADERS="$CONFIG_HEADERS common/config.h" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;

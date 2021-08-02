@@ -24,10 +24,10 @@ if BUILD_COLLECTOR
     COLLECTOR_SUBDIRS = libcollector
 endif
 if BUILD_SRC
-    SRC_SUBDIRS = src gp-display-html
+    SRC_SUBDIRS = src gp-display-html doc
 endif
 SUBDIRS = $(COLLECTOR_SUBDIRS) $(SRC_SUBDIRS)
-DIST_SUBDIRS = libcollector src gp-display-html
+DIST_SUBDIRS = libcollector src gp-display-html doc
 
 # Setup the testing framework, if you have one
 EXPECT = expect
