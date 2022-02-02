@@ -105,7 +105,6 @@ AM_CPPFLAGS = $(GPROFNG_CPPFLAGS) -DLOCALEDIR=\"@localedir@\" -I.. -I$(srcdir) \
 AM_CFLAGS = $(GPROFNG_CFLAGS) $(PTHREAD_CFLAGS) -Wno-switch \
 	-Wno-format-truncation
 AM_CXXFLAGS = $(AM_CFLAGS)
-AM_LDFLAGS = -rpath $(libdir)
 
 man_MANS = gprofng.1 \
 	gp-archive.1 \
@@ -120,7 +119,7 @@ EXTRA_DIST = $(man_MANS)
 
 lib_LTLIBRARIES = $(LIBGPROFNG)
 libgprofng_la_SOURCES = $(CCSOURCES) $(CSOURCES)
-libgprofng_la_LDFLAGS = $(AM_LDFLAGS) -version-info 0:0:0
+libgprofng_la_LDFLAGS = -version-info 0:0:0
 libgprofng_la_LIBADD = $(top_builddir)/../opcodes/libopcodes.la \
 	$(top_builddir)/../bfd/libbfd.la \
 	$(GPROFNG_LIBADD) \
