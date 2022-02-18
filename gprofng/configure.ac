@@ -182,7 +182,7 @@ AC_CHECK_FUNCS([strsignal])
 
 AC_SUBST(BUILD_SUBDIRS)
 
-AC_CONFIG_FILES([Makefile src/Makefile gp-display-html/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile gp-display-html/Makefile doc/Makefile])
 AC_CONFIG_HEADERS([config.h:common/config.h.in])
 
 AC_OUTPUT
