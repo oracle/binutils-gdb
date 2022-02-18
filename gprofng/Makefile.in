@@ -186,7 +186,7 @@ am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/../ar-lib \
 	$(top_srcdir)/../config.sub $(top_srcdir)/../install-sh \
 	$(top_srcdir)/../ltmain.sh $(top_srcdir)/../missing \
 	$(top_srcdir)/../mkinstalldirs \
-	$(top_srcdir)/common/config.h.in
+	$(top_srcdir)/common/config.h.in README
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -370,9 +370,9 @@ top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I . -I .. 
 AUTOMAKE_OPTIONS = dejagnu foreign
 @BUILD_COLLECTOR_TRUE@COLLECTOR_SUBDIRS = libcollector
-@BUILD_SRC_TRUE@SRC_SUBDIRS = src gp-display-html
+@BUILD_SRC_TRUE@SRC_SUBDIRS = src gp-display-html doc
 SUBDIRS = $(COLLECTOR_SUBDIRS) $(SRC_SUBDIRS)
-DIST_SUBDIRS = libcollector src gp-display-html
+DIST_SUBDIRS = libcollector src gp-display-html doc
 RUNTEST = runtest
 RUNTESTFLAGS = 
 BASEDIR = $(srcdir)/..
