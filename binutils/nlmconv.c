@@ -72,9 +72,6 @@ extern char *strerror (int);
 
 /* Global variables.  */
 
-/* The name used to invoke the program.  */
-char *program_name;
-
 /* Local variables.  */
 
 /* Whether to print out debugging information (currently just controls

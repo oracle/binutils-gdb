@@ -258,11 +258,14 @@ changequote([,])dnl
   if test -n "$x"; then
     SHARED_LIBADD="-L`pwd`/../libiberty/pic -liberty"
   fi
+fi
 
-# More hacks to build DLLs on Windows.
+SHARED_LIBADD="$SHARED_LIBADD $LIBINTL"
+
+if test "$enable_shared" = "yes"; then
   case "${host}" in
   *-*-cygwin*)
-    SHARED_LDFLAGS="-no-undefined"
+    SHARED_LIBADD="-L`pwd`/../libiberty -liberty $SHARED_LIBADD -lcygwin -lkernel32"
     SHARED_LIBADD="-L`pwd`/../libiberty -liberty -L`pwd`/../intl -lintl -lcygwin -lkernel32"
   ;;
 

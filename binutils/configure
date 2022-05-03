@@ -654,6 +654,8 @@ WARN_WRITE_STRINGS
 NO_WERROR
 WARN_CFLAGS_FOR_BUILD
 WARN_CFLAGS
+ENABLE_LIBCTF_FALSE
+ENABLE_LIBCTF_TRUE
 OTOOL64
 OTOOL
 LIPO
@@ -778,6 +780,7 @@ enable_largefile
 enable_targets
 enable_deterministic_archives
 enable_default_strings_all
+enable_libctf
 enable_werror
 enable_build_warnings
 enable_nls
@@ -1431,6 +1434,7 @@ Optional Features:
                           ar and ranlib default to -D behavior
   --disable-default-strings-all
                           strings defaults to --data behavior
+  --enable-libctf         Handle .ctf type-info sections [default=yes]
   --enable-werror         treat compile warnings as errors
   --enable-build-warnings enable build-time compiler warnings
   --disable-nls           do not use Native Language Support
@@ -10586,34 +10590,10 @@ fi
   # before this can be enabled.
   hardcode_into_libs=yes
 
-  # find out which ABI we are using
-  libsuff=
-  case "$host_cpu" in
-  x86_64*|s390*|powerpc*|ppc*|sparc*)
-    echo 'int i;' > conftest.$ac_ext
-    if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; then
-      case `/usr/bin/file conftest.$ac_objext` in
-      *64-bit*)
-        libsuff=64
-        if test x"$sys_lib_search_path_spec" = x"/lib /usr/lib /usr/local/lib"; then
-          sys_lib_search_path_spec="/lib${libsuff} /usr/lib${libsuff} /usr/local/lib${libsuff}"
-        fi
-        sys_lib_dlsearch_path_spec="/lib${libsuff} /usr/lib${libsuff}"
-        ;;
-      esac
-    fi
-    rm -rf conftest*
-    ;;
-  esac
-
   # Append ld.so.conf contents to the search path
   if test -f /etc/ld.so.conf; then
     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;s/"//g;/^$/d' | tr '\n' ' '`
-    sys_lib_dlsearch_path_spec="/lib${libsuff} /usr/lib${libsuff} $lt_ld_extra"
+    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
   fi
 
   # We used to test for /lib/ld.so.1 and disable shared libraries on
@@ -11250,7 +11230,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 11229 "configure"
+#line 11233 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11356,7 +11336,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 11335 "configure"
+#line 11339 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11964,6 +11944,33 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define DEFAULT_STRINGS_ALL $default_strings_all
 _ACEOF
+
+
+ # Check whether --enable-libctf was given.
+if test "${enable_libctf+set}" = set; then :
+  enableval=$enable_libctf;
+      case "$enableval" in
+       yes|no) ;;
+       *) as_fn_error "Argument to enable/disable libctf must be yes or no" "$LINENO" 5 ;;
+      esac
+
+else
+  enable_libctf=yes
+fi
+
+
+if test "${enable_libctf}" = yes; then
+
+$as_echo "#define ENABLE_LIBCTF 1" >>confdefs.h
+
+fi
+ if test "${enable_libctf}" = yes; then
+  ENABLE_LIBCTF_TRUE=
+  ENABLE_LIBCTF_FALSE='#'
+else
+  ENABLE_LIBCTF_TRUE='#'
+  ENABLE_LIBCTF_FALSE=
+fi
 
 
 
@@ -14841,6 +14848,10 @@ else
   am__EXEEXT_FALSE=
 fi
 
+if test -z "${ENABLE_LIBCTF_TRUE}" && test -z "${ENABLE_LIBCTF_FALSE}"; then
+  as_fn_error "conditional \"ENABLE_LIBCTF\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${MAINTAINER_MODE_TRUE}" && test -z "${MAINTAINER_MODE_FALSE}"; then
   as_fn_error "conditional \"MAINTAINER_MODE\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5

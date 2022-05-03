@@ -100,6 +100,15 @@ extern struct bfd_elf_version_expr *ldemul_new_vers_pattern
   (struct bfd_elf_version_expr *);
 extern void ldemul_extra_map_file_text
   (bfd *, struct bfd_link_info *, FILE *);
+/* Return 1 if we are emitting CTF early, and 0 if ldemul_examine_strtab_for_ctf
+   will be called by the target.  */
+extern int ldemul_emit_ctf_early
+  (void);
+/* Called from per-target code to examine the strtab and symtab.  */
+extern void ldemul_acquire_strings_for_ctf
+  (struct ctf_dict *, struct elf_strtab_hash *);
+extern void ldemul_new_dynsym_for_ctf
+  (struct ctf_dict *, int symidx, struct elf_internal_sym *);
 
 typedef struct ld_emulation_xfer_struct {
   /* Run before parsing the command line and script file.
@@ -207,6 +216,28 @@ typedef struct ld_emulation_xfer_struct {
      emulation-specific sections for it.  */
   void (*extra_map_file_text)
     (bfd *, struct bfd_link_info *, FILE *);
+
+  /* If this returns true, we emit CTF as early as possible: if false, we emit
+     CTF once the strtab and symtab are laid out.  */
+  int (*emit_ctf_early)
+    (void);
+
+  /* Called to examine the string table late enough in linking that it is
+     finally laid out.  If emit_ctf_early returns true, this is not called, and
+     ldemul_maybe_emit_ctf emits CTF in 'early' mode: otherwise, it waits
+     until 'late'. (Late mode needs explicit support at per-target link time to
+     get called at all).  If set, called by ld when the examine_strtab
+     bfd_link_callback is invoked by per-target code.  */
+  void (*acquire_strings_for_ctf) (struct ctf_dict *, struct elf_strtab_hash *);
+
+  /* Called when a new symbol is added to the dynamic symbol table.  If
+     emit_ctf_early returns true, this is not called, and ldemul_maybe_emit_ctf
+     emits CTF in 'early' mode: otherwise, it waits until 'late'. (Late mode
+     needs explicit support at per-target link time to get called at all).  If
+     set, called by ld when the ctf_new_symbol bfd_link_callback is invoked by
+     per-target code.  Called with a NULL symbol when no further symbols will be
+     provided.  */
+  void (*new_dynsym_for_ctf) (struct ctf_dict *, int, struct elf_internal_sym *);
 
 } ld_emulation_xfer_type;
 

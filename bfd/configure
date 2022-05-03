@@ -10788,34 +10788,10 @@ fi
   # before this can be enabled.
   hardcode_into_libs=yes
 
-  # find out which ABI we are using
-  libsuff=
-  case "$host_cpu" in
-  x86_64*|s390*|powerpc*|ppc*|sparc*)
-    echo 'int i;' > conftest.$ac_ext
-    if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; then
-      case `/usr/bin/file conftest.$ac_objext` in
-      *64-bit*)
-        libsuff=64
-        if test x"$sys_lib_search_path_spec" = x"/lib /usr/lib /usr/local/lib"; then
-          sys_lib_search_path_spec="/lib${libsuff} /usr/lib${libsuff} /usr/local/lib${libsuff}"
-        fi
-        sys_lib_dlsearch_path_spec="/lib${libsuff} /usr/lib${libsuff}"
-        ;;
-      esac
-    fi
-    rm -rf conftest*
-    ;;
-  esac
-
   # Append ld.so.conf contents to the search path
   if test -f /etc/ld.so.conf; then
     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;s/"//g;/^$/d' | tr '\n' ' '`
-    sys_lib_dlsearch_path_spec="/lib${libsuff} /usr/lib${libsuff} $lt_ld_extra"
+    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
   fi
 
   # We used to test for /lib/ld.so.1 and disable shared libraries on
@@ -11850,9 +11826,9 @@ else
 fi
 
   if test "$plugins" = "yes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing dlopen" >&5
-$as_echo_n "checking for library containing dlopen... " >&6; }
-if test "${ac_cv_search_dlopen+set}" = set; then :
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing dlsym" >&5
+$as_echo_n "checking for library containing dlsym... " >&6; }
+if test "${ac_cv_search_dlsym+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
   ac_func_search_save_LIBS=$LIBS
@@ -11865,11 +11841,11 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char dlopen ();
+char dlsym ();
 int
 main ()
 {
-return dlopen ();
+return dlsym ();
   ;
   return 0;
 }
@@ -11882,25 +11858,25 @@ for ac_lib in '' dl; do
     LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
   fi
   if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_search_dlopen=$ac_res
+  ac_cv_search_dlsym=$ac_res
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext
-  if test "${ac_cv_search_dlopen+set}" = set; then :
+  if test "${ac_cv_search_dlsym+set}" = set; then :
   break
 fi
 done
-if test "${ac_cv_search_dlopen+set}" = set; then :
+if test "${ac_cv_search_dlsym+set}" = set; then :
 
 else
-  ac_cv_search_dlopen=no
+  ac_cv_search_dlsym=no
 fi
 rm conftest.$ac_ext
 LIBS=$ac_func_search_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_dlopen" >&5
-$as_echo "$ac_cv_search_dlopen" >&6; }
-ac_res=$ac_cv_search_dlopen
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_dlsym" >&5
+$as_echo "$ac_cv_search_dlsym" >&6; }
+ac_res=$ac_cv_search_dlsym
 if test "$ac_res" != no; then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
@@ -14200,11 +14176,14 @@ if test "$enable_shared" = "yes"; then
   if test -n "$x"; then
     SHARED_LIBADD="-L`pwd`/../libiberty/pic -liberty"
   fi
+fi
 
-# More hacks to build DLLs on Windows.
+SHARED_LIBADD="$SHARED_LIBADD $LIBINTL"
+
+if test "$enable_shared" = "yes"; then
   case "${host}" in
   *-*-cygwin*)
-    SHARED_LDFLAGS="-no-undefined"
+    SHARED_LIBADD="-L`pwd`/../libiberty -liberty $SHARED_LIBADD -lcygwin -lkernel32"
     SHARED_LIBADD="-L`pwd`/../libiberty -liberty -L`pwd`/../intl -lintl -lcygwin -lkernel32"
   ;;
 

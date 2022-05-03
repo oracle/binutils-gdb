@@ -1,3 +1,11 @@
+2019-12-16  Nick Alcock  <nick.alcock@oracle.com>
+
+	PR libctf/25120
+	* bsearch_r.c: New file.
+	* Makefile.in (CFILES): Add bsearch_r.c.
+	(REQUIRED_OFILES): Add bsearch_r.o.
+	(bsearch_r.$(objext)): New target.
+
 2018-01-03  Jakub Jelinek  <jakub@redhat.com>
 
 	Update copyright years.

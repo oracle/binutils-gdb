@@ -22,6 +22,7 @@
 #include "bfd.h"
 #include "getopt.h"
 #include "bfdlink.h"
+#include "ctf-api.h"
 
 #include "ld.h"
 #include "ldmisc.h"
@@ -365,4 +366,30 @@ ldemul_extra_map_file_text (bfd *abfd, struct bfd_link_info *info, FILE *mapf)
 {
   if (ld_emulation->extra_map_file_text)
     ld_emulation->extra_map_file_text (abfd, info, mapf);
+}
+
+int
+ldemul_emit_ctf_early (void)
+{
+  if (ld_emulation->emit_ctf_early)
+    return ld_emulation->emit_ctf_early ();
+  /* If the emulation doesn't know if it wants to emit CTF early, it is going
+     to do so.  */
+  return 1;
+}
+
+void
+ldemul_acquire_strings_for_ctf (struct ctf_dict *ctf_output,
+				struct elf_strtab_hash *symstrtab)
+{
+  if (ld_emulation->acquire_strings_for_ctf)
+    ld_emulation->acquire_strings_for_ctf (ctf_output, symstrtab);
+}
+
+void
+ldemul_new_dynsym_for_ctf (struct ctf_dict *ctf_output, int symidx,
+			   struct elf_internal_sym *sym)
+{
+  if (ld_emulation->new_dynsym_for_ctf)
+    ld_emulation->new_dynsym_for_ctf (ctf_output, symidx, sym);
 }

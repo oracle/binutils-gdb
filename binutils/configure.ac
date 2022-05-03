@@ -67,6 +67,12 @@ fi], [default_strings_all=1])
 AC_DEFINE_UNQUOTED(DEFAULT_STRINGS_ALL, $default_strings_all,
 		   [Should strings use -a behavior by default?])
 
+GCC_ENABLE([libctf], [yes], [], [Handle .ctf type-info sections])
+if test "${enable_libctf}" = yes; then
+    AC_DEFINE(ENABLE_LIBCTF, 1, [Handle .ctf type-info sections])
+fi
+AM_CONDITIONAL(ENABLE_LIBCTF, test "${enable_libctf}" = yes)
+
 AM_BINUTILS_WARNINGS
 
 AC_CONFIG_HEADERS(config.h:config.in)

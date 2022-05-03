@@ -1,3 +1,9 @@
+2021-02-04  Nick Alcock  <nick.alcock@oracle.com>
+
+	* configure.ac (SHARED_LIBADD): Remove explicit -lintl population in
+	favour of LIBINTL.
+	* configure: Regenerated.
+
 2018-01-27  Nick Clifton  <nickc@redhat.com>
 
 	This is the 2.30 release:

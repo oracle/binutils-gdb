@@ -68,4 +68,144 @@ gld${EMULATION_NAME}_map_segments (bfd_boolean need_layout)
   if (tries == 0)
     einfo (_("%P%F: looping in map_segments"));
 }
+
+#ifdef ENABLE_LIBCTF
+#include "elf/internal.h"
+
+/* We want to emit CTF early if and only if we are not targetting ELF with this
+   invocation.  */
+
+static int
+gld_${EMULATION_NAME}_emit_ctf_early (void)
+{
+  if (bfd_get_flavour (link_info.output_bfd) == bfd_target_elf_flavour)
+    return 0;
+  return 1;
+}
+
+/* Callbacks used to map from bfd types to libctf types, under libctf's
+   control.  */
+
+struct ctf_strtab_iter_cb_arg
+{
+  struct elf_strtab_hash *strtab;
+  size_t next_i;
+  size_t next_idx;
+};
+
+/* Return strings from the strtab to libctf, one by one.  Returns NULL when
+   iteration is complete.  */
+
+static const char *
+gld_${EMULATION_NAME}_ctf_strtab_iter_cb (uint32_t *offset, void *arg_)
+{
+  bfd_size_type off;
+  const char *ret;
+
+  struct ctf_strtab_iter_cb_arg *arg =
+    (struct ctf_strtab_iter_cb_arg *) arg_;
+
+  /* There is no zeroth string.  */
+  if (arg->next_i == 0)
+    arg->next_i = 1;
+
+  /* Hunt through strings until we fall off the end or find one with
+     a nonzero refcount.  */
+  do
+    {
+      if (arg->next_i >= _bfd_elf_strtab_len (arg->strtab))
+	{
+	  arg->next_i = 0;
+	  return NULL;
+	}
+
+      ret = _bfd_elf_strtab_str (arg->strtab, arg->next_i++, &off);
+    }
+  while (ret == NULL);
+
+  *offset = off;
+
+  /* If we've overflowed, we cannot share any further strings: the CTF
+     format cannot encode strings with such high offsets.  */
+  if (*offset != off)
+    return NULL;
+
+  return ret;
+}
+
+static void
+gld_${EMULATION_NAME}_acquire_strings_for_ctf (struct ctf_dict *ctf_output,
+					       struct elf_strtab_hash *strtab)
+{
+  struct ctf_strtab_iter_cb_arg args = { strtab, 0, 0 };
+  if (!ctf_output)
+    return;
+
+  if (bfd_get_flavour (link_info.output_bfd) == bfd_target_elf_flavour)
+    {
+      if (ctf_link_add_strtab (ctf_output, gld_${EMULATION_NAME}_ctf_strtab_iter_cb,
+			       &args) < 0)
+	einfo (_("%F%P: warning: CTF strtab association failed; strings will "
+		 "not be shared: %s\n"),
+	       ctf_errmsg (ctf_errno (ctf_output)));
+    }
+}
+
+static void
+gld_${EMULATION_NAME}_new_dynsym_for_ctf (struct ctf_dict *ctf_output,
+					  int symidx,
+					  struct elf_internal_sym *sym)
+{
+  ctf_link_sym_t lsym;
+
+  if (!ctf_output)
+    return;
+
+  /* New symbol.  */
+  if (sym != NULL)
+    {
+      lsym.st_name = NULL;
+      lsym.st_nameidx = sym->st_name;
+      lsym.st_nameidx_set = 1;
+      lsym.st_symidx = symidx;
+      lsym.st_shndx = sym->st_shndx;
+      lsym.st_type = ELF_ST_TYPE (sym->st_info);
+      lsym.st_value = sym->st_value;
+      if (ctf_link_add_linker_symbol (ctf_output, &lsym) < 0)
+	{
+	  einfo (_("%F%P: warning: CTF symbol addition failed; CTF will "
+		   "not be tied to symbols: %s\n"),
+		 ctf_errmsg (ctf_errno (ctf_output)));
+	}
+    }
+  else
+    {
+      /* Shuffle all the symbols.  */
+
+      if (ctf_link_shuffle_syms (ctf_output) < 0)
+	einfo (_("%F%P: warning: CTF symbol shuffling failed; CTF will "
+		 "not be tied to symbols: %s\n"),
+	       ctf_errmsg (ctf_errno (ctf_output)));
+    }
+}
+#else
+static int gld_${EMULATION_NAME}_emit_ctf_early (void)
+{
+  return 0;
+}
+static void
+gld_${EMULATION_NAME}_acquire_strings_for_ctf (struct ctf_dict *ctf_output ATTRIBUTE_UNUSED,
+			       struct elf_strtab_hash *strtab ATTRIBUTE_UNUSED)
+{}
+static void
+gld_${EMULATION_NAME}_new_dynsym_for_ctf (struct ctf_dict *ctf_output ATTRIBUTE_UNUSED,
+			  int symidx ATTRIBUTE_UNUSED,
+			  struct elf_internal_sym *sym ATTRIBUTE_UNUSED)
+{}
+#endif
 EOF
+# Put these extra routines in ld${EMULATION_NAME}_emulation
+#
+LDEMUL_EMIT_CTF_EARLY=gld_${EMULATION_NAME}_emit_ctf_early
+LDEMUL_ACQUIRE_STRINGS_FOR_CTF=gld_${EMULATION_NAME}_acquire_strings_for_ctf
+LDEMUL_NEW_DYNSYM_FOR_CTF=gld_${EMULATION_NAME}_new_dynsym_for_ctf
