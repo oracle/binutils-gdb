@@ -1927,6 +1927,28 @@ s_aarch64_elf_cons (int nbytes)
   demand_empty_rest_of_line ();
 }
 
+/* Mark symbol that it follows a variant PCS convention.  */
+
+static void
+s_variant_pcs (int ignored ATTRIBUTE_UNUSED)
+{
+  char *name;
+  char c;
+  symbolS *sym;
+  asymbol *bfdsym;
+  elf_symbol_type *elfsym;
+
+  c = get_symbol_name (&name);
+  if (!*name)
+    as_bad (_("Missing symbol name in directive"));
+  sym = symbol_find_or_make (name);
+  restore_line_pointer (c);
+  demand_empty_rest_of_line ();
+  bfdsym = symbol_get_bfdsym (sym);
+  elfsym = elf_symbol_from (bfd_asymbol_bfd (bfdsym), bfdsym);
+  gas_assert (elfsym);
+  elfsym->internal_elf_sym.st_other |= STO_AARCH64_VARIANT_PCS;
+}
 #endif /* OBJ_ELF */
 
 /* Output a 32-bit word, but mark as an instruction.  */
@@ -2064,6 +2086,7 @@ const pseudo_typeS md_pseudo_table[] = {
   {"long", s_aarch64_elf_cons, 4},
   {"xword", s_aarch64_elf_cons, 8},
   {"dword", s_aarch64_elf_cons, 8},
+  {"variant_pcs", s_variant_pcs, 0},
 #endif
   {0, 0, 0}
 };
@@ -8994,3 +9017,35 @@ aarch64_copy_symbol_attributes (symbolS * dest, symbolS * src)
 {
   AARCH64_GET_FLAG (dest) = AARCH64_GET_FLAG (src);
 }
+
+#ifdef OBJ_ELF
+/* Same as elf_copy_symbol_attributes, but without copying st_other.
+   This is needed so AArch64 specific st_other values can be independently
+   specified for an IFUNC resolver (that is called by the dynamic linker)
+   and the symbol it resolves (aliased to the resolver).  In particular,
+   if a function symbol has special st_other value set via directives,
+   then attaching an IFUNC resolver to that symbol should not override
+   the st_other setting.  Requiring the directive on the IFUNC resolver
+   symbol would be unexpected and problematic in C code, where the two
+   symbols appear as two independent function declarations.  */
+
+void
+aarch64_elf_copy_symbol_attributes (symbolS *dest, symbolS *src)
+{
+  struct elf_obj_sy *srcelf = symbol_get_obj (src);
+  struct elf_obj_sy *destelf = symbol_get_obj (dest);
+  if (srcelf->size)
+    {
+      if (destelf->size == NULL)
+	destelf->size = XNEW (expressionS);
+      *destelf->size = *srcelf->size;
+    }
+  else
+    {
+      if (destelf->size != NULL)
+	free (destelf->size);
+      destelf->size = NULL;
+    }
+  S_SET_SIZE (dest, S_GET_SIZE (src));
+}
+#endif
