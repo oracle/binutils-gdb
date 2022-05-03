@@ -291,6 +291,8 @@ s390_parse_cpu (const char *         arg,
     { STRING_COMMA_LEN ("z13"), STRING_COMMA_LEN ("arch11"),
       S390_INSTR_FLAG_HTM | S390_INSTR_FLAG_VX },
     { STRING_COMMA_LEN ("z14"), STRING_COMMA_LEN ("arch12"),
+      S390_INSTR_FLAG_HTM | S390_INSTR_FLAG_VX },
+    { STRING_COMMA_LEN (""), STRING_COMMA_LEN ("arch13"),
       S390_INSTR_FLAG_HTM | S390_INSTR_FLAG_VX }
   };
   static struct
@@ -1229,6 +1231,24 @@ s390_elf_cons (int nbytes /* 1=.byte, 2=.word, 4=.long */)
   demand_empty_rest_of_line ();
 }
 
+/* Return true if all remaining operands in the opcode with
+   OPCODE_FLAGS can be skipped.  */
+static bfd_boolean
+skip_optargs_p (unsigned int opcode_flags, const unsigned char *opindex_ptr)
+{
+  if ((opcode_flags & (S390_INSTR_FLAG_OPTPARM | S390_INSTR_FLAG_OPTPARM2))
+      && opindex_ptr[0] != '\0'
+      && opindex_ptr[1] == '\0')
+    return TRUE;
+
+  if ((opcode_flags & S390_INSTR_FLAG_OPTPARM2)
+      && opindex_ptr[0] != '\0'
+      && opindex_ptr[1] != '\0'
+      && opindex_ptr[2] == '\0')
+    return TRUE;
+  return FALSE;
+}
+
 /* We need to keep a list of fixups.  We can't simply generate them as
    we go, because that would require us to first create the frag, and
    that would screw up references to ``.''.  */
@@ -1468,6 +1488,9 @@ md_gather_operands (char *str,
 	      while (!(operand->flags & S390_OPERAND_BASE))
 		operand = s390_operands + *(++opindex_ptr);
 
+	      if (*str == '\0' && skip_optargs_p (opcode->flags, &opindex_ptr[1]))
+		continue;
+
 	      /* If there is a next operand it must be separated by a comma.  */
 	      if (opindex_ptr[1] != '\0')
 		{
@@ -1510,6 +1533,10 @@ md_gather_operands (char *str,
 	  if (*str++ != ')')
 	    as_bad (_("syntax error; missing ')' after base register"));
 	  skip_optional = 0;
+
+	  if (*str == '\0' && skip_optargs_p (opcode->flags, &opindex_ptr[1]))
+	    continue;
+
 	  /* If there is a next operand it must be separated by a comma.  */
 	  if (opindex_ptr[1] != '\0')
 	    {
@@ -1539,18 +1566,7 @@ md_gather_operands (char *str,
 	      str++;
 	    }
 
-	  if ((opcode->flags & (S390_INSTR_FLAG_OPTPARM
-				| S390_INSTR_FLAG_OPTPARM2))
-	      && opindex_ptr[1] != '\0'
-	      && opindex_ptr[2] == '\0'
-	      && *str == '\0')
-	    continue;
-
-	  if ((opcode->flags & S390_INSTR_FLAG_OPTPARM2)
-	      && opindex_ptr[1] != '\0'
-	      && opindex_ptr[2] != '\0'
-	      && opindex_ptr[3] == '\0'
-	      && *str == '\0')
+	  if (*str == '\0' && skip_optargs_p (opcode->flags, &opindex_ptr[1]))
 	    continue;
 
 	  /* If there is a next operand it must be separated by a comma.  */
