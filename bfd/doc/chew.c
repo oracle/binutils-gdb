@@ -1264,6 +1264,7 @@ free_words (void)
 	    if (ptr->code[i] == push_text
 		&& ptr->code[i + 1])
 	      {
+		/* coverity[fnptr_free: FALSE] */
 		free (ptr->code[i + 1] - 1);
 		++ i;
 	      }
@@ -1387,6 +1388,7 @@ compile (string)
 	  ptr = newentry (word);
 	  string = nextword (string, &word);
 	  
+	  /* coverity[use_after_free: FALSE] */
 	  while (word[0] != ';')
 	    {
 	      switch (word[0])

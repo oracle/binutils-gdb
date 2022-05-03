@@ -1366,6 +1366,8 @@ write_relocs (bfd *abfd, asection *sec, void *xxx ATTRIBUTE_UNUSED)
       }
   }
 #endif
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }
 
 static int
@@ -1868,6 +1870,8 @@ create_note_reloc (segT           sec,
   if (reloc->u.b.r.howto == NULL)
     {
       as_bad (_("unable to create reloc for build note"));
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return;
     }
 

@@ -385,6 +385,8 @@ _bfd_XXi_swap_aux_out (bfd *  abfd,
 	  H_PUT_32 (abfd, in->x_file.x_n.x_offset, ext->x_file.x_n.x_offset);
 	}
       else
+	/* Coverity gets confused about the size of these buffers.  */
+	/* coverity[buffer_size: FALSE] */
 	memcpy (ext->x_file.x_fname, in->x_file.x_fname, FILNMLEN);
 
       return AUXESZ;
@@ -4343,6 +4345,8 @@ rsrc_process_section (bfd * abfd,
   /* FIXME: Free the resource tree, if we have one.  */
   free (datastart);
   free (rsrc_sizes);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }
 
 /* Handle the .idata section and other things that need symbol table

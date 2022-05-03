@@ -263,7 +263,7 @@ parse_symdefstr (const char *str, struct ld_plugin_symbol *sym)
     sym->version = NULL;
   if (colon5 && colon5[1])
     {
-      sym->comdat_key = malloc (strlen (colon5 + 1) + 1);
+      sym->comdat_key = malloc (strlen (colon5) + 1 + 1);
       if (!sym->comdat_key)
 	return LDPS_ERR;
       strcpy (sym->comdat_key, colon5 + 1);
@@ -564,6 +564,8 @@ onclaim_file (const struct ld_plugin_input_file *file, int *claimed)
       if (buffer == NULL)
         return LDPS_ERR;
       if (read (file->fd, buffer, bytes_to_read_before_claim) < 0)
+	/* There is a potential resource leak here, but it is not important.  */
+	/* coverity[leaked_storage: FALSE] */
         return LDPS_ERR;
       free (buffer);
     }

@@ -923,6 +923,9 @@ coff_fix_symbol_name (bfd *abfd,
     {
       if (name_length <= SYMNMLEN && !bfd_coff_force_symnames_in_strings (abfd))
 	/* This name will fit into the symbol neatly.  */
+	/* Coverity flags this strncpy as possibly creating a string
+	   that is not NUL terminated.  This is in fact OK.  */
+	/* coverity[buffer_size_warning: FALSE] */
 	strncpy (native->u.syment._n._n_name, symbol->name, SYMNMLEN);
 
       else if (!bfd_coff_symname_in_debug (abfd, &native->u.syment))

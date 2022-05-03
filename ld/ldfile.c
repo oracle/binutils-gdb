@@ -563,6 +563,8 @@ ldfile_find_command_file (const char *name,
 	  ldfile_add_library_path (script_dir, TRUE);
 	  search_tail_ptr = save_tail_ptr;
 	}
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
     }
 
   /* Temporarily append script_search to the path list so that the

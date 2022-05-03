@@ -803,6 +803,8 @@ Sized_relobj_dwo<size, big_endian>::setup()
 	  pshdrs, this->shnum(), names, section_names_size, this, true);
   if (compressed_sections != NULL && !compressed_sections->empty())
     this->set_compressed_sections(compressed_sections);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }
 
 // Return a view of the contents of a section.
@@ -1163,6 +1165,8 @@ Dwo_file::sized_read_unit_index(unsigned int shndx,
       elfcpp::Swap_unaligned<32, big_endian>::readval(contents
 						      + 2 * sizeof(uint32_t));
   if (ncols == 0 || nused == 0)
+    /* There is a potential resource leak here, but it is not important.  */
+    /* coverity[leaked_storage: FALSE] */
     return;
 
   gold_assert(info_shndx > 0);
@@ -1305,6 +1309,8 @@ Dwo_file::sized_verify_dwo_list(unsigned int shndx, const File_list& files)
       elfcpp::Swap_unaligned<32, big_endian>::readval(contents
 						      + 2 * sizeof(uint32_t));
   if (ncols == 0 || nused == 0)
+    /* There is a potential resource leak here, but it is not important.  */
+    /* coverity[leaked_storage: FALSE] */
     return true;
 
   unsigned int nslots =

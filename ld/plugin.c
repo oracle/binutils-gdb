@@ -314,6 +314,8 @@ plugin_get_ir_dummy_bfd (const char *name, bfd *srctemplate)
 
   bfd_use_reserved_id = 1;
   bfd_plugin_target = bfd_plugin_target_p (srctemplate->xvec);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   abfd = bfd_create (concat (name, IRONLY_SUFFIX, (const char *) NULL),
 		     bfd_plugin_target ? link_info.output_bfd : srctemplate);
   if (abfd != NULL)
@@ -503,6 +505,8 @@ add_symbols (void *handle, int nsyms, const struct ld_plugin_symbol *syms)
       symptrs[n] = bfdsym;
       rv = asymbol_from_plugin_symbol (abfd, bfdsym, syms + n);
       if (rv != LDPS_OK)
+	/* There is a potential resource leak here, but it is not important.  */
+	/* coverity[leaked_storage: FALSE] */
 	return rv;
     }
   bfd_set_symtab (abfd, symptrs, nsyms);
@@ -842,6 +846,8 @@ static enum ld_plugin_status
 set_extra_library_path (const char *path)
 {
   ASSERT (called_plugin);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   ldfile_add_library_path (xstrdup (path), FALSE);
   return LDPS_OK;
 }

@@ -228,6 +228,8 @@ map_over_members (bfd *arch, void (*function)(bfd *), char **files, int count)
 	      filename = normalize (filename, arch);
 	    }
 
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  if (filename != NULL
 	      && !FILENAME_CMP (normalize (*files, arch), filename))
 	    {
@@ -237,6 +239,8 @@ map_over_members (bfd *arch, void (*function)(bfd *), char **files, int count)
 		{
 		  /* Counting, and didn't match on count; go on to the
                      next one.  */
+		  /* There is a potential resource leak here, but it is not important.  */
+		  /* coverity[leaked_storage: FALSE] */
 		  continue;
 		}
 
@@ -250,6 +254,8 @@ map_over_members (bfd *arch, void (*function)(bfd *), char **files, int count)
 		 to the ar command.  */
 	      break;
 	    }
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	}
 
       if (!found)
@@ -1268,6 +1274,8 @@ delete_members (bfd *arch, char **files_to_delete)
       current_ptr_ptr = &(arch->archive_next);
       while (*current_ptr_ptr)
 	{
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  if (FILENAME_CMP (normalize (*files_to_delete, arch),
 			    (*current_ptr_ptr)->filename) == 0)
 	    {
@@ -1323,6 +1331,8 @@ move_members (bfd *arch, char **files_to_move)
       while (*current_ptr_ptr)
 	{
 	  bfd *current_ptr = *current_ptr_ptr;
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  if (FILENAME_CMP (normalize (*files_to_move, arch),
 			    current_ptr->filename) == 0)
 	    {
@@ -1375,6 +1385,8 @@ replace_members (bfd *arch, char **files_to_move, bfd_boolean quick)
 
 	      /* For compatibility with existing ar programs, we
 		 permit the same file to be added multiple times.  */
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      if (FILENAME_CMP (normalize (*files_to_move, arch),
 				normalize (current->filename, arch)) == 0
 		  && current->arelt_data != NULL)

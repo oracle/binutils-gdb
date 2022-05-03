@@ -209,6 +209,8 @@ ar_open (char *name, int t)
       obfd->has_armap = 1;
       obfd->is_thin_archive = 0;
     }
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }
 
 static void

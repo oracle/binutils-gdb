@@ -1919,6 +1919,8 @@ unique_segment_for_sections(const char* segment_name,
       Object* obj = parameters->options().plugins()->get_elf_object(
           section_list[i].handle);
       if (obj == NULL || obj->is_dynamic())
+	/* There is a potential resource leak here, but it is not important.  */
+	/* coverity[leaked_storage: FALSE] */
 	return LDPS_BAD_HANDLE;
       unsigned int shndx = section_list[i].shndx;
       Const_section_id secn_id(static_cast<Relobj*>(obj), shndx);

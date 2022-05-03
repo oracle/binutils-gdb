@@ -5320,6 +5320,8 @@ get_32bit_section_headers (Filedata * filedata, bfd_boolean probe)
     {
       if (!probe)
 	error (_("Out of memory reading %u section headers\n"), num);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return FALSE;
     }
 
@@ -5386,6 +5388,8 @@ get_64bit_section_headers (Filedata * filedata, bfd_boolean probe)
     {
       if (! probe)
 	error (_("Out of memory reading %u section headers\n"), num);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return FALSE;
     }
 
@@ -5472,6 +5476,7 @@ get_32bit_elf_symbols (Filedata *           filedata,
     for (entry = symtab_shndx_list; entry != NULL; entry = entry->next)
       if (entry->hdr->sh_link == (unsigned long) (section - filedata->section_headers))
 	{
+	  free (shndx);
 	  shndx = (Elf_External_Sym_Shndx *) get_data (NULL, filedata,
 						       entry->hdr->sh_offset,
 						       1, entry->hdr->sh_size,
@@ -5585,6 +5590,7 @@ get_64bit_elf_symbols (Filedata *           filedata,
     for (entry = symtab_shndx_list; entry != NULL; entry = entry->next)
       if (entry->hdr->sh_link == (unsigned long) (section - filedata->section_headers))
 	{
+	  free (shndx);
 	  shndx = (Elf_External_Sym_Shndx *) get_data (NULL, filedata,
 						       entry->hdr->sh_offset,
 						       1, entry->hdr->sh_size,
@@ -9663,6 +9669,7 @@ process_dynamic_section (Filedata * filedata)
 	    section.sh_entsize = sizeof (Elf64_External_Sym);
 	  section.sh_name = filedata->string_table_length;
 
+	  free (dynamic_symbols);
 	  dynamic_symbols = GET_ELF_SYMBOLS (filedata, &section, & num_dynamic_syms);
 	  if (num_dynamic_syms < 1)
 	    {
@@ -11535,6 +11542,8 @@ process_symbol_table (Filedata * filedata)
 	if (gnubuckets[i] != 0)
 	  {
 	    if (gnubuckets[i] < gnusymidx)
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 
 	    if (maxchain == 0xffffffff || gnubuckets[i] > maxchain)
@@ -12985,6 +12994,8 @@ apply_relocations (Filedata *                 filedata,
       symsec = filedata->section_headers + relsec->sh_link;
       if (symsec->sh_type != SHT_SYMTAB
 	  && symsec->sh_type != SHT_DYNSYM)
+	/* There is a potential resource leak here, but it is not important.  */
+	/* coverity[leaked_storage: FALSE] */
 	return FALSE;
       symtab = GET_ELF_SYMBOLS (filedata, symsec, & num_syms);
 
@@ -16131,6 +16142,8 @@ process_mips_specific (Filedata * filedata)
 	}
       else
 	res = FALSE;
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
     }
 
   if (conflicts_offset != 0 && conflictsno != 0)
@@ -16168,6 +16181,8 @@ process_mips_specific (Filedata * filedata)
               get_data (NULL, filedata, conflicts_offset, conflictsno,
                         sizeof (* econf32), _("conflict"));
 	  if (!econf32)
+	    /* There is a potential resource leak here, but it is not important.  */
+	    /* coverity[leaked_storage: FALSE] */
 	    return FALSE;
 
 	  for (cnt = 0; cnt < conflictsno; ++cnt)
@@ -16183,6 +16198,8 @@ process_mips_specific (Filedata * filedata)
               get_data (NULL, filedata, conflicts_offset, conflictsno,
                         sizeof (* econf64), _("conflict"));
 	  if (!econf64)
+	    /* There is a potential resource leak here, but it is not important.  */
+	    /* coverity[leaked_storage: FALSE] */
 	    return FALSE;
 
 	  for (cnt = 0; cnt < conflictsno; ++cnt)
@@ -16385,6 +16402,8 @@ process_mips_specific (Filedata * filedata)
       data = (unsigned char *) get_data (NULL, filedata, offset, end - mips_pltgot,
                                          1, _("Procedure Linkage Table data"));
       if (data == NULL)
+	/* There is a potential resource leak here, but it is not important.  */
+	/* coverity[leaked_storage: FALSE] */
 	return FALSE;
 
       printf ("\nPLT GOT:\n\n");
@@ -16469,6 +16488,8 @@ process_nds32_specific (Filedata * filedata)
 	  printf ("(VEC_SIZE):\treserved\n");
 	  break;
 	}
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
     }
 
   return TRUE;
@@ -17523,9 +17544,9 @@ get_symbol_for_build_attribute (Filedata *       filedata,
 				const char **    pname)
 {
   static Filedata *         saved_filedata = NULL;
-  static char *             strtab;
+  static char *             strtab = NULL;
   static unsigned long      strtablen;
-  static Elf_Internal_Sym * symtab;
+  static Elf_Internal_Sym * symtab = NULL;
   static unsigned long      nsyms;
   Elf_Internal_Sym *        saved_sym = NULL;
   Elf_Internal_Sym *        sym;
@@ -17542,12 +17563,14 @@ get_symbol_for_build_attribute (Filedata *       filedata,
 	{
 	  if (symsec->sh_type == SHT_SYMTAB)
 	    {
+	      free (symtab);
 	      symtab = GET_ELF_SYMBOLS (filedata, symsec, & nsyms);
 
 	      if (symsec->sh_link < filedata->file_header.e_shnum)
 		{
 		  Elf_Internal_Shdr * strtab_sec = filedata->section_headers + symsec->sh_link;
 
+		  free (strtab);
 		  strtab = (char *) get_data (NULL, filedata, strtab_sec->sh_offset,
 					      1, strtab_sec->sh_size,
 					      _("string table"));
@@ -18130,6 +18153,8 @@ process_notes_at (Filedata *           filedata,
     {
       warn (_("Corrupt note: alignment %ld, expecting 4 or 8\n"),
 	    (long) align);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return FALSE;
     }
 

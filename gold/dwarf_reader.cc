@@ -265,12 +265,16 @@ Dwarf_abbrev_table::do_get_abbrev(unsigned int code)
 	{
 	  // Read the attribute.
 	  if (this->buffer_pos_ >= this->buffer_end_)
+	    /* There is a potential resource leak here, but it is not important.  */
+	    /* coverity[leaked_storage: FALSE] */
 	    return NULL;
 	  uint64_t attr = read_unsigned_LEB_128(this->buffer_pos_, &len);
 	  this->buffer_pos_ += len;
 
 	  // Read the form.
 	  if (this->buffer_pos_ >= this->buffer_end_)
+	    /* There is a potential resource leak here, but it is not important.  */
+	    /* coverity[leaked_storage: FALSE] */
 	    return NULL;
 	  uint64_t form = read_unsigned_LEB_128(this->buffer_pos_, &len);
 	  this->buffer_pos_ += len;

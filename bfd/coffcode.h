@@ -3737,6 +3737,9 @@ coff_write_object_contents (bfd * abfd)
 
       internal_f.f_nscns++;
 
+      /* Coverity flags this strncpy as possibly creating a string
+	 that is not NUL terminated.  This is in fact OK.  */
+      /* coverity[buffer_size_warning: FALSE] */
       strncpy (section.s_name, current->name, SCNNMLEN);
 
 #ifdef COFF_LONG_SECTION_NAMES
@@ -3775,6 +3778,9 @@ coff_write_object_contents (bfd * abfd)
 		 buffer, just in case.  */
 	      sprintf (s_name_buf, "/%lu", (unsigned long) string_size);
 	      /* Then strncpy takes care of any padding for us.  */
+	      /* Coverity flags this strncpy as possibly creating a string
+		 that is not NUL terminated.  This is in fact OK.  */
+	      /* coverity[buffer_size_warning: FALSE] */
 	      strncpy (section.s_name, s_name_buf, SCNNMLEN);
 	      string_size += len + 1;
 	      long_section_names = TRUE;
