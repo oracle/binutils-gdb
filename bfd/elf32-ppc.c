@@ -4677,12 +4677,12 @@ _bfd_elf_ppc_merge_fp_attributes (bfd *ibfd, struct bfd_link_info *info)
 	_bfd_error_handler
 	  /* xgettext:c-format */
 	  (_("Warning: %B uses IBM long double, "
-	     "%B uses IEEE long double"), ibfd, obfd);
+	     "%B uses IEEE long double"), obfd, ibfd);
       else if (out_fp == 3 * 4 && in_fp == 1 * 4)
 	_bfd_error_handler
 	  /* xgettext:c-format */
 	  (_("Warning: %B uses IBM long double, "
-	     "%B uses IEEE long double"), obfd, ibfd);
+	     "%B uses IEEE long double"), ibfd, obfd);
     }
 }
 
