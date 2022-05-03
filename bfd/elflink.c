@@ -4663,7 +4663,12 @@ error_free_dyn:
 
 	  /* Plugin symbols aren't normal.  Don't set def/ref flags.  */
 	  if ((abfd->flags & BFD_PLUGIN) != 0)
-	    ;
+	    {
+	      /* Except for this flag to track nonweak references.  */
+	      if (!definition
+		  && bind != STB_WEAK)
+		h->ref_ir_nonweak = 1;
+	    }
 	  else if (!dynamic)
 	    {
 	      if (! definition)
@@ -4906,11 +4911,13 @@ error_free_dyn:
 	  if (!add_needed
 	      && matched
 	      && definition
+	      && h->root.type != bfd_link_hash_indirect
 	      && ((dynsym
 		   && h->ref_regular_nonweak)
 		  || (old_bfd != NULL
 		      && (old_bfd->flags & BFD_PLUGIN) != 0
-		      && bind != STB_WEAK)
+		      && h->ref_ir_nonweak
+		      && !info->lto_all_symbols_read)
 		  || (h->ref_dynamic_nonweak
 		      && (elf_dyn_lib_class (abfd) & DYN_AS_NEEDED) != 0
 		      && !on_needed_list (elf_dt_name (abfd),
