@@ -1,0 +1,157 @@
+6ab5b6d0f3a libctf, lookup: fix bounds of pptrtab lookup
+e695879142a libctf, testsuite: fix various warnings in tests
+b62d5edd0a5 libctf: fix handling of CTF symtypetab sections emitted by older GCC
+ea9c2009115 libctf: try several possibilities for linker versioning flags
+bef9ef8ca0f libtool.m4: fix nm BSD flag detection
+bc4b1401129 libtool.m4: augment symcode for Solaris 11
+7d53105d6ed libctf: link against libiberty before linking in libbfd or libctf-nobfd
+ae064303efe libctf, ld: fix test results for upstream GCC
+49da556c658 libctf, include: support an alternative encoding for nonrepresentable types
+8592be8c7d3 ld: do not rely on the exact size of the CTF symtypetabs in test results
+8f7b22ea2a9 libctf: fix ELF-in-BFD checks in the presence of ASAN
+15131809c23 libctf: fix memory leak in a test
+0bd65ce30a8 libctf: don't dereference out-of-bounds locations in the qualifier hashtab
+5226ef61131 libctf: make ctf_bfdopen_ctfsect a debugger entry point
+86f64bf43f7 libctf, serialize: functions with no args have a NULL dtd_vlen
+24c877f9b19 include: always do unsigned left-shift in CTF_SET_STID
+485170cdb1b libctf, dump: do not emit size or alignment if it would error
+e93388417c1 Provide an inline startswith function in bfd.h
+69a284867c7 libctf: support encodings for enums
+e4c78f303df libctf: a couple of small error-handling fixes
+d7b1416ef2c libctf: types: unify code dealing with small-vs-large struct members
+08c428aff4a libctf: eliminate dtd_u, part 5: structs / unions
+77d724a7ecd libctf: eliminate dtd_u, part 4: enums
+986e9e3aa03 libctf: do not corrupt strings across ctf_serialize
+2a05d50e90c libctf: don't lose track of all valid types upon serialization
+755ba58ebef Add install dependencies for ld -> bfd and libctf -> bfd
+81982d20fac libctf: eliminate dtd_u, part 3: functions
+534444b1ee1 libctf: eliminate dtd_u, part 2: arrays
+7879dd88efd libctf: eliminate dtd_u, part 1: int/float/slice
+eefe721eadf libctf: fix GNU style for do {} while
+b9a964318a7 libctf: split up ctf_serialize
+01cbfcba4bc libctf: fix comment above ctf_dict_t
+bf4c3185a5a libctf: split serialization and file writeout into its own file
+087945261c7 libctf: fix some tabdamage and move some code around
+211bcd01333 bfd, ld, libctf: skip zero-refcount strings in CTF string reporting
+8e7e446446b libctf: free ctf_dynsyms properly
+cf6a0b989a5 libctf: fix signed/unsigned comparison confusion
+4659554b280 libctf: minor error-handling fixes
+f5060e56338 libctf: add a deduplicator-specific type mapping table
+478c04a55ee libctf: remove reference to "unconflicted link mode".
+8915c559d40 libctf, include: remove the nondeduplicating CTF linker
+fd12633780a libctf: fix ChangeLog date
+ac36e134d96 libctf: reimplement many _iter iterators in terms of _next
+eaa2913a7ac libctf: ctf_archive_next should set the parent name consistently
+93993f67849 libctf AC_CANONICAL_TARGET
+f4f60336dae libctf, include: find types of symbols by name
+758f590744b libctf: add missing header in BFD ELF check
+cbd8f5bbcc8 libctf: require a Tcl capable of try/catch to run tests
+95148614026 bfd, opcodes, libctf: support --with-included-gettext
+ee87f50b8d2 libctf: always name nameless types "", never NULL
+5dacd11ddcf libctf: fix uninitialized variable in symbol serialization error handling
+caa170493e8 libctf: prohibit nameless ints, floats, typedefs and forwards
+78f28b89e8c libctf: rip out dead code handling typedefs with no name
+35a01a04544 libctf, ld: fix symtypetab and var section population under ld -r
+f04ce15e831 ld: depend on libctf
+26503e2f5ea libctf, create: fix ctf_type_add of structs with unnamed members
+e05a3e5a491 libctf: lookup_by_name: do not return success for nonexistent pointer types
+0814dbfbfcc libctf, testsuite: adjust for real return type of ctf_member_count
+70d3120f322 libctf, testsuite: don't run without a suitable compiler
+b4b6ea46807 libctf, ld: fix formatting of forwards to unions and enums
+abe4ca69a11 libctf: fix lookups of pointers by name in parent dicts
+8769046e5a9 libctf: remove outdated comment about parent dict importing
+6c3a38777b3 libctf, include: support unnamed structure members better
+abed0b0718a libctf: warn about information loss because of unreleased format changes
+9bc769718db libctf: new test of enum lookups with the _next iterator
+c59e30ed172 libctf: new testsuite
+1038406a8f6 libctf: rip out BFD_DEPENDENCIES / BFD_LIBADD
+37002871ac2 libctf, ld: dump enums: generally improve dump formatting
+ffeece6ac2d libctf, ld: prohibit getting the size or alignment of forwards
+91e7ce2fd7b libctf, ld: more dumper improvements
+57f97d0e6dd libctf, ld: CTF dumper changes for consistency
+b09ad6eae98 libctf: do not print array declarators backwards
+a7c23ac9317 In libctf, make AC_CONFIG_MACRO_DIR consistent with ACLOCAL_AMFLAGS
+e8cda209052 libctf: Pass format argument to asprintf
+96c61be508f binutils: readelf: support CTF dicts with non-native-endian symtabs
+53651de80f8 libctf, include: support foreign-endianness symtabs with CTF
+ef21dd3bcff libctf: do not crash when CTF symbol or variable linking fails
+8f235c90a28 libctf: error-handling fixes
+97a2a623d01 libctf, include: add ctf_getsymsect and ctf_getstrsect
+2c78e92523a libctf, include: CTF-archive-wide symbol lookup
+0e28ade476e libctf, ld: properly deduplicate function types
+0ad70c536ab ld, ctf: new and adjusted CTF tests due to func info / object data sections
+4665e895c37 libctf: adjust dumper for symtypetab changes
+1136c379718 libctf: symbol type linking support
+3d16b64e28a bfd, include, ld, binutils, libctf: CTF should use the dynstr/sym
+83d59285d54 objdump, readelf: Report errors from CTF archive iteration
+ae41200ba80 libctf, include, binutils, gdb: rename CTF-opening functions
+139633c307e libctf, include, binutils, gdb, ld: rename ctf_file_t to ctf_dict_t
+0d01fbe64f6 Remove libctf/mkerrors.sed
+5e9b84f7a2e binutils, ld: dequote libctf error messages
+926c9e76657 libctf, binutils, include, ld: gettextize and improve error handling
+555adca2e3b libctf: compilation failure on MinGW due to missing errno values
+50500ecfefd libctf: compilation failure on MinGW due to missing errno values
+8c419a91d76 libctf: fixes for systems on which sizeof (void *) > sizeof (long)
+734c894234e libctf: fix isspace casts
+4533ed564d6 libctf, binutils: fix big-endian libctf archive opening
+62cdd7b18fc ld, testsuite: do not run CTF tests at all on non-ELF for now
+fa03171fb46 ld: do not produce one empty output .ctf section for every input .ctf
+7cdfc3462fb ld, testsuite: only run CTF tests when ld and GCC support CTF
+b1b33524ad3 ld: new CTF testsuite
+0b884151088 binutils, testsuite: allow compilation before doing run_dump_test
+5dba6f05b7b ld: new options --ctf-variables and --ctf-share-types
+f320bba50ff ld: Reformat CTF errors into warnings.
+3dd6b890b4e binutils: objdump: ctf: drop incorrect linefeeds
+662df3c3f14 libctf, link: tie in the deduplicating linker
+e3e8411bec4 libctf, link: add CTF_LINK_OMIT_VARIABLES_SECTION
+0f0c11f7fc9 libctf, dedup: add deduplicator
+a9b98702066 libctf, dedup: add new configure option --enable-libctf-hash-debugging
+1f2e8b5b87d libctf: add SHA-1 support for libctf
+6dd2819ffc2 libctf, link: add the ability to filter out variables from the link
+19d4b1addca libctf, link: fix spurious conflicts of variables in the variable section
+5f54462c6ab libctf, link: redo cu-mapping handling
+e3f17159e26 libctf, link: fix ctf_link_write fd leak
+8d2229ad1e7 libctf, link: add lazy linking: clean up input members: err/warn cleanup
+e148b730131 libctf: drop error-prone ctf_strerror
+1fa7a0c24e7 libctf: sort out potential refcount loops
+3166467b00a libctf: rename the type_mapping_key to type_key
+43a61d7d3e6 libctf: check for vasprintf
+ac2ff760303 libctf, archive: fix bad error message
+d50c08025d4 libctf, open: fix opening CTF in binaries with no symtab
+70447401740 libctf, dump: fix slice dumping
+8e795b46f58 libctf, dump: migrate towards dumping errors rather than truncation
+b255b35feb8 libctf, decl: avoid leaks of the formatted string on error
+c6e9a1e576c libctf, types: enhance ctf_type_aname to print function arg types
+8b37e7b63ed libctf, ld, binutils: add textual error/warning reporting for libctf
+b7190c821e5 libctf, types: ensure the emission of ECTF_NOPARENT
+ec388c16cd4 libctf: error out on corrupt CTF with invalid header flags
+67d4cc671b7 libctf: pass the thunk down properly when wrapping qsort_r
+e28591b3dfc libctf, next, hash: add dynhash and dynset _next iteration
+688d28f6214 libctf, next: introduce new class of easier-to-use iterators
+2399827bfa1 libctf: add ctf_ref
+9850ce4d7bb libctf: add ctf_forwardable_kind
+2c9ca36be17 libctf: move existing inlines into ctf-inlines.h
+77648241384 libctf, hash: introduce the ctf_dynset
+a49c6c6a656 libctf, hash: save per-item space when no key/item freeing function
+5ceee3dba34 libctf, hash: improve insertion of existing keys into dynhashes
+809f6eb3321 libctf: add new dynhash functions
+469e75b621f libctf: fix __extension__ with non-GNU C compilers
+9c23dfa5aa4 libctf: add ctf_archive_count
+e0325e2cede libctf: add ctf_member_count
+9b15cbb7891 libctf: add ctf_type_kind_forwarded
+01d9317436c libctf: add ctf_type_name_raw
+5ec7465fec8 libctf: having debugging enabled is unlikely
+601e455b758 libctf, archive: stop ctf_arc_bufopen triggering crazy unmaps
+96e3ec29664 libctf, types: ints, floats and typedefs with no name are invalid
+502e838ed96 libctf, types: support slices of anything terminating in an int
+dd987f00430 libctf, create: empty dicts are dirty to start with
+f47ca311356 libctf, create: fix addition of anonymous struct/union members
+ab769488e75 libctf, create: member names of "" and NULL should be the same
+2484ca436ac libctf, open: drop unnecessary historical wart around forwards
+437061996d8 libctf, types: allow ctf_type_reference of dynamic slices
+9943fa3a732 libctf, create: add explicit casts for variables' and slices' types
+afd78bd6f0a libctf, create: do not corrupt function types' arglists at insertion time
+2361f1c8591 libctf, create: support addition of references to the unimplemented type
+7eea9d3bdb0 libctf: restructure error handling to reduce relocations
+b64751cf0bc include, libctf: typo fixes
+df16e041dea Fix problems in CTF handling code exposed by the Coverity static analysis tool.
