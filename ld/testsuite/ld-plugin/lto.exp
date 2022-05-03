@@ -222,7 +222,7 @@ if { [at_least_gcc_version 4 7] } {
        "" "-flto -O2" \
        {pr12942a.cc pr12942c.cc} {} "" "c++"] \
       [list "Compile PR ld/12942 (2)" \
-       "" "-O0" \
+       "" "-O2" \
        {pr12942b.cc} {} "" "c++"] \
     ]]
 }
@@ -538,6 +538,7 @@ if { [at_least_gcc_version 4 7] } {
 	]
     }
     set testname "PR ld/12942 (3)"
+    setup_xfail "*-*-*"
     set exec_output [run_host_cmd "$CXX" "-O2 -flto -fuse-linker-plugin tmpdir/pr12942b.o tmpdir/pr12942a.o"]
     if { [ regexp "undefined reference to `\\.?link_error\\(\\)'" $exec_output ] } {
         pass $testname

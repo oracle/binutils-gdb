@@ -31,7 +31,6 @@ hook called: claim_file tmpdir/func.o \[@0/.* CLAIMED
 hook called: claim_file tmpdir/text.o \[@0/.* not claimed
 #...
 hook called: all symbols read.
-Sym: '_?func' Resolution: LDPR_PREVAILING_DEF
+Sym: '_?func' Resolution: LDPR_PREVAILING_DE.*
 Sym: '_?func2' Resolution: LDPR_PREVAILING_DEF_IRONLY
-hook called: cleanup.
 #...

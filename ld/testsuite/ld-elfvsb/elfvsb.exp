@@ -315,7 +315,6 @@ proc visibility_run {visibility} {
 		 && ![ string match $visibility "hidden_undef" ]
 		 && ![ string match $visibility "hidden_undef_def" ]
 		 && ![ string match $visibility "protected_undef" ] } {
-		setup_xfail "s390x-*-linux*"
 		if { [istarget sparc*-*-linux*] && [is_elf64 $tmpdir/mainnp.o] } {
 		    setup_xfail "sparc*-*-linux*"
 		}
@@ -324,6 +323,7 @@ proc visibility_run {visibility} {
 		setup_xfail "x86_64-*-linux*"
 	    }
 	    setup_xfail "x86_64-*-linux-gnux32"
+	    setup_xfail "s390x-*-linux*"
 	    if { ![istarget hppa*64*-*-linux*] } {
 		setup_xfail "hppa*-*-linux*"
 	    }
@@ -353,7 +353,6 @@ proc visibility_run {visibility} {
 		 || [ string match $visibility "protected_weak" ]
 		 || [ string match $visibility "normal" ] } {
 		setup_xfail "powerpc-*-linux*"
-		setup_xfail "s390x-*-linux*"
 		if { [istarget sparc*-*-linux*] && [is_elf64 $tmpdir/mainnp.o] } {
 		    setup_xfail "sparc*-*-linux*"
 		}
