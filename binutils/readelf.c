@@ -11145,12 +11145,14 @@ print_dynamic_symbol (Filedata * filedata, bfd_vma si, unsigned long hn)
       unsigned int vis = ELF_ST_VISIBILITY (psym->st_other);
 
       printf (" %-7s",  get_symbol_visibility (vis));
+#if 0
       /* Check to see if any other bits in the st_other field are set.
 	 Note - displaying this information disrupts the layout of the
 	 table being generated, but for the moment this case is very
 	 rare.  */
       if (psym->st_other ^ vis)
 	printf (" [%s] ", get_symbol_other (filedata, psym->st_other ^ vis));
+#endif
     }
 
   printf (" %3.3s ", get_symbol_index_type (filedata, psym->st_shndx));
@@ -11158,6 +11160,15 @@ print_dynamic_symbol (Filedata * filedata, bfd_vma si, unsigned long hn)
     print_symbol (25, GET_DYNAMIC_NAME (psym->st_name));
   else
     printf (_(" <corrupt: %14ld>"), psym->st_name);
+#if 1
+    {
+      unsigned int vis = ELF_ST_VISIBILITY (psym->st_other);
+
+      /* Check to see if any other bits in the st_other field are set.  */
+      if (psym->st_other ^ vis)
+	printf (" \t[%s]", get_symbol_other (filedata, psym->st_other ^ vis));
+    }
+#endif
   putchar ('\n');
 }
 
@@ -11652,11 +11663,13 @@ process_symbol_table (Filedata * filedata)
 		  unsigned int vis = ELF_ST_VISIBILITY (psym->st_other);
 
 		  printf (" %-7s", get_symbol_visibility (vis));
+#if 0
 		  /* Check to see if any other bits in the st_other field are set.
 		     Note - displaying this information disrupts the layout of the
 		     table being generated, but for the moment this case is very rare.  */
 		  if (psym->st_other ^ vis)
 		    printf (" [%s] ", get_symbol_other (filedata, psym->st_other ^ vis));
+#endif
 		}
 	      printf (" %4s ", get_symbol_index_type (filedata, psym->st_shndx));
 	      print_symbol (25, psym->st_name < strtab_size
@@ -11675,7 +11688,15 @@ process_symbol_table (Filedata * filedata)
 		    printf (sym_info == symbol_hidden ? "@%s" : "@@%s",
 			    version_string);
 		}
+#if 1
+		{
+		  unsigned int vis = ELF_ST_VISIBILITY (psym->st_other);
 
+		  /* Check to see if any other bits in the st_other field are set.  */
+		  if (psym->st_other ^ vis)
+		    printf (" \t[%s] ", get_symbol_other (filedata, psym->st_other ^ vis));
+		}
+#endif
 	      putchar ('\n');
 
 	      if (ELF_ST_BIND (psym->st_info) == STB_LOCAL
