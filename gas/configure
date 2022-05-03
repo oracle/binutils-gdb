@@ -772,6 +772,7 @@ enable_compressed_debug_sections
 enable_x86_relax_relocations
 enable_elf_stt_common
 enable_generate_build_notes
+enable_x86_used_note
 enable_werror
 enable_build_warnings
 with_cpu
@@ -11788,6 +11789,18 @@ if test "${enable_generate_build_notes+set}" = set; then :
 esac
 fi
 
+# Decide if the x86 ELF assembler should default to generating GNU x86
+# used ISA and feature properties.
+ac_default_generate_x86_used_note=unset
+# Provide a configuration option to override the default.
+# Check whether --enable-x86-used-note was given.
+if test "${enable_x86_used_note+set}" = set; then :
+  enableval=$enable_x86_used_note; case "${enableval}" in
+  yes)  ac_default_generate_x86_used_note=1 ;;
+  no)   ac_default_generate_x86_used_note=0 ;;
+esac
+fi
+
 
 using_cgen=no
 
@@ -12734,6 +12747,14 @@ _ACEOF
 
 cat >>confdefs.h <<_ACEOF
 #define DEFAULT_GENERATE_BUILD_NOTES $ac_default_generate_build_notes
+_ACEOF
+
+if test ${ac_default_generate_x86_used_note} = unset; then
+  ac_default_generate_x86_used_note=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define DEFAULT_X86_USED_NOTE $ac_default_generate_x86_used_note
 _ACEOF
 
 
