@@ -37,15 +37,18 @@ if { [which $CC] == 0 } {
     return
 }
 
-run_ld_link_tests [list \
-    [list \
-	"Build pr22263-1" \
-	"-pie -e _start -z text" \
-	"" \
-	"" \
-	{ pr22263-1a.c pr22263-1b.c } \
-	{{readelf -r pr22263-1.rd}} \
-	"pr22263-1" \
-	"-fPIE -O2" \
-    ] \
-]
+# The s390x system compiler miscompiles these tests.
+if { ! [istarget s390x-*-*] } {
+    run_ld_link_tests [list \
+			   [list \
+				"Build pr22263-1" \
+				"-pie -e _start -z text" \
+				"" \
+				"" \
+				{ pr22263-1a.c pr22263-1b.c } \
+				{{readelf -r pr22263-1.rd}} \
+				"pr22263-1" \
+				"-fPIE -O2" \
+			       ] \
+			  ]
+}

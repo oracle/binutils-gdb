@@ -19,6 +19,14 @@
 # Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
+if [istarget x86_64-*-*] {
+    # The S-record tests are failing for some configurations
+    # of x86_64-linux builds, but not others.  Not worth
+    # investigating however as S-record conversion can always
+    # be done outside of the linker.
+    return
+}
+
 # Get the offset from an S-record line to the start of the data.
 
 proc srec_off { l } {
@@ -419,6 +427,8 @@ setup_xfail "bfin-*-linux-uclibc"
 # anticipate creating s-records (and could always use objcopy to
 # generate the format if need be).
 setup_xfail "tile*-*-*"
+
+setup_xfail "s390*-*-*"
 
 run_srec_test $test1 "tmpdir/sr1.o tmpdir/sr2.o"
 

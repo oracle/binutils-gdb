@@ -166,7 +166,6 @@ check_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	alt/weak_undef_lib.so \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	libweak_undef_2.a
 @GCC_TRUE@@NATIVE_LINKER_TRUE@am__append_5 = icf_virtual_function_folding_test \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	large_symbol_alignment \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	basic_test basic_pic_test \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	eh_test
 @GCC_FALSE@large_symbol_alignment_DEPENDENCIES =
@@ -220,7 +219,6 @@ check_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
 @NATIVE_LINKER_FALSE@exception_test_DEPENDENCIES =
 @GCC_TRUE@@HAVE_STATIC_TRUE@@NATIVE_LINKER_TRUE@am__append_14 = exception_static_test
 @GCC_TRUE@@NATIVE_LINKER_TRUE@am__append_15 = weak_test \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	weak_undef_test \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	weak_undef_test_2
 @GCC_FALSE@weak_test_DEPENDENCIES =
 @NATIVE_LINKER_FALSE@weak_test_DEPENDENCIES =
@@ -334,7 +332,7 @@ check_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
 # Test difference between "*(a b)" and "*(a) *(b)" in input section spec.
 @GCC_TRUE@@NATIVE_LINKER_TRUE@am__append_39 = many_sections_test \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	many_sections_r_test initpri1 \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	initpri2 initpri3a \
+@GCC_TRUE@@NATIVE_LINKER_TRUE@	initpri2 \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	flagstest_o_specialfile \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	flagstest_compress_debug_sections_none \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	flagstest_compress_debug_sections \
@@ -348,13 +346,9 @@ check_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	ver_test_12 protected_1 \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	protected_2 relro_test \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	relro_now_test relro_strip_test \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	relro_script_test script_test_1 \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	script_test_2 justsyms \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	justsyms_exec binary_test \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	script_test_3 \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	tls_phdrs_script_test \
+@GCC_TRUE@@NATIVE_LINKER_TRUE@	relro_script_test \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	tls_script_test script_test_11 \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	script_test_12 script_test_12i \
+@GCC_TRUE@@NATIVE_LINKER_TRUE@	script_test_12 \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	dynamic_list_2 \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	thin_archive_test_1 \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	thin_archive_test_2
@@ -813,15 +807,7 @@ check_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
 
 # Test the --incremental-unchanged flag with an archive library.
 # The second link should not update the library.
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@am__append_82 = incremental_test_2 \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_test_3 \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_test_4 \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_test_5 \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_test_6 \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_copy_test \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_common_test_1 \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_comdat_test_1 \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	exception_x86_64_bnd_test
+@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@am__append_82 = 
 @DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@am__append_83 = two_file_test_tmp_2.o \
 @DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	two_file_test_tmp_3.o \
 @DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_test_4.base \
@@ -1082,7 +1068,6 @@ libgoldtest_a_OBJECTS = $(am_libgoldtest_a_OBJECTS)
 @NATIVE_OR_CROSS_LINKER_TRUE@	leb128_unittest$(EXEEXT) \
 @NATIVE_OR_CROSS_LINKER_TRUE@	overflow_unittest$(EXEEXT)
 @GCC_TRUE@@NATIVE_LINKER_TRUE@am__EXEEXT_2 = icf_virtual_function_folding_test$(EXEEXT) \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	large_symbol_alignment$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	basic_test$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	basic_pic_test$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	eh_test$(EXEEXT)
@@ -1127,7 +1112,6 @@ libgoldtest_a_OBJECTS = $(am_libgoldtest_a_OBJECTS)
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	exception_separate_shared_21_test$(EXEEXT)
 @GCC_TRUE@@HAVE_STATIC_TRUE@@NATIVE_LINKER_TRUE@am__EXEEXT_11 = exception_static_test$(EXEEXT)
 @GCC_TRUE@@NATIVE_LINKER_TRUE@am__EXEEXT_12 = weak_test$(EXEEXT) \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	weak_undef_test$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	weak_undef_test_2$(EXEEXT)
 @FN_PTRS_IN_SO_WITHOUT_PIC_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@am__EXEEXT_13 = weak_undef_nonpic_test$(EXEEXT)
 @GCC_TRUE@@NATIVE_LINKER_TRUE@am__EXEEXT_14 =  \
@@ -1164,7 +1148,6 @@ libgoldtest_a_OBJECTS = $(am_libgoldtest_a_OBJECTS)
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	many_sections_r_test$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	initpri1$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	initpri2$(EXEEXT) \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	initpri3a$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	flagstest_o_specialfile$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	flagstest_compress_debug_sections_none$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	flagstest_compress_debug_sections$(EXEEXT) \
@@ -1186,17 +1169,9 @@ libgoldtest_a_OBJECTS = $(am_libgoldtest_a_OBJECTS)
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	relro_now_test$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	relro_strip_test$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	relro_script_test$(EXEEXT) \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	script_test_1$(EXEEXT) \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	script_test_2$(EXEEXT) \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	justsyms$(EXEEXT) \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	justsyms_exec$(EXEEXT) \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	binary_test$(EXEEXT) \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	script_test_3$(EXEEXT) \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	tls_phdrs_script_test$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	tls_script_test$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	script_test_11$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	script_test_12$(EXEEXT) \
-@GCC_TRUE@@NATIVE_LINKER_TRUE@	script_test_12i$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	dynamic_list_2$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	thin_archive_test_1$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	thin_archive_test_2$(EXEEXT)
@@ -1263,14 +1238,7 @@ libgoldtest_a_OBJECTS = $(am_libgoldtest_a_OBJECTS)
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	ehdr_start_test_3$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	ehdr_start_test_5$(EXEEXT) \
 @GCC_TRUE@@NATIVE_LINKER_TRUE@	pr20976$(EXEEXT)
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@am__EXEEXT_40 = incremental_test_2$(EXEEXT) \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_test_3$(EXEEXT) \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_test_4$(EXEEXT) \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_test_5$(EXEEXT) \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_test_6$(EXEEXT) \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_copy_test$(EXEEXT) \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_common_test_1$(EXEEXT) \
-@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	incremental_comdat_test_1$(EXEEXT) \
+@DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@am__EXEEXT_40 = \
 @DEFAULT_TARGET_X86_64_TRUE@@GCC_TRUE@@NATIVE_LINKER_TRUE@	exception_x86_64_bnd_test$(EXEEXT)
 @GCC_TRUE@@NATIVE_LINKER_TRUE@am__EXEEXT_41 = pr22266$(EXEEXT)
 basic_pic_test_SOURCES = basic_pic_test.c
