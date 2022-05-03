@@ -616,8 +616,8 @@ visium_elf_relocate_section (bfd *output_bfd,
 	  /* For relocs against symbols from removed linkonce sections,
 	     or sections discarded by a linker script, we just want the
 	     section contents zeroed.  Avoid any special processing.  */
-	  _bfd_clear_contents (howto, input_bfd, input_section,
-			       contents + rel->r_offset);
+	  (void) _bfd_clear_contents (howto, input_bfd, input_section,
+				      contents, rel->r_offset);
 
 	  rel->r_info = 0;
 	  rel->r_addend = 0;

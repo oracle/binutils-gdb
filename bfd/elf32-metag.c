@@ -1392,8 +1392,8 @@ metag_final_link_relocate (reloc_howto_type *howto,
 #define METAG_RELOC_AGAINST_DISCARDED_SECTION(info, input_bfd, input_section, \
 					      rel, relend, howto, contents) \
   {									\
-    _bfd_clear_contents (howto, input_bfd, input_section,		\
-			 contents + rel->r_offset);			\
+    (void) _bfd_clear_contents (howto, input_bfd, input_section,		\
+				contents, rel->r_offset);		\
 									\
     if (bfd_link_relocatable (info)					\
 	&& (input_section->flags & SEC_DEBUGGING))			\

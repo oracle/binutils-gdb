@@ -13526,9 +13526,9 @@ ppc64_elf_relocate_section (bfd *output_bfd,
 
       if (sec != NULL && discarded_section (sec))
 	{
-	  _bfd_clear_contents (ppc64_elf_howto_table[r_type],
-			       input_bfd, input_section,
-			       contents + rel->r_offset);
+	  (void) _bfd_clear_contents (ppc64_elf_howto_table[r_type],
+				      input_bfd, input_section,
+				      contents, rel->r_offset);
 	  wrel->r_offset = rel->r_offset;
 	  wrel->r_info = 0;
 	  wrel->r_addend = 0;

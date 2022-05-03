@@ -1604,23 +1604,29 @@ _bfd_relocate_contents (reloc_howto_type *howto,
    relocations against discarded symbols, to make ignorable debug or unwind
    information more obvious.  */
 
-void
+bfd_reloc_status_type
 _bfd_clear_contents (reloc_howto_type *howto,
 		     bfd *input_bfd,
 		     asection *input_section,
-		     bfd_byte *location)
+		     bfd_byte *buf,
+		     bfd_vma off)
 {
   int size;
   bfd_vma x = 0;
+  bfd_byte *location;
+
+  if (!bfd_reloc_offset_in_range (howto, input_bfd, input_section, off))
+    return bfd_reloc_outofrange;
 
   /* Get the value we are going to relocate.  */
-  size = bfd_get_reloc_size (howto);
+  location = buf + off;
+  size = bfd_get_reloc_size (howto); 
   switch (size)
     {
     default:
-      abort ();
+      return bfd_reloc_notsupported;
     case 0:
-      return;
+      return bfd_reloc_ok;
     case 1:
       x = bfd_get_8 (input_bfd, location);
       break;
@@ -1634,7 +1640,7 @@ _bfd_clear_contents (reloc_howto_type *howto,
 #ifdef BFD64
       x = bfd_get_64 (input_bfd, location);
 #else
-      abort ();
+      return bfd_reloc_notsupported;
 #endif
       break;
     }
@@ -1654,7 +1660,7 @@ _bfd_clear_contents (reloc_howto_type *howto,
     {
     default:
     case 0:
-      abort ();
+      return bfd_reloc_notsupported;
     case 1:
       bfd_put_8 (input_bfd, x, location);
       break;
@@ -1668,10 +1674,12 @@ _bfd_clear_contents (reloc_howto_type *howto,
 #ifdef BFD64
       bfd_put_64 (input_bfd, x, location);
 #else
-      abort ();
+      return bfd_reloc_notsupported;
 #endif
       break;
     }
+
+  return bfd_reloc_ok;
 }
 
 /*
@@ -8209,20 +8217,30 @@ bfd_generic_get_relocated_section_contents (bfd *abfd,
 	      goto error_return;
 	    }
 
-	  if (symbol->section && discarded_section (symbol->section))
+	  /* Zap reloc field when the symbol is from a discarded
+	     section, ignoring any addend.  Do the same when called
+	     from bfd_simple_get_relocated_section_contents for
+	     undefined symbols in debug sections.  This is to keep
+	     debug info reasonably sane, in particular so that
+	     DW_FORM_ref_addr to another file's .debug_info isn't
+	     confused with an offset into the current file's
+	     .debug_info.  */
+	  if ((symbol->section != NULL && discarded_section (symbol->section))
+	      || (symbol->section == bfd_und_section_ptr
+		  && (input_section->flags & SEC_DEBUGGING) != 0
+		  && link_info->input_bfds == link_info->output_bfd))
 	    {
-	      bfd_byte *p;
+	      bfd_vma off;
 	      static reloc_howto_type none_howto
 		= HOWTO (0, 0, 0, 0, FALSE, 0, complain_overflow_dont, NULL,
 			 "unused", FALSE, 0, 0, FALSE);
 
-	      p = data + (*parent)->address * bfd_octets_per_byte (input_bfd);
-	      _bfd_clear_contents ((*parent)->howto, input_bfd, input_section,
-				   p);
+	      off = (*parent)->address * bfd_octets_per_byte (input_bfd);
+	      r = _bfd_clear_contents ((*parent)->howto, input_bfd,
+				       input_section, data, off);
 	      (*parent)->sym_ptr_ptr = bfd_abs_section_ptr->symbol_ptr_ptr;
 	      (*parent)->addend = 0;
 	      (*parent)->howto = &none_howto;
-	      r = bfd_reloc_ok;
 	    }
 	  else
 	    r = bfd_perform_relocation (input_bfd,

@@ -2457,8 +2457,8 @@ elf_x86_64_relocate_section (bfd *output_bfd,
 
       if (sec != NULL && discarded_section (sec))
 	{
-	  _bfd_clear_contents (howto, input_bfd, input_section,
-			       contents + rel->r_offset);
+	  (void) _bfd_clear_contents (howto, input_bfd, input_section,
+				      contents, rel->r_offset);
 	  wrel->r_offset = rel->r_offset;
 	  wrel->r_info = 0;
 	  wrel->r_addend = 0;

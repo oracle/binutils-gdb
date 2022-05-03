@@ -7778,8 +7778,8 @@ ppc_elf_relocate_section (bfd *output_bfd,
 	  if (r_type < R_PPC_max)
 	    howto = ppc_elf_howto_table[r_type];
 
-	  _bfd_clear_contents (howto, input_bfd, input_section,
-			       contents + rel->r_offset);
+	  (void) _bfd_clear_contents (howto, input_bfd, input_section,
+				      contents, rel->r_offset);
 	  wrel->r_offset = rel->r_offset;
 	  wrel->r_info = 0;
 	  wrel->r_addend = 0;
