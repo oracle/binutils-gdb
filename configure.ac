@@ -1288,26 +1288,6 @@ if test -z "$LD"; then
   fi
 fi
 
-# Check whether -static-libstdc++ -static-libgcc is supported.
-have_static_libs=no
-if test "$GCC" = yes; then
-  saved_LDFLAGS="$LDFLAGS"
-
-  LDFLAGS="$LDFLAGS -static-libstdc++ -static-libgcc"
-  AC_MSG_CHECKING([whether g++ accepts -static-libstdc++ -static-libgcc])
-  AC_LANG_PUSH(C++)
-  AC_LINK_IFELSE([
-#if (__GNUC__ < 4) || (__GNUC__ == 4 && __GNUC_MINOR__ < 5)
-#error -static-libstdc++ not implemented
-#endif
-int main() {}],
-    [AC_MSG_RESULT([yes]); have_static_libs=yes],
-    [AC_MSG_RESULT([no])])
-  AC_LANG_POP(C++)
-
-  LDFLAGS="$saved_LDFLAGS"
-fi
-
 ACX_PROG_GNAT
 ACX_PROG_CMP_IGNORE_INITIAL
 
