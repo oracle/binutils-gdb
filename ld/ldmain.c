@@ -920,6 +920,10 @@ multiple_definition (struct bfd_link_info *info,
       obfd = h->u.def.section->owner;
       break;
     case bfd_link_hash_indirect:
+      /* PR 21074: The GOLD linker can produce multiple indirect
+	 refences to the same symbol.  These can be ignored.  */
+      if (bfd_is_ind_section (nsec))
+	return;
       osec = bfd_ind_section_ptr;
       oval = 0;
       obfd = NULL;
