@@ -486,7 +486,11 @@ load_plugin (bfd *abfd)
   if (plugin_program_name == NULL)
     return found;
 
+#ifdef BFD64
+  plugin_dir = concat (BINDIR, "/../lib64/bfd-plugins", NULL);
+#else
   plugin_dir = concat (BINDIR, "/../lib/bfd-plugins", NULL);
+#endif
   p = make_relative_prefix (plugin_program_name,
 			    BINDIR,
 			    plugin_dir);
