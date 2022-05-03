@@ -737,7 +737,7 @@
 #endif
 
 #ifndef elf_backend_copy_special_section_fields
-#define elf_backend_copy_special_section_fields NULL
+#define elf_backend_copy_special_section_fields _bfd_elf_copy_special_section_fields
 #endif
 
 #ifndef elf_backend_compact_eh_encoding
@@ -745,7 +745,23 @@
 #endif
 
 #ifndef elf_backend_cant_unwind_opcode
-#define elf_backend_cant_unwind_opcode 0
+#define elf_backend_cant_unwind_opcode NULL
+#endif
+
+#ifndef elf_backend_init_secondary_reloc_section
+#define elf_backend_init_secondary_reloc_section _bfd_elf_init_secondary_reloc_section
+#endif
+
+#ifndef elf_backend_slurp_secondary_reloc_section
+#define elf_backend_slurp_secondary_reloc_section _bfd_elf_slurp_secondary_reloc_section
+#endif
+
+#ifndef elf_backend_write_secondary_reloc_section
+#define elf_backend_write_secondary_reloc_section _bfd_elf_write_secondary_reloc_section
+#endif
+
+#ifndef elf_backend_symbol_section_index
+#define elf_backend_symbol_section_index _bfd_elf_symbol_section_index
 #endif
 
 #ifndef elf_match_priority
@@ -870,6 +886,10 @@ static struct elf_backend_data elfNN_bed =
   elf_backend_setup_gnu_properties,
   elf_backend_compact_eh_encoding,
   elf_backend_cant_unwind_opcode,
+  elf_backend_init_secondary_reloc_section,
+  elf_backend_slurp_secondary_reloc_section,
+  elf_backend_write_secondary_reloc_section,
+  elf_backend_symbol_section_index,
   elf_backend_static_tls_alignment,
   elf_backend_stack_align,
   elf_backend_strtab_flags,
