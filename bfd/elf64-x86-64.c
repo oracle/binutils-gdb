@@ -287,7 +287,7 @@ elf_x86_64_rtype_to_howto (bfd *abfd, unsigned r_type)
 	{
 	  (*_bfd_error_handler) (_("%B: invalid relocation type %d"),
 				 abfd, (int) r_type);
-	  r_type = R_X86_64_NONE;
+	  return NULL;
 	}
       i = r_type;
     }
@@ -347,7 +347,6 @@ elf_x86_64_info_to_howto (bfd *abfd ATTRIBUTE_UNUSED, arelent *cache_ptr,
 
   r_type = ELF32_R_TYPE (dst->r_info);
   cache_ptr->howto = elf_x86_64_rtype_to_howto (abfd, r_type);
-  BFD_ASSERT (r_type == cache_ptr->howto->type);
 }
 
 /* Support for core dump NOTE sections.  */

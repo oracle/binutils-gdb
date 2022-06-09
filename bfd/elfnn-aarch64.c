@@ -1977,6 +1977,8 @@ elfNN_aarch64_info_to_howto (bfd *abfd ATTRIBUTE_UNUSED, arelent *bfd_reloc,
 
   r_type = ELFNN_R_TYPE (elf_reloc->r_info);
   bfd_reloc->howto = elfNN_aarch64_howto_from_type (r_type);
+  if (bfd_reloc->howto == NULL)
+    _bfd_error_handler (_("%B: invalid relocation type %d"), abfd, r_type);
 }
 
 static reloc_howto_type *

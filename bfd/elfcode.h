@@ -1461,6 +1461,12 @@ elf_slurp_reloc_table_from_section (bfd *abfd,
 	(*ebd->elf_info_to_howto) (abfd, relent, &rela);
       else
 	(*ebd->elf_info_to_howto_rel) (abfd, relent, &rela);
+
+      if (relent->howto == NULL)
+	{
+	  bfd_set_error (bfd_error_bad_value);
+	  goto error_return;
+	}
     }
 
   if (allocated != NULL)
