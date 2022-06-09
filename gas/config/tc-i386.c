@@ -379,6 +379,9 @@ struct _i386_insn
 
     /* Error message.  */
     enum i386_error error;
+
+    /* Has GOTPC relocation.  */
+    bfd_boolean has_gotpc_reloc;
   };
 
 typedef struct _i386_insn i386_insn;
@@ -508,6 +511,8 @@ static enum flag_code flag_code;
 static unsigned int object_64bit;
 static unsigned int disallow_64bit_reloc;
 static int use_rela_relocations = 0;
+/* __tls_get_addr/___tls_get_addr symbol for TLS.  */
+static const char *tls_get_addr;
 
 #if ((defined (OBJ_MAYBE_COFF) && defined (OBJ_MAYBE_AOUT)) \
      || defined (OBJ_ELF) || defined (OBJ_MAYBE_ELF) \
@@ -571,6 +576,21 @@ static int omit_lock_prefix = 0;
    "lock addl $0, (%{re}sp)".  */
 static int avoid_fence = 0;
 
+/* Type of the previous instruction.  */
+static struct
+{
+  segT seg;
+  const char *file;
+  const char *name;
+  unsigned int line;
+  enum last_insn_kind
+    {
+      last_insn_other = 0,
+      last_insn_directive,
+      last_insn_prefix
+    } kind;
+} last_insn;
+
 /* 1 if the assembler should generate relax relocations.  */
 
 static int generate_relax_relocations
@@ -583,6 +603,31 @@ static enum check_kind
     check_error
   }
 sse_check, operand_check = check_warning;
+
+/* Non-zero if branches should be aligned within power of 2 boundary.  */
+static int align_branch_power = 0;
+
+/* Types of branches to align.  */
+enum align_branch_kind
+  {
+    align_branch_none = 0,
+    align_branch_jcc = 1 << 0,
+    align_branch_fused = 1 << 1,
+    align_branch_jmp = 1 << 2,
+    align_branch_call = 1 << 3,
+    align_branch_indirect = 1 << 4,
+    align_branch_ret = 1 << 5
+  };
+
+static unsigned int align_branch = (align_branch_jcc
+				    | align_branch_fused
+				    | align_branch_jmp);
+
+/* The maximum padding size for fused jcc.  */
+#define MAX_FUSED_JCC_PADDING_SIZE 20
+
+/* The maximum number of prefixes added for an instruction.  */
+static unsigned int align_branch_prefix_size = 5;
 
 /* Register prefix used for error message.  */
 static const char *register_prefix = "%";
@@ -664,12 +709,19 @@ int x86_cie_data_alignment;
 /* Interface to relax_segment.
    There are 3 major relax states for 386 jump insns because the
    different types of jumps add different sizes to frags when we're
-   figuring out what sort of jump to choose to reach a given label.  */
+   figuring out what sort of jump to choose to reach a given label.
+
+   BRANCH_PADDING, BRANCH_PREFIX and FUSED_JCC_PADDING are used to align
+   branches which are handled by md_estimate_size_before_relax() and
+   i386_generic_table_relax_frag().  */
 
 /* Types.  */
 #define UNCOND_JUMP 0
 #define COND_JUMP 1
 #define COND_JUMP86 2
+#define BRANCH_PADDING 3
+#define BRANCH_PREFIX 4
+#define FUSED_JCC_PADDING 5
 
 /* Sizes.  */
 #define CODE16	1
@@ -1361,7 +1413,9 @@ i386_align_code (fragS *fragP, int count)
 		    patt [padding - 1], padding);
 	}
     }
-  fragP->fr_var = count;
+
+  if (fragP->fr_type != rs_machine_dependent)
+    fragP->fr_var = count;
 }
 
 static INLINE int
@@ -2705,6 +2759,11 @@ md_begin (void)
       x86_dwarf2_return_column = 8;
       x86_cie_data_alignment = -4;
     }
+
+  /* NB: FUSED_JCC_PADDING frag must have sufficient room so that it
+     can be turned into BRANCH_PREFIX frag.  */
+  if (align_branch_prefix_size > MAX_FUSED_JCC_PADDING_SIZE)
+    abort ();
 }
 
 void
@@ -3814,6 +3873,17 @@ md_assemble (char *line)
 
   /* We are ready to output the insn.  */
   output_insn ();
+
+  last_insn.seg = now_seg;
+
+  if (i.tm.opcode_modifier.isprefix)
+    {
+      last_insn.kind = last_insn_prefix;
+      last_insn.name = i.tm.name;
+      last_insn.file = as_where (&last_insn.line);
+    }
+  else
+    last_insn.kind = last_insn_other;
 }
 
 static char *
@@ -7049,11 +7119,204 @@ output_interseg_jump (void)
   md_number_to_chars (p + size, (valueT) i.op[0].imms->X_add_number, 2);
 }
 
+/* Return TRUE for test, and, cmp, add, sub, inc and dec which may
+   be macro-fused with conditional jumps.  */
+
+static bfd_boolean
+maybe_fused_with_jcc_p (void)
+{
+  /* No RIP address.  */
+  if (i.base_reg && i.base_reg->reg_num == RegRip)
+    return FALSE;
+
+  /* and, add, sub with destination register.  */
+  if (!strcmp (i.tm.name, "and")
+      || !strcmp (i.tm.name, "add")
+      || !strcmp (i.tm.name, "sub"))
+    return i.types[1].bitfield.reg32 || i.types[1].bitfield.reg64;
+
+  /* test, cmp with any register.  */
+  if (!strcmp (i.tm.name, "test") || !strcmp (i.tm.name, "cmp"))
+    return (i.types[0].bitfield.reg32
+	    || i.types[0].bitfield.reg64
+	    || i.types[1].bitfield.reg32
+	    || i.types[1].bitfield.reg64);
+
+  /* inc, dec with 16/32/64-bit register.   */
+  if (!strcmp (i.tm.name, "inc") || !strcmp (i.tm.name, "dec"))
+    return i.types[0].bitfield.reg32 || i.types[0].bitfield.reg64;
+
+  return FALSE;
+}
+
+/* Return TRUE if a FUSED_JCC_PADDING frag should be generated.  */
+
+static bfd_boolean
+add_fused_jcc_padding_frag_p (void)
+{
+  if (!align_branch_power
+      || now_seg == absolute_section
+      || !cpu_arch_flags.bitfield.cpui386
+      || !(align_branch & align_branch_fused))
+    return FALSE;
+
+  if (maybe_fused_with_jcc_p ())
+    {
+      if (last_insn.kind != last_insn_other
+	  && last_insn.seg == now_seg)
+	{
+	  if (flag_debug)
+	    as_warn_where (last_insn.file, last_insn.line,
+			   _("`%s` skips -malign-branch-boundary on `%s`"),
+			   last_insn.name, i.tm.name);
+	  return FALSE;
+	}
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+/* Return TRUE if a BRANCH_PREFIX frag should be generated.  */
+
+static bfd_boolean
+add_branch_prefix_frag_p (void)
+{
+  if (!align_branch_power
+      || now_seg == absolute_section
+      || i.tm.cpu_flags.bitfield.cpupadlock
+      || !cpu_arch_flags.bitfield.cpui386)
+    return FALSE;
+
+  /* Don't add prefix if it is a prefix or there is no operand.  */
+  if (!i.operands || i.tm.opcode_modifier.isprefix)
+    return FALSE;
+
+  if (last_insn.kind != last_insn_other
+      && last_insn.seg == now_seg)
+    {
+      if (flag_debug)
+	as_warn_where (last_insn.file, last_insn.line,
+		       _("`%s` skips -malign-branch-boundary on `%s`"),
+		       last_insn.name, i.tm.name);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+/* Return TRUE if a BRANCH_PADDING frag should be generated.  */
+
+static int
+add_branch_padding_frag_p (enum align_branch_kind *branch_p)
+{
+  bfd_boolean add_padding;
+
+  if (!align_branch_power
+      || now_seg == absolute_section
+      || !cpu_arch_flags.bitfield.cpui386)
+    return FALSE;
+
+  add_padding = FALSE;
+
+  /* Check for jcc and direct jmp.  */
+  if (i.tm.opcode_modifier.jump)
+    {
+      if (i.tm.base_opcode == JUMP_PC_RELATIVE)
+	{
+	  *branch_p = align_branch_jmp;
+	  add_padding = align_branch & align_branch_jmp;
+	}
+      else
+	{
+	  *branch_p = align_branch_jcc;
+	  if ((align_branch & align_branch_jcc))
+	    add_padding = TRUE;
+	}
+    }
+  else if (i.tm.base_opcode == 0xc2
+	   || i.tm.base_opcode == 0xc3
+	   || i.tm.base_opcode == 0xca
+	   || i.tm.base_opcode == 0xcb)
+    {
+      *branch_p = align_branch_ret;
+      if ((align_branch & align_branch_ret))
+	add_padding = TRUE;
+    }
+  else
+    {
+      if (i.tm.base_opcode == 0xe8)
+	{
+	  *branch_p = align_branch_call;
+	  if ((align_branch & align_branch_call))
+	    add_padding = TRUE;
+	}
+      else if (i.tm.base_opcode == 0xff
+	       && (i.rm.reg == 2 || i.rm.reg == 4))
+	{
+	  *branch_p = align_branch_indirect;
+	  if ((align_branch & align_branch_indirect))
+	    add_padding = TRUE;
+	}
+
+      /* Check for indirect jmp, direct and indirect calls.  */
+      if (add_padding
+	  && i.disp_operands
+	  && tls_get_addr
+	  && (i.op[0].disps->X_op == O_symbol
+	      || (i.op[0].disps->X_op == O_subtract
+		  && i.op[0].disps->X_op_symbol == GOT_symbol)))
+	{
+	  symbolS *s = i.op[0].disps->X_add_symbol;
+	  /* No padding to call to global or undefined tls_get_addr.  */
+	  if ((S_IS_EXTERNAL (s) || !S_IS_DEFINED (s))
+	      && strcmp (S_GET_NAME (s), tls_get_addr) == 0)
+	    return FALSE;
+	}
+    }
+
+  if (add_padding
+      && last_insn.kind != last_insn_other
+      && last_insn.seg == now_seg)
+    {
+      if (flag_debug)
+	as_warn_where (last_insn.file, last_insn.line,
+		       _("`%s` skips -malign-branch-boundary on `%s`"),
+		       last_insn.name, i.tm.name);
+      return FALSE;
+    }
+
+  return add_padding;
+}
+
+static unsigned int
+encoding_length (const fragS *start_frag, offsetT start_off,
+		 const char *frag_now_ptr)
+{
+  unsigned int len = 0;
+
+  if (start_frag != frag_now)
+    {
+      const fragS *fr = start_frag;
+
+      do
+	{
+	  len += fr->fr_fix;
+	  fr = fr->fr_next;
+	}
+      while (fr && fr != frag_now);
+    }
+
+  return len - start_off + (frag_now_ptr - frag_now->fr_literal);
+}
+
 static void
 output_insn (void)
 {
   fragS *insn_start_frag;
   offsetT insn_start_off;
+  fragS *fragP = NULL;
+  enum align_branch_kind branch = align_branch_none;
 
   /* Tie dwarf2 debug info to the address at the start of the insn.
      We can't do this after the insn has been output as the current
@@ -7062,6 +7325,30 @@ output_insn (void)
 
   insn_start_frag = frag_now;
   insn_start_off = frag_now_fix ();
+
+  if (add_branch_padding_frag_p (&branch))
+    {
+      char *p;
+      unsigned int max_branch_padding_size = 14;
+
+      /* Align section to boundary.  */
+      record_alignment (now_seg, align_branch_power);
+
+      /* Make room for padding.  */
+      frag_grow (max_branch_padding_size);
+
+      /* Start of the padding.  */
+      p = frag_more (0);
+
+      fragP = frag_now;
+
+      frag_var (rs_machine_dependent, max_branch_padding_size, 0,
+		ENCODE_RELAX_STATE (BRANCH_PADDING, 0),
+		NULL, 0, p);
+
+      fragP->tc_frag_data.branch_type = branch;
+      fragP->tc_frag_data.max_bytes = max_branch_padding_size;
+    }
 
   /* Output jumps.  */
   if (i.tm.opcode_modifier.jump)
@@ -7102,6 +7389,44 @@ output_insn (void)
 	  if (i.tm.base_opcode == LOCK_PREFIX_OPCODE)
 	    return;
 	  i.prefix[LOCK_PREFIX] = 0;
+	}
+
+      if (branch)
+	/* Skip if this is a branch.  */
+	;
+      else if (add_fused_jcc_padding_frag_p ())
+	{
+	  unsigned int max_fused_padding_size
+	    = MAX_FUSED_JCC_PADDING_SIZE;
+
+	  /* Make room for padding.  */
+	  frag_grow (max_fused_padding_size);
+	  p = frag_more (0);
+
+	  fragP = frag_now;
+
+	  frag_var (rs_machine_dependent, max_fused_padding_size, 0,
+		    ENCODE_RELAX_STATE (FUSED_JCC_PADDING, 0),
+		    NULL, 0, p);
+
+	  fragP->tc_frag_data.branch_type = align_branch_fused;
+	  fragP->tc_frag_data.max_bytes = max_fused_padding_size;
+	}
+      else if (add_branch_prefix_frag_p ())
+	{
+	  unsigned int max_prefix_size = align_branch_prefix_size;
+
+	  /* Make room for padding.  */
+	  frag_grow (max_prefix_size);
+	  p = frag_more (0);
+
+	  fragP = frag_now;
+
+	  frag_var (rs_machine_dependent, max_prefix_size, 0,
+		    ENCODE_RELAX_STATE (BRANCH_PREFIX, 0),
+		    NULL, 0, p);
+
+	  fragP->tc_frag_data.max_bytes = max_prefix_size;
 	}
 
       /* Since the VEX/EVEX prefix contains the implicit prefix, we
@@ -7239,6 +7564,83 @@ check_prefix:
 
       if (i.imm_operands)
 	output_imm (insn_start_frag, insn_start_off);
+
+      if (now_seg != absolute_section)
+	{
+	  j = encoding_length (insn_start_frag, insn_start_off, frag_more (0));
+	  if (fragP)
+	    {
+	      /* NB: Don't add prefix with GOTPC relocation since
+		 output_disp() above depends on the fixed encoding
+		 length.  */
+	      unsigned int max = i.has_gotpc_reloc ? 0 : 15 - j;
+	      /* Prefix count on the current instruction.  */
+	      unsigned int count = 0;
+	      unsigned int k;
+	      for (k = 0; k < ARRAY_SIZE (i.prefix); k++)
+		if (i.prefix[k])
+		  count++;
+
+	      /* NB: prefix count + instruction size must be <= 15.  */
+	      if (j > 15)
+		as_fatal (_("instruction length of %u bytes exceeds the limit of 15"),
+			  j);
+
+	      if (TYPE_FROM_RELAX_STATE (fragP->fr_subtype)
+		  == BRANCH_PREFIX)
+		{
+		  /* Set the maximum prefix size in BRANCH_PREFIX
+		     frag.  */
+		  if (fragP->tc_frag_data.max_bytes > max)
+		    fragP->tc_frag_data.max_bytes = max;
+		  if (fragP->tc_frag_data.max_bytes > count)
+		    fragP->tc_frag_data.max_bytes -= count;
+		  else
+		    fragP->tc_frag_data.max_bytes = 0;
+		}
+	      else
+		{
+		  /* Remember the maximum prefix size in FUSED_JCC_PADDING
+		     frag.  */
+		  unsigned int max_prefix_size;
+		  if (align_branch_prefix_size > max)
+		    max_prefix_size = max;
+		  else
+		    max_prefix_size = align_branch_prefix_size;
+		  if (max_prefix_size > count)
+		    fragP->tc_frag_data.max_prefix_length
+		      = max_prefix_size - count;
+		}
+
+	      /* Use existing segment prefix if possible.  Use CS
+		 segment prefix in 64-bit mode.  In 32-bit mode, use SS
+		 segment prefix with ESP/EBP base register and use DS
+		 segment prefix without ESP/EBP base register.  */
+	      if (i.prefix[SEG_PREFIX])
+		fragP->tc_frag_data.default_prefix = i.prefix[SEG_PREFIX];
+	      else if (flag_code == CODE_64BIT)
+		fragP->tc_frag_data.default_prefix = CS_PREFIX_OPCODE;
+	      else if (i.base_reg
+		       && (i.base_reg->reg_num == 4
+			   || i.base_reg->reg_num == 5))
+		fragP->tc_frag_data.default_prefix = SS_PREFIX_OPCODE;
+	      else
+		fragP->tc_frag_data.default_prefix = DS_PREFIX_OPCODE;
+	    }
+	  else if (j > 15)
+	    as_warn (_("instruction length of %u bytes exceeds the limit of 15"),
+		     j);
+	}
+    }
+
+  if (align_branch_power
+      && now_seg != absolute_section
+      && cpu_arch_flags.bitfield.cpui386)
+    {
+      /* Terminate each frag so that we can add prefix and check for
+         fused jcc.  */
+      frag_wane (frag_now);
+      frag_new (0);
     }
 
 #ifdef DEBUG386
@@ -7371,6 +7773,7 @@ output_disp (fragS *insn_start_frag, offsetT insn_start_off)
 		    {
 		      reloc_type = BFD_RELOC_386_GOTPC;
 		      i.op[n].imms->X_add_number += add;
+		      i.has_gotpc_reloc = TRUE;
 		    }
 		  else if (reloc_type == BFD_RELOC_64)
 		    reloc_type = BFD_RELOC_X86_64_GOTPC64;
@@ -7536,6 +7939,7 @@ output_imm (fragS *insn_start_frag, offsetT insn_start_off)
 		    reloc_type = BFD_RELOC_X86_64_GOTPC32;
 		  else if (size == 8)
 		    reloc_type = BFD_RELOC_X86_64_GOTPC64;
+		  i.has_gotpc_reloc = TRUE;
 		  i.op[n].imms->X_add_number += add;
 		}
 	      fix_new_exp (frag_now, p - frag_now->fr_literal, size,
@@ -9133,6 +9537,355 @@ elf_symbol_resolved_in_segment_p (symbolS *fr_symbol, offsetT fr_var)
 }
 #endif
 
+/* Return the next non-empty frag.  */
+
+static fragS *
+i386_next_non_empty_frag (fragS *fragP)
+{
+  /* There may be a frag with a ".fill 0" when there is no room in
+     the current frag for frag_grow in output_insn.  */
+  for (fragP = fragP->fr_next;
+       (fragP != NULL
+	&& fragP->fr_type == rs_fill
+	&& fragP->fr_fix == 0);
+       fragP = fragP->fr_next)
+    ;
+  return fragP;
+}
+
+/* Return the next jcc frag after BRANCH_PADDING.  */
+
+static fragS *
+i386_next_jcc_frag (fragS *fragP)
+{
+  if (!fragP)
+    return NULL;
+
+  if (fragP->fr_type == rs_machine_dependent
+      && (TYPE_FROM_RELAX_STATE (fragP->fr_subtype)
+	  == BRANCH_PADDING))
+    {
+      fragP = i386_next_non_empty_frag (fragP);
+      if (fragP->fr_type != rs_machine_dependent)
+	return NULL;
+      if (TYPE_FROM_RELAX_STATE (fragP->fr_subtype) == COND_JUMP)
+	return fragP;
+    }
+
+  return NULL;
+}
+
+/* Classify BRANCH_PADDING, BRANCH_PREFIX and FUSED_JCC_PADDING frags.  */
+
+static void
+i386_classify_machine_dependent_frag (fragS *fragP)
+{
+  fragS *cmp_fragP;
+  fragS *pad_fragP;
+  fragS *branch_fragP;
+  fragS *next_fragP;
+  unsigned int max_prefix_length;
+
+  if (fragP->tc_frag_data.classified)
+    return;
+
+  /* First scan for BRANCH_PADDING and FUSED_JCC_PADDING.  Convert
+     FUSED_JCC_PADDING and merge BRANCH_PADDING.  */
+  for (next_fragP = fragP;
+       next_fragP != NULL;
+       next_fragP = next_fragP->fr_next)
+    {
+      next_fragP->tc_frag_data.classified = 1;
+      if (next_fragP->fr_type == rs_machine_dependent)
+	switch (TYPE_FROM_RELAX_STATE (next_fragP->fr_subtype))
+	  {
+	  case BRANCH_PADDING:
+	    /* The BRANCH_PADDING frag must be followed by a branch
+	       frag.  */
+	    branch_fragP = i386_next_non_empty_frag (next_fragP);
+	    next_fragP->tc_frag_data.u.branch_fragP = branch_fragP;
+	    break;
+	  case FUSED_JCC_PADDING:
+	    /* Check if this is a fused jcc:
+	       FUSED_JCC_PADDING
+	       CMP
+	       BRANCH_PADDING
+	       COND_JUMP
+	       */
+	    cmp_fragP = i386_next_non_empty_frag (next_fragP);
+	    pad_fragP = i386_next_non_empty_frag (cmp_fragP);
+	    branch_fragP = i386_next_jcc_frag (pad_fragP);
+	    if (branch_fragP)
+	      {
+		/* The BRANCH_PADDING frag is merged with the
+		   FUSED_JCC_PADDING frag.  */
+		next_fragP->tc_frag_data.u.branch_fragP = branch_fragP;
+		/* CMP instruction size.  */
+		next_fragP->tc_frag_data.cmp_size = cmp_fragP->fr_fix;
+		frag_wane (pad_fragP);
+		/* Skip to branch_fragP.  */
+		next_fragP = branch_fragP;
+	      }
+	    else if (next_fragP->tc_frag_data.max_prefix_length)
+	      {
+		/* Turn FUSED_JCC_PADDING into BRANCH_PREFIX if it isn't
+		   a fused jcc.  */
+		next_fragP->fr_subtype
+		  = ENCODE_RELAX_STATE (BRANCH_PREFIX, 0);
+		next_fragP->tc_frag_data.max_bytes
+		  = next_fragP->tc_frag_data.max_prefix_length;
+		/* This will be updated in the BRANCH_PREFIX scan.  */
+		next_fragP->tc_frag_data.max_prefix_length = 0;
+	      }
+	    else
+	      frag_wane (next_fragP);
+	    break;
+	  }
+    }
+
+  /* Scan for BRANCH_PREFIX.  */
+  for (; fragP != NULL; fragP = fragP->fr_next)
+    if (fragP->fr_type == rs_machine_dependent
+	&& (TYPE_FROM_RELAX_STATE (fragP->fr_subtype)
+	    == BRANCH_PREFIX))
+      {
+	/* Count all BRANCH_PREFIX frags before BRANCH_PADDING and
+	   COND_JUMP_PREFIX.  */
+	max_prefix_length = 0;
+	for (next_fragP = fragP;
+	     next_fragP != NULL;
+	     next_fragP = next_fragP->fr_next)
+	  {
+	    if (next_fragP->fr_type == rs_fill)
+	      /* Skip rs_fill frags.  */
+	      ;
+	    else if (next_fragP->fr_type == rs_machine_dependent)
+	      {
+		if (TYPE_FROM_RELAX_STATE (next_fragP->fr_subtype)
+		    == BRANCH_PREFIX)
+		  {
+		    /* Count BRANCH_PREFIX frags.  */
+		    if (max_prefix_length >= MAX_FUSED_JCC_PADDING_SIZE)
+		      {
+			max_prefix_length = MAX_FUSED_JCC_PADDING_SIZE;
+			frag_wane (next_fragP);
+		      }
+		    else
+		      max_prefix_length
+			+= next_fragP->tc_frag_data.max_bytes;
+		  }
+		else if ((TYPE_FROM_RELAX_STATE (next_fragP->fr_subtype)
+			  == BRANCH_PADDING)
+			 || (TYPE_FROM_RELAX_STATE (next_fragP->fr_subtype)
+			     == FUSED_JCC_PADDING))
+		  {
+		    /* Stop at BRANCH_PADDING and FUSED_JCC_PADDING.  */
+		    fragP->tc_frag_data.u.padding_fragP = next_fragP;
+		    break;
+		  }
+		else
+		  /* Stop for other rs_machine_dependent frags.  */
+		  break;
+	      }
+	    else
+	      /* Stop for all other frags.  */
+	      break;
+	  }
+
+	fragP->tc_frag_data.max_prefix_length = max_prefix_length;
+
+	/* Skip to the next frag.  */
+	fragP = next_fragP;
+      }
+}
+
+/* Compute padding size for
+
+	FUSED_JCC_PADDING
+	CMP
+	BRANCH_PADDING
+	COND_JUMP/UNCOND_JUMP
+
+   or
+
+	BRANCH_PADDING
+	COND_JUMP/UNCOND_JUMP
+ */
+
+static int
+i386_branch_padding_size (fragS *fragP, offsetT address)
+{
+  unsigned int offset, size, padding_size;
+  fragS *branch_fragP = fragP->tc_frag_data.u.branch_fragP;
+
+  /* The start address of the BRANCH_PADDING or FUSED_JCC_PADDING frag.  */
+  if (!address)
+    address = fragP->fr_address;
+  address += fragP->fr_fix;
+
+  /* CMP instrunction size.  */
+  size = fragP->tc_frag_data.cmp_size;
+
+  /* The base size of the branch frag.  */
+  size += branch_fragP->fr_fix;
+
+  /* Add opcode and displacement bytes for the rs_machine_dependent
+     branch frag.  */
+  if (branch_fragP->fr_type == rs_machine_dependent)
+    size += md_relax_table[branch_fragP->fr_subtype].rlx_length;
+
+  /* Check if branch is within boundary and doesn't end at the last
+     byte.  */
+  offset = address & ((1U << align_branch_power) - 1);
+  if ((offset + size) >= (1U << align_branch_power))
+    /* Padding needed to avoid crossing boundary.  */
+    padding_size = (1 << align_branch_power) - offset;
+  else
+    /* No padding needed.  */
+    padding_size = 0;
+
+  if (!fits_in_signed_byte (padding_size))
+    abort ();
+
+  return padding_size;
+}
+
+/* i386_generic_table_relax_frag()
+
+   Handle BRANCH_PADDING, BRANCH_PREFIX and FUSED_JCC_PADDING frags to
+   grow/shrink padding to align branch frags.  Hand others to
+   relax_frag().  */
+
+long
+i386_generic_table_relax_frag (segT segment, fragS *fragP, long stretch)
+{
+  if (TYPE_FROM_RELAX_STATE (fragP->fr_subtype) == BRANCH_PADDING
+      || TYPE_FROM_RELAX_STATE (fragP->fr_subtype) == FUSED_JCC_PADDING)
+    {
+      long padding_size = i386_branch_padding_size (fragP, 0);
+      long grow = padding_size - fragP->tc_frag_data.length;
+
+      /* When the BRANCH_PREFIX frag is used, the computed address
+         must match the actual address and there should be no padding.  */
+      if (fragP->tc_frag_data.padding_address
+	  && (fragP->tc_frag_data.padding_address != fragP->fr_address
+	      || padding_size))
+	abort ();
+
+      /* Update the padding size.  */
+      if (grow)
+	fragP->tc_frag_data.length = padding_size;
+
+      return grow;
+    }
+  else if (TYPE_FROM_RELAX_STATE (fragP->fr_subtype) == BRANCH_PREFIX)
+    {
+      fragS *padding_fragP, *next_fragP;
+      long padding_size, left_size, last_size;
+
+      padding_fragP = fragP->tc_frag_data.u.padding_fragP;
+      if (!padding_fragP)
+	/* Use the padding set by the leading BRANCH_PREFIX frag.  */
+	return (fragP->tc_frag_data.length
+		- fragP->tc_frag_data.last_length);
+
+      /* Compute the relative address of the padding frag in the very
+        first time where the BRANCH_PREFIX frag sizes are zero.  */
+      if (!fragP->tc_frag_data.padding_address)
+	fragP->tc_frag_data.padding_address
+	  = padding_fragP->fr_address - (fragP->fr_address - stretch);
+
+      /* First update the last length from the previous interation.  */
+      left_size = fragP->tc_frag_data.prefix_length;
+      for (next_fragP = fragP;
+	   next_fragP != padding_fragP;
+	   next_fragP = next_fragP->fr_next)
+	if (next_fragP->fr_type == rs_machine_dependent
+	    && (TYPE_FROM_RELAX_STATE (next_fragP->fr_subtype)
+		== BRANCH_PREFIX))
+	  {
+	    if (left_size)
+	      {
+		int max = next_fragP->tc_frag_data.max_bytes;
+		if (max)
+		  {
+		    int size;
+		    if (max > left_size)
+		      size = left_size;
+		    else
+		      size = max;
+		    left_size -= size;
+		    next_fragP->tc_frag_data.last_length = size;
+		  }
+	      }
+	    else
+	      next_fragP->tc_frag_data.last_length = 0;
+	  }
+
+      /* Check the padding size for the padding frag.  */
+      padding_size = i386_branch_padding_size
+	(padding_fragP, (fragP->fr_address
+			 + fragP->tc_frag_data.padding_address));
+
+      last_size = fragP->tc_frag_data.prefix_length;
+      /* Check if there is change from the last interation.  */
+      if (padding_size == last_size)
+	{
+	  /* Update the expected address of the padding frag.  */
+	  padding_fragP->tc_frag_data.padding_address
+	    = (fragP->fr_address + padding_size
+	       + fragP->tc_frag_data.padding_address);
+	  return 0;
+	}
+
+      if (padding_size > fragP->tc_frag_data.max_prefix_length)
+	{
+	  /* No padding if there is no sufficient room.  Clear the
+	     expected address of the padding frag.  */
+	  padding_fragP->tc_frag_data.padding_address = 0;
+	  padding_size = 0;
+	}
+      else
+	/* Store the expected address of the padding frag.  */
+	padding_fragP->tc_frag_data.padding_address
+	  = (fragP->fr_address + padding_size
+	     + fragP->tc_frag_data.padding_address);
+
+      fragP->tc_frag_data.prefix_length = padding_size;
+
+      /* Update the length for the current interation.  */
+      left_size = padding_size;
+      for (next_fragP = fragP;
+	   next_fragP != padding_fragP;
+	   next_fragP = next_fragP->fr_next)
+	if (next_fragP->fr_type == rs_machine_dependent
+	    && (TYPE_FROM_RELAX_STATE (next_fragP->fr_subtype)
+		== BRANCH_PREFIX))
+	  {
+	    if (left_size)
+	      {
+		int max = next_fragP->tc_frag_data.max_bytes;
+		if (max)
+		  {
+		    int size;
+		    if (max > left_size)
+		      size = left_size;
+		    else
+		      size = max;
+		    left_size -= size;
+		    next_fragP->tc_frag_data.length = size;
+		  }
+	      }
+	    else
+	      next_fragP->tc_frag_data.length = 0;
+	  }
+
+      return (fragP->tc_frag_data.length
+	      - fragP->tc_frag_data.last_length);
+    }
+  return relax_frag (segment, fragP, stretch);
+}
+
 /* md_estimate_size_before_relax()
 
    Called just before relax() for rs_machine_dependent frags.  The x86
@@ -9149,6 +9902,14 @@ elf_symbol_resolved_in_segment_p (symbolS *fr_symbol, offsetT fr_var)
 int
 md_estimate_size_before_relax (fragS *fragP, segT segment)
 {
+  if (TYPE_FROM_RELAX_STATE (fragP->fr_subtype) == BRANCH_PADDING
+      || TYPE_FROM_RELAX_STATE (fragP->fr_subtype) == BRANCH_PREFIX
+      || TYPE_FROM_RELAX_STATE (fragP->fr_subtype) == FUSED_JCC_PADDING)
+    {
+      i386_classify_machine_dependent_frag (fragP);
+      return fragP->tc_frag_data.length;
+    }
+
   /* We've already got fragP->fr_subtype right;  all we have to do is
      check for un-relaxable symbols.  On an ELF system, we can't relax
      an externally visible symbol, because it may be overridden by a
@@ -9277,6 +10038,109 @@ md_convert_frag (bfd *abfd ATTRIBUTE_UNUSED, segT sec ATTRIBUTE_UNUSED,
   offsetT opcode_address;
   unsigned int extension = 0;
   offsetT displacement_from_opcode_start;
+
+  if (TYPE_FROM_RELAX_STATE (fragP->fr_subtype) == BRANCH_PADDING
+      || TYPE_FROM_RELAX_STATE (fragP->fr_subtype) == FUSED_JCC_PADDING
+      || TYPE_FROM_RELAX_STATE (fragP->fr_subtype) == BRANCH_PREFIX)
+    {
+      /* Generate nop padding.  */
+      unsigned int size = fragP->tc_frag_data.length;
+
+      if (size == 0)
+	return;
+
+      if (size > fragP->tc_frag_data.max_bytes)
+	abort ();
+
+      if (flag_debug)
+	{
+	  const char *msg;
+	  const char *branch = "branch";
+	  const char *prefix = "";
+	  fragS *padding_fragP;
+
+	  if (TYPE_FROM_RELAX_STATE (fragP->fr_subtype)
+	      == BRANCH_PREFIX)
+	    {
+	      padding_fragP = fragP->tc_frag_data.u.padding_fragP;
+	      switch (fragP->tc_frag_data.default_prefix)
+		{
+		default:
+		  abort ();
+		  break;
+		case CS_PREFIX_OPCODE:
+		  prefix = " cs";
+		  break;
+		case DS_PREFIX_OPCODE:
+		  prefix = " ds";
+		  break;
+		case ES_PREFIX_OPCODE:
+		  prefix = " es";
+		  break;
+		case FS_PREFIX_OPCODE:
+		  prefix = " fs";
+		  break;
+		case GS_PREFIX_OPCODE:
+		  prefix = " gs";
+		  break;
+		case SS_PREFIX_OPCODE:
+		  prefix = " ss";
+		  break;
+		}
+	      if (padding_fragP)
+		msg = _("%s:%u: add %d%s at 0x%llx to align "
+			"%s within %d-byte boundary\n");
+	      else
+		msg = _("%s:%u: add additional %d%s at 0x%llx to "
+			"align %s within %d-byte boundary\n");
+	    }
+	  else
+	    {
+	      padding_fragP = fragP;
+	      msg = _("%s:%u: add %d%s-byte nop at 0x%llx to align "
+		      "%s within %d-byte boundary\n");
+	    }
+
+	  if (padding_fragP)
+	    switch (padding_fragP->tc_frag_data.branch_type)
+	      {
+	      case align_branch_jcc:
+		branch = "jcc";
+		break;
+	      case align_branch_fused:
+		branch = "fused jcc";
+		break;
+	      case align_branch_jmp:
+		branch = "jmp";
+		break;
+	      case align_branch_call:
+		branch = "call";
+		break;
+	      case align_branch_indirect:
+		branch = "indiret branch";
+		break;
+	      case align_branch_ret:
+		branch = "ret";
+		break;
+	      default:
+		break;
+	      }
+
+	  fprintf (stdout, msg,
+		   fragP->fr_file, fragP->fr_line, size, prefix,
+		   (long long) fragP->fr_address, branch,
+		   1 << align_branch_power);
+	}
+
+      if (TYPE_FROM_RELAX_STATE (fragP->fr_subtype) == BRANCH_PREFIX)
+	memset (fragP->fr_opcode,
+		fragP->tc_frag_data.default_prefix, size);
+      else
+	i386_align_code (fragP, size);
+      fragP->fr_fix += size;
+
+      return;
+    }
 
   opcode = (unsigned char *) fragP->fr_opcode;
 
@@ -9830,6 +10694,10 @@ const char *md_shortopts = "qn";
 #define OPTION_MINTEL64 (OPTION_MD_BASE + 23)
 #define OPTION_MFENCE_AS_LOCK_ADD (OPTION_MD_BASE + 24)
 #define OPTION_MRELAX_RELOCATIONS (OPTION_MD_BASE + 25)
+#define OPTION_MALIGN_BRANCH_BOUNDARY (OPTION_MD_BASE + 27)
+#define OPTION_MALIGN_BRANCH_PREFIX_SIZE (OPTION_MD_BASE + 28)
+#define OPTION_MALIGN_BRANCH (OPTION_MD_BASE + 29)
+#define OPTION_MBRANCHES_WITH_32B_BOUNDARIES (OPTION_MD_BASE + 30)
 
 struct option md_longopts[] =
 {
@@ -9864,6 +10732,10 @@ struct option md_longopts[] =
   {"mfence-as-lock-add", required_argument, NULL, OPTION_MFENCE_AS_LOCK_ADD},
   {"mrelax-relocations", required_argument, NULL, OPTION_MRELAX_RELOCATIONS},
   {"mevexrcig", required_argument, NULL, OPTION_MEVEXRCIG},
+  {"malign-branch-boundary", required_argument, NULL, OPTION_MALIGN_BRANCH_BOUNDARY},
+  {"malign-branch-prefix-size", required_argument, NULL, OPTION_MALIGN_BRANCH_PREFIX_SIZE},
+  {"malign-branch", required_argument, NULL, OPTION_MALIGN_BRANCH},
+  {"mbranches-within-32B-boundaries", no_argument, NULL, OPTION_MBRANCHES_WITH_32B_BOUNDARIES},
   {"mamd64", no_argument, NULL, OPTION_MAMD64},
   {"mintel64", no_argument, NULL, OPTION_MINTEL64},
   {NULL, no_argument, NULL, 0}
@@ -9874,7 +10746,7 @@ int
 md_parse_option (int c, const char *arg)
 {
   unsigned int j;
-  char *arch, *next, *saved;
+  char *arch, *next, *saved, *type;
 
   switch (c)
     {
@@ -9975,6 +10847,82 @@ md_parse_option (int c, const char *arg)
 	i386_comment_chars = n;
       }
 #endif
+      break;
+
+    case OPTION_MALIGN_BRANCH_BOUNDARY:
+      {
+	char *end;
+	int align = strtoul (arg, &end, 0);
+
+	if (*end == '\0')
+	  {
+	    if (align == 0)
+	      {
+		align_branch_power = 0;
+		break;
+	      }
+	    else if (align >= 32)
+	      {
+		int align_power;
+
+		for (align_power = 0;
+		     (align & 1) == 0;
+		     align >>= 1, align_power++)
+		  continue;
+
+		if (align == 1)
+		  {
+		    align_branch_power = align_power;
+		    break;
+		  }
+	      }
+	  }
+	as_fatal (_("invalid -malign-branch-boundary= value: %s"), arg);
+      }
+      break;
+
+    case OPTION_MALIGN_BRANCH_PREFIX_SIZE:
+      {
+	char *end;
+	int align = strtoul (arg, &end, 0);
+
+	if (*end == '\0' && align >= 0 && align < 6)
+	  {
+	    align_branch_prefix_size = align;
+	    break;
+	  }
+	as_fatal (_("invalid -malign-branch-prefix-size= value: %s"),
+		  arg);
+      }
+      break;
+
+    case OPTION_MALIGN_BRANCH:
+      align_branch = 0;
+      saved = xstrdup (arg);
+      type = saved;
+      do
+	{
+	  next = strchr (type, '+');
+	  if (next)
+	    *next++ = '\0';
+	  if (strcasecmp (type, "jcc") == 0)
+	    align_branch |= align_branch_jcc;
+	  else if (strcasecmp (type, "fused") == 0)
+	    align_branch |= align_branch_fused;
+	  else if (strcasecmp (type, "jmp") == 0)
+	    align_branch |= align_branch_jmp;
+	  else if (strcasecmp (type, "call") == 0)
+	    align_branch |= align_branch_call;
+	  else if (strcasecmp (type, "ret") == 0)
+	    align_branch |= align_branch_ret;
+	  else if (strcasecmp (type, "indirect") == 0)
+	    align_branch |= align_branch_indirect;
+	  else
+	    as_fatal (_("invalid -malign-branch= option: `%s'"), arg);
+	  type = next;
+	}
+      while (next != NULL);
+      free (saved);
       break;
 
     case OPTION_MARCH:
@@ -10232,6 +11180,14 @@ md_parse_option (int c, const char *arg)
         as_fatal (_("invalid -mrelax-relocations= option: `%s'"), arg);
       break;
 
+    case OPTION_MBRANCHES_WITH_32B_BOUNDARIES:
+      align_branch_power = 5;
+      align_branch_prefix_size = 5;
+      align_branch = (align_branch_jcc
+		      | align_branch_fused
+		      | align_branch_jmp);
+      break;
+
     case OPTION_MAMD64:
       intel64 = 0;
       break;
@@ -10436,6 +11392,20 @@ md_show_usage (FILE *stream)
   -mrelax-relocations=[no|yes]\n\
                           generate relax relocations\n"));
   fprintf (stream, _("\
+  -malign-branch-boundary=NUM (default: 0)\n\
+                          align branches within NUM byte boundary\n"));
+  fprintf (stream, _("\
+  -malign-branch=TYPE[+TYPE...] (default: jcc+fused+jmp)\n\
+                          TYPE is combination of jcc, fused, jmp, call, ret,\n\
+                           indirect\n\
+                          specify types of branches to align\n"));
+  fprintf (stream, _("\
+  -malign-branch-prefix-size=NUM (default: 5)\n\
+                          align branches with NUM prefixes per instruction\n"));
+  fprintf (stream, _("\
+  -mbranches-within-32B-boundaries\n\
+                          align branches within 32 byte boundary\n"));
+  fprintf (stream, _("\
   -mamd64                 accept only AMD64 ISA\n"));
   fprintf (stream, _("\
   -mintel64               accept only Intel64 ISA\n"));
@@ -10519,17 +11489,26 @@ i386_target_format (void)
 	  {
 	  default:
 	    format = ELF_TARGET_FORMAT;
+#ifndef TE_SOLARIS
+	    tls_get_addr = "___tls_get_addr";
+#endif
 	    break;
 	  case X86_64_ABI:
 	    use_rela_relocations = 1;
 	    object_64bit = 1;
 	    format = ELF_TARGET_FORMAT64;
+#ifndef TE_SOLARIS
+	    tls_get_addr = "__tls_get_addr";
+#endif
 	    break;
 	  case X86_64_X32_ABI:
 	    use_rela_relocations = 1;
 	    object_64bit = 1;
 	    disallow_64bit_reloc = 1;
 	    format = ELF_TARGET_FORMAT32;
+#ifndef TE_SOLARIS
+	    tls_get_addr = "__tls_get_addr";
+#endif
 	    break;
 	  }
 	if (cpu_arch_isa == PROCESSOR_L1OM)
@@ -10643,6 +11622,21 @@ s_bss (int ignore ATTRIBUTE_UNUSED)
 }
 
 #endif
+
+/* Remember constant diretive.  */
+
+void
+i386_cons_worker (int ignore ATTRIBUTE_UNUSED)
+{
+  if (last_insn.kind != last_insn_directive
+      && (bfd_get_section_flags (NULL, now_seg) & SEC_CODE))
+    {
+      last_insn.seg = now_seg;
+      last_insn.kind = last_insn_directive;
+      last_insn.name = "constant diretive";
+      last_insn.file = as_where (&last_insn.line);
+    }
+}
 
 void
 i386_validate_fix (fixS *fixp)

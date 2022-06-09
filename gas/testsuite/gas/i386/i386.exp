@@ -368,6 +368,20 @@ if [expr ([istarget "i*86-*-*"] ||  [istarget "x86_64-*-*"]) && [gas_32_check]] 
     run_dump_test "rdpid-intel"
     run_list_test "avx512vl-1" "-al"
     run_list_test "avx512vl-2" "-al"
+    run_dump_test "align-branch-1a"
+    run_dump_test "align-branch-1b"
+    run_dump_test "align-branch-1c"
+    run_dump_test "align-branch-1d"
+    run_dump_test "align-branch-1e"
+    run_dump_test "align-branch-1f"
+    run_dump_test "align-branch-1g"
+    run_dump_test "align-branch-1h"
+    run_dump_test "align-branch-2a"
+    run_dump_test "align-branch-2b"
+    run_dump_test "align-branch-2c"
+    run_dump_test "align-branch-4a"
+    run_dump_test "align-branch-4b"
+    run_dump_test "align-branch-5"
 
     # These tests require support for 8 and 16 bit relocs,
     # so we only run them for ELF and COFF targets.
@@ -829,6 +843,24 @@ if [expr ([istarget "i*86-*-*"] || [istarget "x86_64-*-*"]) && [gas_64_check]] t
 	run_dump_test "x86-64-gotpcrel-no-relax"
 
 	run_dump_test "x86-64-addend"
+
+	if {[istarget "*-*-linux*"]} then {
+	    run_dump_test "x86-64-align-branch-1a"
+	    run_dump_test "x86-64-align-branch-1b"
+	    run_dump_test "x86-64-align-branch-1c"
+	    run_dump_test "x86-64-align-branch-1d"
+	    run_dump_test "x86-64-align-branch-1e"
+	    run_dump_test "x86-64-align-branch-1f"
+	    run_dump_test "x86-64-align-branch-1g"
+	    run_dump_test "x86-64-align-branch-1h"
+	    run_dump_test "x86-64-align-branch-2a"
+	    run_dump_test "x86-64-align-branch-2b"
+	    run_dump_test "x86-64-align-branch-2c"
+	    run_dump_test "x86-64-align-branch-3"
+	    run_dump_test "x86-64-align-branch-4a"
+	    run_dump_test "x86-64-align-branch-4b"
+	    run_dump_test "x86-64-align-branch-5"
+	}
     }
 
     set ASFLAGS "$old_ASFLAGS"

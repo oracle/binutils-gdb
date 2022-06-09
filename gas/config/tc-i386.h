@@ -216,11 +216,18 @@ if (fragP->fr_type == rs_align_code) 					\
 			   - fragP->fr_address				\
 			   - fragP->fr_fix));
 
+extern void i386_cons_worker (int);
+#define md_cons_align(nbytes) i386_cons_worker (nbytes)
+
 void i386_print_statistics (FILE *);
 #define tc_print_statistics i386_print_statistics
 
 extern unsigned int i386_frag_max_var (fragS *);
 #define md_frag_max_var i386_frag_max_var
+
+extern long i386_generic_table_relax_frag (segT, fragS *, long);
+#define md_generic_table_relax_frag(segment, fragP, stretch) \
+  i386_generic_table_relax_frag (segment, fragP, stretch)
 
 #define md_number_to_chars number_to_chars_littleendian
 
@@ -256,9 +263,24 @@ extern i386_cpu_flags cpu_arch_isa_flags;
 
 struct i386_tc_frag_data
 {
+  union
+    {
+      fragS *padding_fragP;
+      fragS *branch_fragP;
+    } u;
+  addressT padding_address;
   enum processor_type isa;
   i386_cpu_flags isa_flags;
+  unsigned int max_bytes;
   enum processor_type tune;
+  signed char length;
+  signed char last_length;
+  signed char max_prefix_length;
+  signed char prefix_length;
+  signed char default_prefix;
+  signed char cmp_size;
+  unsigned int classified : 1;
+  unsigned int branch_type : 7;
 };
 
 /* We need to emit the right NOP pattern in .align frags.  This is
@@ -269,9 +291,20 @@ struct i386_tc_frag_data
 #define TC_FRAG_INIT(FRAGP)					\
  do								\
    {								\
+     (FRAGP)->tc_frag_data.u.padding_fragP = NULL;		\
+     (FRAGP)->tc_frag_data.padding_address = 0;			\
      (FRAGP)->tc_frag_data.isa = cpu_arch_isa;			\
      (FRAGP)->tc_frag_data.isa_flags = cpu_arch_isa_flags;	\
      (FRAGP)->tc_frag_data.tune = cpu_arch_tune;		\
+     (FRAGP)->tc_frag_data.length = 0;				\
+     (FRAGP)->tc_frag_data.max_bytes = max_chars;		\
+     (FRAGP)->tc_frag_data.last_length = 0;			\
+     (FRAGP)->tc_frag_data.max_prefix_length = 0;		\
+     (FRAGP)->tc_frag_data.prefix_length = 0;			\
+     (FRAGP)->tc_frag_data.default_prefix = 0;			\
+     (FRAGP)->tc_frag_data.cmp_size = 0;			\
+     (FRAGP)->tc_frag_data.classified = 0;			\
+     (FRAGP)->tc_frag_data.branch_type = 0;			\
    }								\
  while (0)
 
