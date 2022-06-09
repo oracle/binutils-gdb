@@ -20,6 +20,7 @@ Section Headers:
  +\[[ 0-9]+\] \.dynamic +DYNAMIC .* 08 +WA +3 +0 +4
  +\[[ 0-9]+\] \.got +PROGBITS .* 0+30 04 +WA +0 +0 +4
  +\[[ 0-9]+\] \.plt +PROGBITS .* 0+4 00 +WA +0 +0 +4
+#...
  +\[[ 0-9]+\] \.shstrtab +.*
  +\[[ 0-9]+\] \.symtab +.*
  +\[[ 0-9]+\] \.strtab +.*
@@ -80,12 +81,12 @@ Symbol table '\.dynsym' contains [0-9]+ entries:
 .* TLS +GLOBAL +DEFAULT +8 le1
 .* TLS +GLOBAL +DEFAULT +UND ld
 .* NOTYPE +GLOBAL +DEFAULT +6 _start
-.* NOTYPE +GLOBAL +DEFAULT +11 __end
+.* NOTYPE +GLOBAL +DEFAULT +.. __end
 .* TLS +GLOBAL +DEFAULT +8 ld2
 .* TLS +GLOBAL +DEFAULT +8 ld1
-.* NOTYPE +GLOBAL +DEFAULT +11 __bss_start
-.* NOTYPE +GLOBAL +DEFAULT +11 _edata
-.* NOTYPE +GLOBAL +DEFAULT +11 _end
+.* NOTYPE +GLOBAL +DEFAULT +.. __bss_start
+.* NOTYPE +GLOBAL +DEFAULT +.. _edata
+.* NOTYPE +GLOBAL +DEFAULT +.. _end
 .* TLS +GLOBAL +DEFAULT +8 gd0
 .* TLS +GLOBAL +DEFAULT +8 ie0
 
@@ -103,32 +104,4 @@ Symbol table '\.symtab' contains [0-9]+ entries:
 .* SECTION +LOCAL +DEFAULT +9 
 .* SECTION +LOCAL +DEFAULT +10 
 .* SECTION +LOCAL +DEFAULT +11 
-.* FILE +LOCAL +DEFAULT +ABS .*
-.* TLS +LOCAL +DEFAULT +7 gd4
-.* TLS +LOCAL +DEFAULT +7 ld4
-.* TLS +LOCAL +DEFAULT +7 ld5
-.* TLS +LOCAL +DEFAULT +7 ld6
-.* TLS +LOCAL +DEFAULT +7 ie4
-.* TLS +LOCAL +DEFAULT +7 le4
-.* TLS +LOCAL +DEFAULT +7 le5
-.* FILE +LOCAL +DEFAULT +ABS .*
-.* OBJECT +LOCAL +DEFAULT +9 _DYNAMIC
-.* NOTYPE +LOCAL +DEFAULT +6 0+8000\.got2\.plt_pic32\.__tls_get_addr
-.* NOTYPE +LOCAL +DEFAULT +6 __glink_PLTresolve
-.* NOTYPE +LOCAL +DEFAULT +6 __glink
-.* OBJECT +LOCAL +DEFAULT +10 _GLOBAL_OFFSET_TABLE_
-.* TLS +GLOBAL +DEFAULT +UND gd
-.* TLS +GLOBAL +DEFAULT +8 le0
-.* NOTYPE +GLOBAL +DEFAULT +UND __tls_get_addr
-.* TLS +GLOBAL +DEFAULT +8 ld0
-.* TLS +GLOBAL +DEFAULT +8 le1
-.* TLS +GLOBAL +DEFAULT +UND ld
-.* NOTYPE +GLOBAL +DEFAULT +6 _start
-.* NOTYPE +GLOBAL +DEFAULT +11 __end
-.* TLS +GLOBAL +DEFAULT +8 ld2
-.* TLS +GLOBAL +DEFAULT +8 ld1
-.* NOTYPE +GLOBAL +DEFAULT +11 __bss_start
-.* NOTYPE +GLOBAL +DEFAULT +11 _edata
-.* NOTYPE +GLOBAL +DEFAULT +11 _end
-.* TLS +GLOBAL +DEFAULT +8 gd0
-.* TLS +GLOBAL +DEFAULT +8 ie0
+#pass
