@@ -2807,9 +2807,17 @@ NAME (aout, find_nearest_line) (bfd *abfd,
 	*filename_ptr = main_file_name;
       else
 	{
-	  sprintf (buf, "%s%s", directory_name, main_file_name);
-	  *filename_ptr = buf;
-	  buf += filelen + 1;
+	  if (buf == NULL)
+	    /* PR binutils/20891: In a corrupt input file both
+	       main_file_name and directory_name can be empty...  */
+	    * filename_ptr = NULL;
+	  else
+	    {
+	      snprintf (buf, filelen + 1, "%s%s", directory_name,
+			main_file_name);
+	      *filename_ptr = buf;
+	      buf += filelen + 1;
+	    }
 	}
     }
 
@@ -2817,6 +2825,13 @@ NAME (aout, find_nearest_line) (bfd *abfd,
     {
       const char *function = func->name;
       char *colon;
+
+      if (buf == NULL)
+	{
+	  /* PR binutils/20892: In a corrupt input file func can be empty.  */
+	  * functionname_ptr = NULL;
+	  return TRUE;
+	}
 
       /* The caller expects a symbol name.  We actually have a
 	 function name, without the leading underscore.  Put the
