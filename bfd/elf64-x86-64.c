@@ -1931,6 +1931,9 @@ elf_x86_64_convert_load_reloc (bfd *abfd, asection *sec,
     {
       bfd_signed_vma distance;
 
+      if (tsec->output_section == NULL)
+	return TRUE;
+
       /* At this point, we don't know the load addresses of TSEC
 	 section nor SEC section.  We estimate the distrance between
 	 SEC and TSEC.  We store the estimated distances in the
