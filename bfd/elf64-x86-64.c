@@ -3032,7 +3032,7 @@ elf_x86_64_allocate_dynrelocs (struct elf_link_hash_entry *h, void * inf)
   resolved_to_zero = UNDEFINED_WEAK_RESOLVED_TO_ZERO (info,
 						      eh->has_got_reloc,
 						      eh);
-
+#if 0
   /* We can't use the GOT PLT if pointer equality is needed since
      finish_dynamic_symbol won't clear symbol value and the dynamic
      linker won't update the GOT slot.  We will get into an infinite
@@ -3050,6 +3050,7 @@ elf_x86_64_allocate_dynrelocs (struct elf_link_hash_entry *h, void * inf)
       /* Use the GOT PLT.  */
       eh->plt_got.refcount = 1;
     }
+#endif
 
   /* Clear the reference count of function pointer relocations if
      symbol isn't a normal function.  */
