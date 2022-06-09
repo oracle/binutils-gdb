@@ -70,15 +70,6 @@ run_cc_link_tests [list \
 	"libno-plt-1b.so" \
     ] \
     [list \
-	"No PLT (dynamic 1a)" \
-	"tmpdir/no-plt-check1.o tmpdir/no-plt-main1.o \
-	 tmpdir/no-plt-func1.o tmpdir/no-plt-extern1.o" \
-	"" \
-	{dummy.s} \
-	{{readelf -Wr no-plt-1a.rd} {objdump -dwrj.text no-plt-1a.dd}} \
-	"no-plt-1a" \
-    ] \
-    [list \
 	"No PLT (dynamic 1b)" \
 	"tmpdir/no-plt-check1.o tmpdir/no-plt-main1.o \
 	 tmpdir/libno-plt-1a.so tmpdir/libno-plt-1b.so" \
@@ -88,33 +79,6 @@ run_cc_link_tests [list \
 	"no-plt-1b" \
     ] \
     [list \
-	"No PLT (dynamic 1c)" \
-	"tmpdir/no-plt-check1.o tmpdir/no-plt-main1.o \
-	 tmpdir/no-plt-func1.o tmpdir/libno-plt-1b.so" \
-	"" \
-	{dummy.s} \
-	{{readelf -Wr no-plt-1c.rd} {objdump -dwrj.text no-plt-1c.dd}} \
-	"no-plt-1c" \
-    ] \
-    [list \
-	"No PLT (static 1d)" \
-	"-static tmpdir/no-plt-check1.o tmpdir/no-plt-main1.o \
-	 tmpdir/no-plt-func1.o tmpdir/no-plt-extern1.o" \
-	"" \
-	{dummy.s} \
-	{{readelf -Wr no-plt-1d.rd} {objdump -dwrj.text no-plt-1d.dd}} \
-	"no-plt-1d" \
-    ] \
-    [list \
-	"No PLT (PIE 1e)" \
-	"-pie tmpdir/no-plt-check1.o tmpdir/no-plt-main1.o \
-	 tmpdir/no-plt-func1.o tmpdir/no-plt-extern1.o" \
-	"" \
-	{dummy.s} \
-	{{readelf -Wr no-plt-1e.rd} {objdump -dwrj.text no-plt-1e.dd}} \
-	"no-plt-1e" \
-    ] \
-    [list \
 	"No PLT (PIE 1f)" \
 	"-pie tmpdir/no-plt-check1.o tmpdir/no-plt-main1.o \
 	 tmpdir/libno-plt-1a.so tmpdir/libno-plt-1b.so" \
@@ -122,15 +86,6 @@ run_cc_link_tests [list \
 	{ dummy.s } \
 	{{readelf -Wr no-plt-1f.rd} {objdump -dwrj.text no-plt-1f.dd}} \
 	"no-plt-1f" \
-    ] \
-    [list \
-	"No PLT (PIE 1g)" \
-	"-pie tmpdir/no-plt-check1.o tmpdir/no-plt-main1.o \
-	 tmpdir/no-plt-func1.o tmpdir/libno-plt-1b.so" \
-	"" \
-	{ dummy.s } \
-	{{readelf -Wr no-plt-1g.rd} {objdump -dwrj.text no-plt-1g.dd}} \
-	"no-plt-1g" \
     ] \
 ]
 

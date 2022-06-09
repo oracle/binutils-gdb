@@ -2,6 +2,8 @@
 #as: --32 -mrelax-relocations=yes
 #ld: -Bsymbolic -shared -melf_i386 -T pr19175.t
 #objdump: -dw
+#xfail: *-*-*
+# XFAILed because generation of the R_386_GOT32X relocs is currently suppressed.
 
 .*: +file format .*
 

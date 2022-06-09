@@ -2,6 +2,8 @@
 #as: --x32 -mrelax-relocations=yes
 #objdump: -dwr
 #name: x86-64 (ILP32) gotpcrel
+#skip: *-*-*
+# SKIPed because generation of the R_X86_64_REX_GOTPCRELX and R_X86_64_GOTPCRELX relocs is currently suppressed.
 
 .*: +file format .*
 

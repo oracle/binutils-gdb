@@ -3,6 +3,8 @@
 #ld: -melf32_x86_64
 #objdump: -dw --sym
 #notarget: x86_64-*-nacl*
+#xfail: *-*-*
+# XFAILed because generation of the R_X86_64_REX_GOTPCRELX and R_X86_64_GOTPCRELX relocs is currently suppressed.
 
 .*: +file format .*
 

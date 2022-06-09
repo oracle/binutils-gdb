@@ -2,6 +2,8 @@
 #ld: -melf_i386
 #objdump: -dw --sym
 #notarget: i?86-*-nacl* x86_64-*-nacl*
+#xfail: *-*-*
+# XFAILed because generation of the R_386_GOT32X relocs is currently suppressed.
 
 .*: +file format .*
 

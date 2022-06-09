@@ -8,7 +8,7 @@
 #if (__GNUG__ == 2)
 typedef __SIZE_TYPE__ size_t;
 #else
-typedef unsigned int size_t;
+typedef unsigned long size_t;
 #endif
 
 extern "C" {
