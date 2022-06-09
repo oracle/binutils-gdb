@@ -1414,6 +1414,8 @@ find_separate_debug_file (bfd *           abfd,
       bfd_malloc (strlen (debug_file_directory) + 1
                   + (canon_dirlen > dirlen ? canon_dirlen : dirlen)
                   + strlen (".debug/")
+#define FEDORA_LIB_DEBUG_DIR "/usr/lib/debug/"
+		  + strlen (FEDORA_LIB_DEBUG_DIR) + strlen ("usr/")
                   + strlen (base)
                   + 1);
   if (debugfile == NULL)
@@ -1434,6 +1436,26 @@ find_separate_debug_file (bfd *           abfd,
   if (check_func (debugfile, crc32))
     goto found;
 
+  /* Then try in the global debug dir for Fedora libraries.  */
+  sprintf (debugfile, "%s%s%s", FEDORA_LIB_DEBUG_DIR, dir, base);
+  if (separate_debug_file_exists (debugfile, crc32))
+    {
+      free (base);
+      free (dir);
+      free (canon_dir);
+      return debugfile;
+    }
+
+  /* Then try in the usr subdirectory of the global debug dir for Fedora libraries.  */
+  sprintf (debugfile, "%s/usr%s%s", FEDORA_LIB_DEBUG_DIR, dir, base);
+  if (separate_debug_file_exists (debugfile, crc32))
+    {
+      free (base);
+      free (dir);
+      free (canon_dir);
+      return debugfile;
+    }
+  
   /* Then try in the global debugfile directory.  */
   strcpy (debugfile, debug_file_directory);
   dirlen = strlen (debug_file_directory) - 1;
