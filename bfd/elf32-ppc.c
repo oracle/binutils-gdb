@@ -3946,7 +3946,8 @@ is_branch_reloc (enum elf_ppc_reloc_type r_type)
 	  || r_type == R_PPC_ADDR24
 	  || r_type == R_PPC_ADDR14
 	  || r_type == R_PPC_ADDR14_BRTAKEN
-	  || r_type == R_PPC_ADDR14_BRNTAKEN);
+	  || r_type == R_PPC_ADDR14_BRNTAKEN
+	  || r_type == R_PPC_VLE_REL24);
 }
 
 static void
@@ -4897,6 +4898,7 @@ ppc_elf_vle_split16 (bfd *output_bfd, bfd_byte *loc,
   insn = bfd_get_32 (output_bfd, loc);
   top5 = value & 0xf800;
   top5 = top5 << (split16_format == split16a_type ? 9 : 5);
+  insn &= (split16_format == split16a_type ? ~0x1f007ff : ~0x1f07ff);
   insn |= top5;
   insn |= value & 0x7ff;
   bfd_put_32 (output_bfd, insn, loc);
