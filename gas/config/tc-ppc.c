@@ -2671,7 +2671,8 @@ md_assemble (char *str)
       const struct powerpc_operand *operand;
 
       operand = &powerpc_operands[*opindex_ptr];
-      if ((operand->flags & PPC_OPERAND_OPTIONAL) != 0)
+      if ((operand->flags & PPC_OPERAND_OPTIONAL) != 0
+	  && !((operand->flags & PPC_OPERAND_OPTIONAL32) != 0 && ppc_obj64))
 	{
 	  unsigned int opcount;
 	  unsigned int num_operands_expected;
@@ -2741,6 +2742,7 @@ md_assemble (char *str)
       /* If this is an optional operand, and we are skipping it, just
 	 insert a zero.  */
       if ((operand->flags & PPC_OPERAND_OPTIONAL) != 0
+	  && !((operand->flags & PPC_OPERAND_OPTIONAL32) != 0 && ppc_obj64)
 	  && skip_optional)
 	{
 	  long val = ppc_optional_operand_value (operand);
@@ -2942,7 +2944,7 @@ md_assemble (char *str)
 		      }
 		    break;
 		  }
-		/* Fall thru */
+		/* Fallthru */
 
 	      case BFD_RELOC_PPC64_ADDR16_HIGH:
 		ex.X_add_number = PPC_HI (ex.X_add_number);
@@ -2964,7 +2966,7 @@ md_assemble (char *str)
 		      }
 		    break;
 		  }
-		/* Fall thru */
+		/* Fallthru */
 
 	      case BFD_RELOC_PPC64_ADDR16_HIGHA:
 		ex.X_add_number = PPC_HA (ex.X_add_number);
@@ -3087,14 +3089,14 @@ md_assemble (char *str)
 		{
 		  int tmp_insn = insn & opcode->mask;
 
-		  int use_d_reloc = (tmp_insn == E_OR2I_INSN
+		  int use_a_reloc = (tmp_insn == E_OR2I_INSN
 				     || tmp_insn == E_AND2I_DOT_INSN
 				     || tmp_insn == E_OR2IS_INSN
 				     || tmp_insn == E_LIS_INSN
 				     || tmp_insn == E_AND2IS_DOT_INSN);
 
 
-		  int use_a_reloc = (tmp_insn == E_ADD2I_DOT_INSN
+		  int use_d_reloc = (tmp_insn == E_ADD2I_DOT_INSN
 				     || tmp_insn == E_ADD2IS_INSN
 				     || tmp_insn == E_CMP16I_INSN
 				     || tmp_insn == E_MULL2I_INSN
@@ -3377,13 +3379,17 @@ md_assemble (char *str)
          however it'll remain clear for dual-mode instructions on
          dual-mode and, more importantly, standard-mode processors.  */
       if ((ppc_cpu & opcode->flags) == PPC_OPCODE_VLE)
-	ppc_apuinfo_section_add (PPC_APUINFO_VLE, 1);
+	{
+	  ppc_apuinfo_section_add (PPC_APUINFO_VLE, 1);
+	  if (elf_section_data (now_seg) != NULL)
+	    elf_section_data (now_seg)->this_hdr.sh_flags |= SHF_PPC_VLE;
+	}
     }
 #endif
 
   /* Write out the instruction.  */
   /* Differentiate between two and four byte insns.  */
-  if (ppc_mach () == bfd_mach_ppc_vle)
+  if ((ppc_cpu & PPC_OPCODE_VLE) != 0)
     {
       if (PPC_OP_SE_VLE (insn))
         insn_length = 2;
@@ -3400,7 +3406,7 @@ md_assemble (char *str)
   f = frag_more (insn_length);
   if (frag_now->has_code && frag_now->insn_addr != addr_mod)
     {
-      if (ppc_mach() == bfd_mach_ppc_vle)
+      if ((ppc_cpu & PPC_OPCODE_VLE) != 0)
         as_bad (_("instruction address is not a multiple of 2"));
       else
         as_bad (_("instruction address is not a multiple of 4"));
@@ -6346,7 +6352,7 @@ ppc_frag_check (struct frag *fragP)
   if (!fragP->has_code)
     return;
 
-  if (ppc_mach() == bfd_mach_ppc_vle)
+  if ((ppc_cpu & PPC_OPCODE_VLE) != 0)
     {
       if (((fragP->fr_address + fragP->insn_addr) & 1) != 0)
         as_bad (_("instruction address is not a multiple of 2"));
@@ -6367,7 +6373,7 @@ ppc_handle_align (struct frag *fragP)
   valueT count = (fragP->fr_next->fr_address
 		  - (fragP->fr_address + fragP->fr_fix));
 
-  if (ppc_mach() == bfd_mach_ppc_vle && count != 0 && (count & 1) == 0)
+  if ((ppc_cpu & PPC_OPCODE_VLE) != 0 && count != 0 && (count & 1) == 0)
     {
       char *dest = fragP->fr_literal + fragP->fr_fix;
 
@@ -6565,7 +6571,7 @@ md_apply_fix (fixS *fixP, valueT *valP, segT seg)
 	    }
 	  break;
 	}
-      /* Fall thru */
+      /* Fallthru */
 
     case BFD_RELOC_PPC_VLE_HI16A:
     case BFD_RELOC_PPC_VLE_HI16D:
@@ -6588,7 +6594,7 @@ md_apply_fix (fixS *fixP, valueT *valP, segT seg)
 	    }
 	  break;
 	}
-      /* Fall thru */
+      /* Fallthru */
 
     case BFD_RELOC_PPC_VLE_HA16A:
     case BFD_RELOC_PPC_VLE_HA16D:
@@ -6730,7 +6736,7 @@ md_apply_fix (fixS *fixP, valueT *valP, segT seg)
 	case BFD_RELOC_PPC_VLE_SDAREL_HA16A:
 	case BFD_RELOC_PPC_VLE_SDAREL_HA16D:
 	  gas_assert (fixP->fx_addsy != NULL);
-	  /* Fall thru */
+	  /* Fallthru */
 
 	case BFD_RELOC_PPC_TLS:
 	case BFD_RELOC_PPC_TLSGD:
@@ -6854,7 +6860,7 @@ md_apply_fix (fixS *fixP, valueT *valP, segT seg)
 	      && !S_IS_DEFINED (fixP->fx_addsy)
 	      && !S_IS_WEAK (fixP->fx_addsy))
 	    S_SET_WEAK (fixP->fx_addsy);
-	  /* Fall thru */
+	  /* Fallthru */
 
 	case BFD_RELOC_VTABLE_ENTRY:
 	  fixP->fx_done = 0;
