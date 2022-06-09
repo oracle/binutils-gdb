@@ -5337,14 +5337,14 @@ bad_ifunc_reloc:
       if (bfd_link_pic (info)
 	  && (input_section->flags & SEC_ALLOC) != 0
 	  && (input_section->flags & SEC_READONLY) != 0
-	  && h != NULL
-	  && !h->def_regular)
+	  && !SYMBOL_REFERENCES_LOCAL (info, h))
 	{
 	  int howto_index = bfd_r_type - BFD_RELOC_AARCH64_RELOC_START;
 
 	  (*_bfd_error_handler)
-	    (_("%B: relocation %s against external symbol `%s' can not be used"
-	       " when making a shared object; recompile with -fPIC"),
+	    (_("%B: relocation %s against symbol `%s' which may bind "
+	       "externally can not be used when making a shared object; "
+	       "recompile with -fPIC"),
 	     input_bfd, elfNN_aarch64_howto_table[howto_index].name,
 	     h->root.root.string);
 	  bfd_set_error (bfd_error_bad_value);
