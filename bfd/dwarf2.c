@@ -215,9 +215,6 @@ struct comp_unit
   /* Linked list of the low and high address ranges contained in this
      compilation unit as specified in the compilation unit header.  */
   struct arange arange;
-  /* A single arange containing the lowest and highest
-     addresses covered by the compilation unit.  */
-  struct arange minmax;
 
   /* The DW_AT_name attribute (for error messages).  */
   char *name;
@@ -1540,16 +1537,11 @@ arange_add (struct comp_unit *unit, struct arange *first_arange,
   /* If the first arange is empty, use it.  */
   if (first_arange->high == 0)
     {
-      unit->minmax.low = first_arange->low = low_pc;
-      unit->minmax.high = first_arange->high = high_pc;
+      first_arange->low = low_pc;
+      first_arange->high = high_pc;
       return TRUE;
     }
 
-  if (unit->minmax.low > low_pc)
-    unit->minmax.low = low_pc;
-  if (unit->minmax.high < high_pc)
-    unit->minmax.high = high_pc;
-  
   /* Next see if we can cheaply extend an existing range.  */
   arange = first_arange;
   do
@@ -3149,9 +3141,6 @@ comp_unit_contains_address (struct comp_unit *unit, bfd_vma addr)
   struct arange *arange;
 
   if (unit->error)
-    return FALSE;
-
-  if (unit->minmax.high < addr || unit->minmax.low > addr)
     return FALSE;
 
   /* We know that the address *might* be contained within this comp
