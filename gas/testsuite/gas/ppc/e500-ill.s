@@ -7,4 +7,4 @@ start:
 	mfdcr   5, 234
 	mtdcr   432, 8
 	tlbia
-	tlbie  3
+
