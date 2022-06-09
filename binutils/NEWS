@@ -1,5 +1,14 @@
 -*- text -*-
 
+* Tools which display names or strings (readelf, strings, nm, objdump)
+  have a new command line option which controls how unicode characters are
+  handled.  By default they are treated as normal for the tool.  Using
+  --unicode=locale will display them according to the current locale.
+  Using --unicode=hex will display them as hex byte values, whilst
+  --unicode=escape will display them as escape sequences.  In addition
+  using --unicode=highlight will display them as unicode escape sequences
+  highlighted in red (if supported by the output device).
+
 Changes in 2.27:
 
 * Add a configure option, --enable-64-bit-archive, to force use of a
