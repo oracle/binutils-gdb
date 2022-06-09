@@ -6,7 +6,7 @@ static int foo_impl(int x)
   return x;
 }
 
-int bar()
+void bar ()
 {
   int (*f)(int) = foo;
 
