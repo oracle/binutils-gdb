@@ -37,6 +37,7 @@ extern "C" {
 #include "ansidecl.h"
 #include "symcat.h"
 #include <stdarg.h>
+#include <string.h>
 #include <sys/stat.h>
 
 #if defined (__STDC__) || defined (ALMOST_STDC) || defined (HAVE_STRINGIZE)
@@ -583,6 +584,14 @@ struct bfd_link_hash_entry;
 struct bfd_section_already_linked;
 struct bfd_elf_version_tree;
 #endif
+
+/* Return TRUE if the start of STR matches PREFIX, FALSE otherwise.  */
+
+static inline bfd_boolean
+startswith (const char *str, const char *prefix)
+{
+  return strncmp (str, prefix, strlen (prefix)) == 0;
+}
 
 extern bfd_boolean bfd_section_already_linked_table_init (void);
 extern void bfd_section_already_linked_table_free (void);

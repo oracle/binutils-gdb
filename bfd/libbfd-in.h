@@ -195,6 +195,8 @@ long _bfd_n1
 void bfd_void
   (bfd *ignore);
 
+bfd_boolean _bfd_bool_bfd_false_error
+  (bfd *ignore);
 bfd *_bfd_new_bfd_contained_in
   (bfd *);
 const bfd_target *_bfd_dummy_target

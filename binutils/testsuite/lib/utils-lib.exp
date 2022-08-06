@@ -267,13 +267,14 @@ proc exe_ext {} {
 
 proc run_dump_test { name {extra_options {}} } {
     global subdir srcdir
-    global OBJDUMP NM OBJCOPY READELF STRIP
+    global OBJDUMP NM OBJCOPY READELF STRIP LD
     global OBJDUMPFLAGS NMFLAGS OBJCOPYFLAGS READELFFLAGS STRIPFLAGS
     global ELFEDIT ELFEDITFLAGS
     global host_triplet
     global env
     global copyfile
     global tempfile
+    global ldtempfile
 
     if [string match "*/*" $name] {
 	set file $name
@@ -287,7 +288,9 @@ proc run_dump_test { name {extra_options {}} } {
 	unresolved $subdir/$name
 	return
     }
+    set run_ld 0
     set opts(addr2line) {}
+    set opts(ld) {}
     set opts(ar) {}
     set opts(as) {}
     set opts(elfedit) {}
@@ -326,6 +329,11 @@ proc run_dump_test { name {extra_options {}} } {
 	    perror "option $opt_name multiply set in $file.d"
 	    unresolved $subdir/$name
 	    return
+	}
+
+	# A single "# ld:" with no options should do the right thing.
+	if { $opt_name == "ld" } {
+	    set run_ld 1
 	}
 	set opts($opt_name) $opt_val
     }
@@ -372,6 +380,7 @@ proc run_dump_test { name {extra_options {}} } {
 	objcopy	{ set program objcopy }
 	ranlib	{ set program ranlib }
 	strings	{ set program strings }
+	ld	{ set program ld }
 	strip	{
 	    set program strip
 	    set destopt "-o"
@@ -485,6 +494,12 @@ proc run_dump_test { name {extra_options {}} } {
 	    fail $testname
 	   return
 	}
+    }
+
+    # Perhaps link the file(s).
+    if { $run_ld } {
+	catch "exec cp $tempfile $ldtempfile" status
+	set exec_output [binutils_run $LD "$opts(ld) -o $tempfile $ldtempfile"]
     }
 
     set progopts1 $opts($program)

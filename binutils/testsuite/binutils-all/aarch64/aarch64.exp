@@ -21,6 +21,7 @@ if {![istarget "aarch64*-*-*"]
 
 set tempfile tmpdir/aarch64temp.o
 set copyfile tmpdir/aarch64copy
+set ldtempfile tmpdir/aarch64ldtemp
 
 set test_list [lsort [glob -nocomplain $srcdir/$subdir/*.d]]
 foreach t $test_list {

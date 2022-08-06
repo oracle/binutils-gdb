@@ -187,6 +187,8 @@ bfd_boolean bfd_false
   (bfd *ignore);
 bfd_boolean bfd_true
   (bfd *ignore);
+bfd_boolean _bfd_bool_bfd_false_error
+  (bfd *ignore);
 void *bfd_nullvoidptr
   (bfd *ignore);
 int bfd_0

@@ -69,6 +69,16 @@ bfd_nullvoidptr (bfd *ignore ATTRIBUTE_UNUSED)
   return NULL;
 }
 
+/* A routine which is used in target vectors for unsupported
+   operations.  */
+
+bfd_boolean
+_bfd_bool_bfd_false_error (bfd *ignore ATTRIBUTE_UNUSED)
+{
+  bfd_set_error (bfd_error_invalid_operation);
+  return FALSE;
+}
+
 int
 bfd_0 (bfd *ignore ATTRIBUTE_UNUSED)
 {
