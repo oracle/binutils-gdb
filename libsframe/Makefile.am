@@ -41,6 +41,18 @@ endif
 libsframe_la_SOURCES = sframe.c sframe-dump.c sframe-error.c
 libsframe_la_CPPFLAGS = $(AM_CPPFLAGS)
 
+if HAVE_SFRAME_AS
+  libsframebt_la_SOURCES = sframe-backtrace.c sframe-backtrace-err.c
+  libsframebt_la_CPPFLAGS = -I$(srcdir) -I$(srcdir)/../include
+  libsframebt_la_CFLAGS = -Wa,--gsframe
+if INSTALL_LIBBFD
+  lib_LTLIBRARIES += libsframebt.la
+  include_HEADERS += $(INCDIR)/sframe-backtrace-api.h
+else
+  noinst_LTLIBRARIES += libsframebt.la
+endif
+endif
+
 include doc/local.mk
 
 include testsuite/local.mk
