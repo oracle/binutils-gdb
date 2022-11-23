@@ -513,8 +513,8 @@ sframe_unwind (struct sframe_unwind_info *sf, void **ra_lst,
 	      return;
 	    }
 
-	  cfa = ((frep->fre_info & 0x1) == SFRAME_BASE_REG_SP
-	    ? rsp : rfp) + cfa_offset;
+	  cfa = ((sframe_fre_get_base_reg_id (frep, &errnum)
+		  == SFRAME_BASE_REG_SP) ? rsp : rfp) + cfa_offset;
 
 #ifdef __x86_64__
 	  /* For x86, read the return address from the fixed RA offset from
