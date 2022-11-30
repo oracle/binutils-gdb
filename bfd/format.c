@@ -46,6 +46,10 @@ SUBSECTION
 #include "sysdep.h"
 #include "bfd.h"
 #include "libbfd.h"
+#if BFD_SUPPORTS_PLUGINS
+#include "plugin-api.h"
+#include "plugin.h"
+#endif
 
 /* IMPORT from targets.c.  */
 extern const size_t _bfd_target_vector_entries;
@@ -182,6 +186,33 @@ bfd_preserve_finish (bfd *abfd ATTRIBUTE_UNUSED, struct bfd_preserve *preserve)
   preserve->marker = NULL;
 }
 
+/* Set lto_type in ABFD.  */
+
+static void
+bfd_set_lto_type (bfd *abfd)
+{
+  if (abfd->format == bfd_object
+      && abfd->lto_type == lto_non_object
+      && (abfd->flags & (DYNAMIC | EXEC_P)) == 0)
+    {
+      asection *sec;
+      enum bfd_lto_object_type type = lto_non_ir_object;
+      for (sec = abfd->sections; sec != NULL; sec = sec->next)
+	{
+	  if (strcmp (sec->name, GNU_OBJECT_ONLY_SECTION_NAME) == 0)
+	    {
+	      type = lto_mixed_object;
+	      abfd->object_only_section = sec;
+	      break;
+	    }
+	  else if (type != lto_ir_object
+		   && strncmp (sec->name, ".gnu.lto_", 9) == 0)
+	    type = lto_ir_object;
+	}
+      abfd->lto_type = type;
+    }
+}
+
 /*
 FUNCTION
 	bfd_check_format_matches
@@ -227,7 +258,10 @@ bfd_check_format_matches (bfd *abfd, bfd_format format, char ***matching)
     }
 
   if (abfd->format != bfd_unknown)
-    return abfd->format == format;
+    {
+      bfd_set_lto_type (abfd);
+      return abfd->format == format;
+    }
 
   if (matching != NULL || *bfd_associated_vector != NULL)
     {
@@ -290,6 +324,13 @@ bfd_check_format_matches (bfd *abfd, bfd_format format, char ***matching)
 	  || (!abfd->target_defaulted && *target == save_targ)
 	  || (*target)->match_priority > best_match)
 	continue;
+
+#if BFD_SUPPORTS_PLUGINS
+      /* If the plugin target is explicitly specified when a BFD file
+	 is opened, don't check it twice.  */
+      if (bfd_plugin_specified_p () && bfd_plugin_target_p (*target))
+	continue;
+#endif
 
       /* If we already tried a match, the bfd is modified and may
 	 have sections attached, which will confuse the next
@@ -464,6 +505,8 @@ bfd_check_format_matches (bfd *abfd, bfd_format format, char ***matching)
 
       if (matching_vector)
 	free (matching_vector);
+
+      bfd_set_lto_type (abfd);
 
       /* File position has moved, BTW.  */
       return TRUE;
