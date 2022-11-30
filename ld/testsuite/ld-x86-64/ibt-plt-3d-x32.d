@@ -1,6 +1,6 @@
 #source: ibt-plt-3.s
 #as: --x32
-#ld: -shared -m elf32_x86_64 -z ibt --hash-style=sysv
+#ld: -shared -m elf32_x86_64 -z ibt --hash-style=sysv -z max-page-size=0x200000 -z noseparate-code
 #readelf: -wf -n
 
 Contents of the .eh_frame section:
@@ -18,21 +18,21 @@ Contents of the .eh_frame section:
   DW_CFA_nop
   DW_CFA_nop
 
-0+18 00000014 0000001c FDE cie=00000000 pc=00000210..00000222
-  DW_CFA_advance_loc: 4 to 00000214
+0+18 00000014 0000001c FDE cie=00000000 pc=[a-f0-9]+\.\.[a-f0-9]+
+  DW_CFA_advance_loc: 4 to [a-f0-9]+
   DW_CFA_def_cfa_offset: 16
-  DW_CFA_advance_loc: 9 to 0000021d
+  DW_CFA_advance_loc: 9 to [a-f0-9]+
   DW_CFA_def_cfa_offset: 8
   DW_CFA_nop
 
-0+30 00000020 00000034 FDE cie=00000000 pc=000001c0..000001f0
+0+30 00000020 00000034 FDE cie=00000000 pc=[a-f0-9]+\.\.[a-f0-9]+
   DW_CFA_def_cfa_offset: 16
-  DW_CFA_advance_loc: 6 to 000001c6
+  DW_CFA_advance_loc: 6 to [a-f0-9]+
   DW_CFA_def_cfa_offset: 24
-  DW_CFA_advance_loc: 10 to 000001d0
+  DW_CFA_advance_loc: 10 to [a-f0-9]+
   DW_CFA_def_cfa_expression \(DW_OP_breg7 \(rsp\): 8; DW_OP_breg16 \(rip\): 0; DW_OP_lit15; DW_OP_and; DW_OP_lit9; DW_OP_ge; DW_OP_lit3; DW_OP_shl; DW_OP_plus\)
 
-0+54 00000010 00000058 FDE cie=00000000 pc=000001f0..00000210
+0+54 00000010 00000058 FDE cie=00000000 pc=[a-f0-9]+\.\.[a-f0-9]+
   DW_CFA_nop
   DW_CFA_nop
   DW_CFA_nop
