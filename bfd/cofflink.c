@@ -3084,8 +3084,8 @@ _bfd_coff_generic_relocate_section (bfd *output_bfd,
 	 then zero this reloc field.  */
       if (sec != NULL && discarded_section (sec))
 	{
-	  _bfd_clear_contents (howto, input_bfd, input_section,
-			       contents + (rel->r_vaddr - input_section->vma));
+	  (void) _bfd_clear_contents (howto, input_bfd, input_section,
+				      contents, (rel->r_vaddr - input_section->vma));
 	  continue;
 	}
 
