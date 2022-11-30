@@ -477,6 +477,8 @@ expandargv (int *argcp, char ***argvp)
     error:
       /* We're all done with the file now.  */
       fclose (f);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
     }
 }
 

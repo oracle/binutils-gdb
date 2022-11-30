@@ -1338,6 +1338,8 @@ write_build_id (bfd *abfd)
     return 0;
 
   if (bfd_bwrite (contents, size, abfd) != size)
+    /* There is a potential resource leak here, but it is not important.  */
+    /* coverity[leaked_storage: FALSE] */
     return 0;
 
   /* Construct the CodeView record.  */

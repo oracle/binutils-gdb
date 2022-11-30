@@ -1139,6 +1139,8 @@ simple_object_mach_o_write_segment (simple_object_write *sobj, int descriptor,
 	    write = sizeof zeroes;
 	  if (!simple_object_internal_write (descriptor, offset, zeroes, write,
 					     errmsg, err))
+	    /* There is a potential resource leak here, but it is not important.  */
+	    /* coverity[leaked_storage: FALSE] */
 	    return 0;
 	  offset += write;
 	}
@@ -1245,6 +1247,8 @@ simple_object_mach_o_write_segment (simple_object_write *sobj, int descriptor,
       if (!simple_object_internal_write (descriptor, offset,
 					 (const unsigned char *) snames,
 					 name_offset, errmsg, err))
+	/* There is a potential resource leak here, but it is not important.  */
+	/* coverity[leaked_storage: FALSE] */
 	return 0;
 
       sechdr_offset += sechdrsize;

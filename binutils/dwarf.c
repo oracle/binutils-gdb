@@ -4098,6 +4098,8 @@ display_debug_lines_decoded (struct dwarf_section *  section,
 	      if (data == end)
 		{
 		  warn (_("Corrupt file name list\n"));
+		  /* There is a potential resource leak here, but it is not important.  */
+		  /* coverity[leaked_storage: FALSE] */
 		  break;
 		}
 
@@ -4234,6 +4236,8 @@ display_debug_lines_decoded (struct dwarf_section *  section,
 		    {
 		      warn (_("file table ends unexpectedly\n"));
 		      n_files = 0;
+		      /* There is a potential resource leak here, but it is not important.  */
+		      /* coverity[leaked_storage: FALSE] */
 		      break;
 		    }
 
@@ -7231,6 +7235,8 @@ read_cie (unsigned char *start, unsigned char *end,
   if (start == end)
     {
       warn (_("No terminator for augmentation name\n"));
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return start;
     }
 
@@ -7243,6 +7249,8 @@ read_cie (unsigned char *start, unsigned char *end,
       if (fc->ptr_size < 1 || fc->ptr_size > 8)
 	{
 	  warn (_("Invalid pointer size (%d) in CIE data\n"), fc->ptr_size);
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return end;
 	}
 
@@ -7251,6 +7259,8 @@ read_cie (unsigned char *start, unsigned char *end,
       if (fc->segment_size > 8 || fc->segment_size + fc->ptr_size > 8)
 	{
 	  warn (_("Invalid segment size (%d) in CIE data\n"), fc->segment_size);
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return end;
 	}
 
@@ -8305,6 +8315,8 @@ display_debug_frames (struct dwarf_section *section,
 
   printf ("\n");
 
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return 1;
 }
 
@@ -9733,6 +9745,8 @@ load_separate_debug_info (const char *            main_filename,
   if (debugfile == NULL)
     {
       warn (_("Out of memory"));
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return NULL;
     }
 

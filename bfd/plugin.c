@@ -403,9 +403,13 @@ try_load_plugin (const char *pname, bfd *abfd, int *has_plugin_p)
 
   abfd->plugin_format = bfd_plugin_yes;
 
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return 1;
 
  err:
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return 0;
 }
 

@@ -216,6 +216,8 @@ annotate_source (Source_File *sf, unsigned int max_width,
       if (!ofp)
 	{
 	  perror (fname);
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return 0;
 	}
     }

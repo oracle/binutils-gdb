@@ -367,6 +367,8 @@ clone_section (bfd *abfd, asection *s, const char *name, int *count)
 	{
 	  einfo (_ ("%F%P: cannot create split section name for %s\n"), name);
 	  /* Silence gcc warnings.  einfo exits, so we never reach here.  */
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return NULL;
 	}
       tname[5] = 0;
@@ -379,6 +381,8 @@ clone_section (bfd *abfd, asection *s, const char *name, int *count)
     {
       einfo (_("%F%P: clone section failed: %E\n"));
       /* Silence gcc warnings.  einfo exits, so we never reach here.  */
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return NULL;
     }
   free (tname);

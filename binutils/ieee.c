@@ -1503,6 +1503,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 	    bfd_boolean present;
 
 	    if (! ieee_read_optional_id (info, pp, &name, &namlen, &present))
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    if (! present)
 	      break;
@@ -1516,6 +1518,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 
 	    names[c] = savestring (name, namlen);
 	    if (names[c] == NULL)
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    ++c;
 	  }
@@ -1554,12 +1558,16 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 	    bfd_vma bitpos, bitsize;
 
 	    if (! ieee_read_optional_id (info, pp, &name, &namlen, &present))
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    if (! present)
 	      break;
 	    if (! ieee_read_type_index (info, pp, &ftype)
 		|| ! ieee_read_number (info, pp, &bitpos)
 		|| ! ieee_read_number (info, pp, &bitsize))
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 
 	    if (c + 1 >= alloc)
@@ -1573,6 +1581,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 					  ftype, bitpos, bitsize,
 					  DEBUG_VISIBILITY_PUBLIC);
 	    if (fields[c] == NULL)
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    ++c;
 	  }
@@ -1604,10 +1614,14 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 	    bfd_vma val;
 
 	    if (! ieee_read_optional_id (info, pp, &name, &namlen, &present))
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    if (! present)
 	      break;
 	    if (! ieee_read_number (info, pp, &val))
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 
 	    /* If the length of the name is zero, then the value is
@@ -1627,6 +1641,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 
 	    names[c] = savestring (name, namlen);
 	    if (names[c] == NULL)
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    vals[c] = (bfd_signed_vma) val;
 	    ++c;
@@ -1646,6 +1662,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 	debug_type t;
 
 	if (! ieee_read_type_index (info, pp, &t))
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 	type = debug_make_pointer_type (dhandle, t);
       }
@@ -1660,6 +1678,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 	    || ! ieee_read_number (info, pp, &high)
 	    || ! ieee_read_number (info, pp, &signedp)
 	    || ! ieee_read_number (info, pp, &size))
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 
 	type = debug_make_range_type (dhandle,
@@ -1679,6 +1699,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 	unsigned int c;
 
 	if (! ieee_read_number (info, pp, &size))
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 
 	alloc = 10;
@@ -1695,11 +1717,15 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 	    bfd_vma bitsize;
 
 	    if (! ieee_read_optional_id (info, pp, &name, &namlen, &present))
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    if (! present)
 	      break;
 	    if (! ieee_read_number (info, pp, &tindx)
 		|| ! ieee_read_number (info, pp, &offset))
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 
 	    if (tindx < 256)
@@ -1733,6 +1759,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 					  ftype, offset, bitsize,
 					  DEBUG_VISIBILITY_PUBLIC);
 	    if (fields[c] == NULL)
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    ++c;
 	  }
@@ -1747,6 +1775,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
     case 'T':
       /* Typedef.  */
       if (! ieee_read_type_index (info, pp, &type))
+	/* There is a potential resource leak here, but it is not important.  */
+	/* coverity[leaked_storage: FALSE] */
 	return FALSE;
       typdef = TRUE;
       break;
@@ -1766,6 +1796,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 	if (! ieee_read_number (info, pp, &attr)
 	    || ! ieee_read_type_index (info, pp, &rtype)
 	    || ! ieee_read_number (info, pp, &nargs))
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 	do
 	  {
@@ -1773,6 +1805,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 	    unsigned long namlen;
 
 	    if (! ieee_read_optional_id (info, pp, &name, &namlen, &present))
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	  }
 	while (present);
@@ -1810,6 +1844,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 
 	if (! ieee_read_type_index (info, pp, &etype)
 	    || ! ieee_read_number (info, pp, &high))
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 
 	type = debug_make_array_type (dhandle, etype,
@@ -1829,6 +1865,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 	/* FIXME: I don't know what the name means.  */
 
 	if (! ieee_read_id (info, pp, &name, &namlen))
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 
 	type = debug_make_complex_type (dhandle, tc == 'c' ? 4 : 8);
@@ -1838,6 +1876,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
     case 'f':
       /* Pascal file name.  FIXME.  */
       ieee_error (info, ty_code_start, _("Pascal file name not supported"));
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return FALSE;
 
     case 'g':
@@ -1849,12 +1889,16 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 
 	if (! ieee_read_number (info, pp, &signedp)
 	    || ! ieee_read_number (info, pp, &bitsize))
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 
 	/* I think the documentation says that there is a type index,
            but some actual files do not have one.  */
 	hold = *pp;
 	if (! ieee_read_optional_number (info, pp, &dummy, &present))
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 	if (! present)
 	  {
@@ -1866,6 +1910,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 	  {
 	    *pp = hold;
 	    if (! ieee_read_type_index (info, pp, &type))
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	  }
 	type_bitsize = bitsize;
@@ -1880,12 +1926,16 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 
 	if (! ieee_read_number (info, pp, &kind)
 	    || ! ieee_read_type_index (info, pp, &t))
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 
 	switch (kind)
 	  {
 	  default:
 	    ieee_error (info, ty_start, _("unsupported qualifier"));
+	    /* There is a potential resource leak here, but it is not important.  */
+	    /* coverity[leaked_storage: FALSE] */
 	    return FALSE;
 
 	  case 1:
@@ -1907,6 +1957,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 
 	if (! ieee_read_number (info, pp, &size)
 	    || ! ieee_read_type_index (info, pp, &etype))
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 
 	/* FIXME: We ignore the size.  */
@@ -1934,6 +1986,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 	    || ! ieee_read_number (info, pp, &push_mask)
 	    || ! ieee_read_type_index (info, pp, &rtype)
 	    || ! ieee_read_number (info, pp, &nargs))
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 	if (nargs == (bfd_vma) -1)
 	  {
@@ -1948,6 +2002,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 			 xmalloc ((nargs + 1) * sizeof *arg_types));
 	    for (i = 0; i < nargs; i++)
 	      if (! ieee_read_type_index (info, pp, arg_types + i))
+		/* There is a potential resource leak here, but it is not important.  */
+		/* coverity[leaked_storage: FALSE] */
 		return FALSE;
 
 	    /* If the last type is pointer to void, this is really a
@@ -1995,6 +2051,8 @@ parse_ieee_ty (struct ieee_info *info, const bfd_byte **pp)
 	  }
 	if (! ieee_read_number (info, pp, &level)
 	    || ! ieee_read_optional_number (info, pp, &father, &present))
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 
 	/* We can't distinguish between a global function and a static
@@ -2603,13 +2661,18 @@ ieee_read_cxx_class (struct ieee_info *info, const bfd_byte **pp,
       spec_start = *pp;
 
       if (! ieee_require_asn (info, pp, &id))
+	/* There is a potential resource leak here, but it is not important.  */
+	/* coverity[leaked_storage: FALSE] */
 	return FALSE;
+
       --count;
 
       switch (id)
 	{
 	default:
 	  ieee_error (info, spec_start, _("unrecognized C++ object spec"));
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 
 	case 'b':
@@ -2646,6 +2709,8 @@ ieee_read_cxx_class (struct ieee_info *info, const bfd_byte **pp,
 	    if ((fieldlen == 0) == (cinline == 0))
 	      {
 		ieee_error (info, start, _("unsupported C++ object type"));
+		/* There is a potential resource leak here, but it is not important.  */
+		/* coverity[leaked_storage: FALSE] */
 		return FALSE;
 	      }
 
@@ -2773,6 +2838,8 @@ ieee_read_cxx_class (struct ieee_info *info, const bfd_byte **pp,
 		if (structfields == NULL)
 		  {
 		    ieee_error (info, start, _("C++ object has no fields"));
+		    /* There is a potential resource leak here, but it is not important.  */
+		    /* coverity[leaked_storage: FALSE] */
 		    return FALSE;
 		  }
 
@@ -2829,12 +2896,16 @@ ieee_read_cxx_class (struct ieee_info *info, const bfd_byte **pp,
 		  }
 	      }
 	    if (ftype == DEBUG_TYPE_NULL)
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 
 	    switch (flags & CXXFLAGS_VISIBILITY)
 	      {
 	      default:
 		ieee_error (info, start, _("unknown C++ visibility"));
+		/* There is a potential resource leak here, but it is not important.  */
+		/* coverity[leaked_storage: FALSE] */
 		return FALSE;
 
 	      case CXXFLAGS_VISIBILITY_PUBLIC:
@@ -2869,6 +2940,8 @@ ieee_read_cxx_class (struct ieee_info *info, const bfd_byte **pp,
 		if (bitpos == (bfd_vma) -1 || bitsize == (bfd_vma) -1)
 		  {
 		    ieee_error (info, start, _("bad C++ field bit pos or size"));
+		    /* There is a potential resource leak here, but it is not important.  */
+		    /* coverity[leaked_storage: FALSE] */
 		    return FALSE;
 		  }
 		field = debug_make_field (dhandle, fieldcopy, ftype, bitpos,
@@ -2985,6 +3058,8 @@ ieee_read_cxx_class (struct ieee_info *info, const bfd_byte **pp,
 	      {
 	      default:
 		ieee_error (info, start, _("unknown C++ visibility"));
+		/* There is a potential resource leak here, but it is not important.  */
+		/* coverity[leaked_storage: FALSE] */
 		return FALSE;
 
 	      case CXXFLAGS_VISIBILITY_PUBLIC:
@@ -3171,6 +3246,8 @@ ieee_read_cxx_class (struct ieee_info *info, const bfd_byte **pp,
 	  dmethods[i] = debug_make_method (dhandle, namcopy,
 					   methods[i].variants);
 	  if (dmethods[i] == DEBUG_METHOD_NULL)
+	    /* There is a potential resource leak here, but it is not important.  */
+	    /* coverity[leaked_storage: FALSE] */
 	    return FALSE;
 	}
       dmethods[i] = DEBUG_METHOD_NULL;

@@ -2453,6 +2453,13 @@ PREFIX(regex_compile) (const char *ARG_PREFIX(pattern),
   /* Loop through the uncompiled pattern until we're at the end.  */
   while (p != pend)
     {
+      if (p == pend)
+	{
+	  /* This free is to silence coverity.  */
+	  free (compile_stack.stack);
+	  compile_stack.stack = NULL;
+	  compile_stack.avail = 0;
+	}
       PATFETCH (c);
 
       switch (c)
