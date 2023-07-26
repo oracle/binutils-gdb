@@ -820,6 +820,11 @@ check_quit_flag (void)
   int i, result = 0;
   const struct extension_language_defn *extlang;
 
+#ifdef NEED_DETACH_SIGSTOP
+  if (quit_flag_cleanup)
+    return 0;
+#endif
+
   ALL_ENABLED_EXTENSION_LANGUAGES (i, extlang)
     {
       if (extlang->ops->check_quit_flag != NULL)

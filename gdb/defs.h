@@ -168,6 +168,10 @@ extern void default_quit_handler (void);
 /* Flag that function quit should call quit_force.  */
 extern volatile int sync_quit_force_run;
 
+#ifdef NEED_DETACH_SIGSTOP
+extern int quit_flag_cleanup;
+#endif
+
 extern void quit (void);
 
 /* Helper for the QUIT macro.  */

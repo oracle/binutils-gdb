@@ -108,6 +108,13 @@ static std::chrono::steady_clock::duration prompt_for_continue_wait_time;
 
 static int debug_timestamp = 0;
 
+#ifdef NEED_DETACH_SIGSTOP
+/* Nonzero means we are already processing the quitting cleanups and we should
+   no longer get aborted.  */
+
+int quit_flag_cleanup;
+#endif
+
 /* Nonzero means that strings with character values >0x7F should be printed
    as octal escapes.  Zero means just print the value (e.g. it's an
    international character, and the terminal or window can cope.)  */
