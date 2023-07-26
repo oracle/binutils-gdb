@@ -263,9 +263,14 @@ public:
   void add_aexpr (agent_expr_up aexpr);
 
   void add_register (unsigned int regno);
+  void add_remote_register (unsigned int regno);
+  void add_ax_registers (struct agent_expr *aexpr);
+  void add_local_register (struct gdbarch *gdbarch,
+			   unsigned int regno,
+			   CORE_ADDR scope);
   void add_memrange (struct gdbarch *gdbarch,
 		     int type, bfd_signed_vma base,
-		     ULONGEST len);
+		     ULONGEST len, CORE_ADDR scope);
   void collect_symbol (struct symbol *sym,
 		       struct gdbarch *gdbarch,
 		       long frame_regno, long frame_offset,
