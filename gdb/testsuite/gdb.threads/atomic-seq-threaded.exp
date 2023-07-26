@@ -1,0 +1,84 @@
+# atomic-seq-threaded.exp -- Test case for stepping over RISC atomic code seqs.
+# This variant testcases the code for stepping another thread while skipping
+# over the atomic sequence in the former thread
+# (STEPPING_PAST_SINGLESTEP_BREAKPOINT).
+# Copyright (C) 2007 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+
+# Please email any bugs, comments, and/or additions to this file to:
+# bug-gdb@prep.ai.mit.edu
+
+set testfile atomic-seq-threaded
+set srcfile ${testfile}.c
+set binfile [standard_output_file ${testfile}]
+
+foreach opts {{} {compiler=gcc4} {FAIL}} {
+    if {$opts eq "FAIL"} {
+	return -1
+    }
+    if {[gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile}" executable [list debug $opts]] eq "" } {
+	break
+    }
+}
+
+gdb_exit
+gdb_start
+gdb_reinitialize_dir $srcdir/$subdir
+
+gdb_load ${binfile}
+if ![runto_main] then {
+   fail "Can't run to main"
+   return 0
+}
+
+# pthread_create () will not pass even on x86_64 with software watchpoint.
+# Pass after pthread_create () without any watchpoint active.
+set line [gdb_get_line_number "_create_after_"]
+gdb_test "tbreak $line" \
+	 "reakpoint (\[0-9\]+) at .*$srcfile, line $line\..*" \
+	 "set breakpoint after pthread_create ()"
+gdb_test "c" \
+	 ".*/\\* _create_after_ \\*/.*" \
+	 "run till after pthread_create ()"
+
+# Without a watchpoint being software no single-stepping would be used.
+set test "Start (software) watchpoint"
+gdb_test_multiple "watch unused" $test {
+    -re "Watchpoint \[0-9\]+: unused.*$gdb_prompt $" {
+	pass $test
+    }
+    -re "Hardware watchpoint \[0-9\]+: unused.*$gdb_prompt $" {
+	# We do not test the goal but still the whole testcase should pass.
+	unsupported $test
+    }
+}
+
+# More thorough testing of the scheduling logic.
+gdb_test "set scheduler-locking step" ""
+
+# Critical code path is stepped through at this point.
+set line [gdb_get_line_number "_exit_"]
+gdb_test "tbreak $line" \
+	 "reakpoint \[0-9\]+ at .*$srcfile, line $line\..*" \
+	 "set breakpoint at _exit_"
+gdb_test "c" \
+	 ".*/\\* _exit_ \\*/.*" \
+	 "run till _exit_"
+
+# Just a nonproblematic program exit.
+gdb_test "c" \
+	 ".*Program exited normally\\..*" \
+	 "run till program exit"
