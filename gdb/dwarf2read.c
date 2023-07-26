@@ -21286,6 +21286,26 @@ new_symbol (struct die_info *die, struct type *type, struct dwarf2_cu *cu,
       /* Cache this symbol's name and the name's demangled form (if any).  */
       SYMBOL_SET_LANGUAGE (sym, cu->language, &objfile->objfile_obstack);
       linkagename = dwarf2_physname (name, die, cu);
+
+      /* Workaround for:
+       * invalid IFUNC DW_AT_linkage_name: memmove strstr time
+       * http://sourceware.org/bugzilla/show_bug.cgi?id=14166  */
+      if (strcmp (linkagename, "strstr") == 0
+	  && strstr (objfile_name (objfile), "/libc") != NULL)
+	{
+	  struct objfile *objfile_msym;
+	  struct bound_minimal_symbol bmsym;
+
+	  if (objfile->separate_debug_objfile_backlink)
+	    objfile_msym = objfile->separate_debug_objfile_backlink;
+	  else
+	    objfile_msym = objfile;
+	  bmsym = lookup_minimal_symbol ("strstr", NULL, objfile_msym);
+	  if (bmsym.minsym != NULL
+	      && MSYMBOL_TYPE (bmsym.minsym) == mst_text_gnu_ifunc)
+	    linkagename = "__strstr";
+	}
+
       SYMBOL_SET_NAMES (sym, linkagename, strlen (linkagename), 0, objfile);
 
       /* Fortran does not have mangling standard and the mangling does differ
