@@ -318,6 +318,14 @@ typedef struct
 
   /* The common page size for ELF.  */
   bfd_vma commonpagesize;
+
+  /* If set, emit the names and types of statically-linked variables
+     into the CTF.  */
+  bfd_boolean ctf_variables;
+
+  /* If set, share only duplicated types in CTF, rather than sharing
+     all types that are not in conflict.  */
+  bfd_boolean ctf_share_duplicated;
 } ld_config_type;
 
 extern ld_config_type config;

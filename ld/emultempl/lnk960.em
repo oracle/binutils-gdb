@@ -26,6 +26,7 @@ fragment <<EOF
 #include "libiberty.h"
 #include "bfd.h"
 #include "bfdlink.h"
+#include "ctf-api.h"
 
 /*#include "archures.h"*/
 #include "ld.h"
@@ -344,6 +345,9 @@ struct ld_emulation_xfer_struct ld_lnk960_emulation =
   NULL,	/* recognized file */
   NULL,	/* find_potential_libraries */
   NULL,	/* new_vers_pattern */
-  NULL	/* extra_map_file_text */
+  NULL,	/* extra_map_file_text */
+  ${LDEMUL_EMIT_CTF_EARLY-NULL},
+  ${LDEMUL_ACQUIRE_STRINGS_FOR_CTF-NULL},
+  ${LDEMUL_NEW_DYNSYM_FOR_CTF-NULL}
 };
 EOF

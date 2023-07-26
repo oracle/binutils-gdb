@@ -1,3 +1,10 @@
+2019-12-16  Nick Alcock  <nick.alcock@oracle.com>
+
+	PR libctf/25120
+	* configure.ac: Check for bswap_16, bswap_32, and bswap_64 decls.
+	* configure: Regenerated.
+	* config.h.in: Likewise.
+
 2019-02-19  Egeyar Bagcioglu  <egeyar.bagcioglu@oracle.com>
 
 	PR gold/23870

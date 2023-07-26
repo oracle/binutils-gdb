@@ -1,3 +1,214 @@
+2020-02-03  Sergei Trofimovich  <siarheit@google.com>
+
+	* coffdump.c (program_name): Drop redundant definition.
+	* srconv.c (program_name): Likewise
+	* sysdump.c (program_name): Likewise
+
+2020-11-23  Nick Alcock  <nick.alcock@oracle.com>
+
+	* readelf.c (dump_section_as_ctf): Call ctf_arc_symsect_endianness.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* readelf.c (dump_section_as_ctf): Use .dynsym and .dynstr, not
+	.symtab and .strtab.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* objdump.c (dump_ctf): Report errors from ctf_archive_iter.
+	* readelf.c (dump_section_as_ctf): Likewise.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* objdump.c (dump_ctf): Use ctf_dict_open, not
+	ctf_arc_open_by_name.
+	* readelf.c (dump_section_as_ctf): Likewise.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* objdump.c (dump_ctf_errs): Rename ctf_file_t to ctf_dict_t.
+	(dump_ctf_archive_member): Likewise.
+	(dump_ctf): Likewise. Use ctf_dict_close, not ctf_file_close.
+	* readelf.c (dump_ctf_errs): Rename ctf_file_t to ctf_dict_t.
+	(dump_ctf_archive_member): Likewise.
+	(dump_section_as_ctf): Likewise.  Use ctf_dict_close, not
+	ctf_file_close.
+
+2020-08-27  Nick Alcock  <nick.alcock@oracle.com>
+
+	* objdump.c (dump_ctf_errs): Unquote CTF error messages.
+	* readelf.c (dump_ctf_errs): Likewise.
+
+2020-08-27  Nick Alcock  <nick.alcock@oracle.com>
+
+	* objdump.c (dump_ctf_archive_member): Move error-
+	reporting...
+	(dump_ctf_errs): ... into this separate function.
+	(dump_ctf): Call it on open errors.
+	* readelf.c (dump_ctf_archive_member): Move error-
+	reporting...
+	(dump_ctf_errs): ... into this separate function.  Support
+	calls with NULL fp. Adjust for new err parameter to
+	ctf_errwarning_next.
+	(dump_section_as_ctf): Call it on open errors.
+
+2020-08-27  Nick Alcock  <nick.alcock@oracle.com>
+
+	* Makefile.am (readelf_LDADD): Move $(LIBINTL) after $(LIBCTF_NOBFD).
+	* Makefile.in: Regenerated.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* objdump.c (dump_ctf_archive_member): Remove linefeeds.
+	(dump_ctf): Likewise.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* objdump.c (ctf_archive_member): Print CTF errors and warnings.
+	* readelf.c (dump_ctf_archive_member): Likewise.
+
+2020-07-22  Nick Clifton  <nickc@redhat.com>
+
+	* readelf.c (parse_args): Silence potential warnings about a
+	memory resource leak when allocating space for ctf option values.
+	(dump_section_as_ctf): Fix typo checking dump_ctf_strtab_name
+	variable.
+
+2019-12-16  Nick Alcock  <nick.alcock@oracle.com>
+
+	* readelf.c (dump_section_as_ctf): Support .ctf archives using
+	ctf_arc_bufopen.  Automatically load the .ctf member of such
+	archives as the parent of all other members, unless specifically
+	overridden via --ctf-parent.  Split out dumping code into...
+	(dump_ctf_archive_member): ... here, as in objdump, and call
+	it once per archive member.
+	(dump_ctf_indent_lines): Code style fix.
+
+2019-09-30  Nick Alcock  <nick.alcock@oracle.com>
+
+	* configure.ac [--enable-libctf]: New, default yes.
+	Set ENABLE_LIBCTF accordingly.
+	* Makefile.am [!ENABLE_LIBCTF]: Empty LIBCTF and LIBCTF_NOBFD.
+	* configure: Regenerate.
+	* config.in: Regenerate.
+	* Makefile.in: Regenerate.
+	* aclocal.m4: Regenerate.
+	* objdump.c (usage): Conditionalize portions on ENABLE_LIBCTF.
+	(option_values): Likewise.
+	(long_options): Likewise.
+	(main): Likewise.
+	(dump_ctf_indent_lines): Conditionalize out when !ENABLE_LIBCTF.
+	(make_ctfsect): Likewise.
+	(dump_ctf_archive_member): Likewise.
+	(dump_ctf) [ENABLE_LIBCTF]: Likewise.
+	(dump_ctf) [!ENABLE_LIBCTF]: New empty stub.
+	* readelf.c (options): Conditionalize portions on ENABLE_LIBCTF.
+	(usage): Likewise.
+	(process_section_contents): Likewise.
+	(shdr_to_ctf_sect): Conditionalize out when !ENABLE_LIBCTF.
+	(dump_ctf_indent_lines): Likewise.
+	(dump_section_as_ctf) [ENABLE_LIBCTF]: Likewise.
+
+2019-09-30  Nick Alcock  <nick.alcock@oracle.com>
+
+	* objdump.c (main): Fix tabdamage.
+	* readelf.c (CTF_DUMP): Likewise.
+	(options): Likewise.
+	(dump_section_as_ctf): Likewise.
+
+2019-08-03  Nick Alcock  <nick.alcock@oracle.com>
+
+	* objdump.c (dump_ctf): Use the default CTF archive member as the
+	parent even when no parent section is specified.
+	(dump_ctf_archive_member): Only import from the parent
+	if this is not the default ".ctf" member.
+
+2019-09-23  Nick Alcock  <nick.alcock@oracle.com>
+
+	* Makefile.am (LIBCTF): Mention the .la file.
+	(LIBCTF_NOBFD): New.
+	(readelf_DEPENDENCIES): Use it.
+	(readelf_LDADD): Likewise.
+	* Makefile.in: Regenerated.
+
+2019-07-13  Nick Alcock  <nick.alcock@oracle.com>
+
+	* readelf.c (dump_ctf_symtab_name): Give default value.
+	(dump_ctf_strtab_name): Likewise.
+	(dump_section_as_ctf): Allow for the null string.
+
+2019-07-08  Nick Alcock  <nick.alcock@oracle.com>
+
+	* objdump.c (dump_ctf_archive_member): Dump the CTF header.
+	* readelf.c (dump_section_as_ctf): Likewise.
+
+2019-06-25  Jan Beulich  <jbeulich@suse.com>
+
+	* objdump.c (dump_ctf_indent_lines): Rename local variable
+	"spaces" to "blanks".
+
+2019-06-25  Jan Beulich  <jbeulich@suse.com>
+
+	* readelf.c (dump_ctf_indent_lines): Rename local variable
+	"spaces" to "blanks".
+
+2019-05-30  Nick Alcock  <nick.alcock@oracle.com>
+
+	* objdump.c (make_ctfsect): Drop cts_type, cts_flags, and
+	cts_offset.
+	* readelf.c (shdr_to_ctf_sect): Likewise.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* MAINTAINERS: Add myself as CTF maintainer.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* objdump.c (ctf-api.h): New include.
+	(dump_ctf_section_info): New variable.
+	(dump_ctf_section_name): Likewise.
+	(usage): Describe new options.
+	(enum option_values): Add OPTION_CTF and OPTION_CTF_PARENT.
+	(main): Use them to add --ctf and --ctf-parent.
+	(read_section_stabs): Add new parameter, entsize_ptr.
+	(find_stabs_section): Adjust accordingly.
+	(make_ctfsect): New.
+	(dump_ctf_indent_lines): New.
+	(dump_ctf_archive_member): New.
+	(dump_ctf): New.
+	(dump_bfd): Call it.  Free resources afterwards.
+	* readelf.c (ctf-api.h): New include.
+	(CTF_DUMP): New.
+	(static bfd_boolean do_ctf): Likewise.
+	(dump_ctf_parent_name): Likewise.
+	(dump_ctf_symtab_name): Likewise.
+	(dump_ctf_strtab_name): Likewise.
+	(OPTION_CTF_DUMP): Likewise.
+	(OPTION_CTF_PARENT): Likewise.
+	(OPTION_CTF_SYMBOLS): Likewise.
+	(OPTION_CTF_STRINGS): Likewise.
+	(options): Add them.
+	(usage): Likewise.
+	(parse_args): Handle the new options, requesting CTF_DUMP.
+	(process_section_contents): Handle CTF_DUMP.
+	(shdr_to_ctf_sect): New.
+	(dump_ctf_indent_lines): New.
+	(dump_section_as_ctf): New.
+	(main): Free resources.
+	* Makefile.am (LIBCTF): New variable.
+	(objdump_DEPENDENCIES): Use it.
+	(readelf_DEPENDENCIES): Likewise.
+	(objdump_LDADD): Likewise.
+	(readelf_LDADD): Likewise.
+	* aclocal.m4: Regenerated.
+	* Makefile.in: Likewise.
+
+	* doc/binutils.texi (objdump): Document the new options.
+	(readelf): Likewise.
+	* doc/ctf.options.texi: New.
+	* doc/Makefile.in: Regenerated.
+	* NEWS: Mention the new feature.
+
 2018-01-27  Nick Clifton  <nickc@redhat.com>
 
 	This is the 2.30 release:

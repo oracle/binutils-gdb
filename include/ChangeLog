@@ -1,3 +1,479 @@
+2021-05-06  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf.h (CTF_K_UNKNOWN): Document that it can be used for
+	nonrepresentable types, not just padding.
+	* ctf-api.h (ctf_add_unknown): New.
+
+2021-03-02  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (CTF_LINK_SHARE_DUPLICATED): Note that this might
+	merely change how much deduplication is done.
+
+2021-02-17  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_arc_lookup_symbol_name): New.
+	(ctf_lookup_by_symbol_name): Likewise.
+
+2021-01-27  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ECTF_NONAME): New.
+	(ECTF_NERR): Adjust.
+
+2021-01-26  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (CTF_LINK_NO_FILTER_REPORTED_SYMS): New.
+
+2021-01-05  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (CTF_MN_RECURSE): New.
+	(ctf_member_next): Add flags argument.
+
+2021-01-05  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ECTF_INCOMPLETE): New.
+	(ECTF_NERR): Adjust.
+
+2020-11-23  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h: Style nit: remove () on function names in comments.
+	(ctf_sect_t): Mention endianness concerns.
+	(ctf_symsect_endianness): New declaration.
+	(ctf_arc_symsect_endianness): Likewise.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_getsymsect): New.
+	(ctf_getstrsect): Likewise.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_arc_lookup_symbol): New.
+	(ctf_arc_flush_caches): Likewise.
+	* ctf.h: Document new auto-ctf_import behaviour.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_symbol_next): New.
+	(ctf_add_objt_sym): Likewise.
+	(ctf_add_func_sym): Likewise.
+	* ctf.h: Document new function info section format.
+	(CTF_F_NEWFUNCINFO): New.
+	(CTF_F_IDXSORTED): New.
+	(CTF_F_MAX): Adjust accordingly.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* bfdlink.h (struct elf_sym_strtab): Replace with...
+	(struct elf_internal_sym): ... this.
+	(struct bfd_link_callbacks) <examine_strtab>: Take only a
+	symstrtab argument.
+	<ctf_new_symbol>: New.
+	<ctf_new_dynsym>: Likewise.
+	* ctf-api.h (struct ctf_link_sym) <st_symidx>: New.
+	<st_nameidx>: Likewise.
+	<st_nameidx_set>: Likewise.
+	(ctf_link_iter_symbol_f): Removed.
+	(ctf_link_shuffle_syms): Remove most parameters, just takes a
+	ctf_dict_t now.
+	(ctf_link_add_linker_symbol): New, split from
+	ctf_link_shuffle_syms.
+	* ctf.h (CTF_F_DYNSTR): New.
+	(CTF_F_MAX): Adjust.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_arc_open_by_name): Rename to...
+	(ctf_dict_open): ... this, keeping compatibility function.
+	(ctf_arc_open_by_name_sections): Rename to...
+	(ctf_dict_open_sections): ... this, keeping compatibility function.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_file_t): Rename to...
+	(ctf_dict_t): ... this.  Keep ctf_file_t around for compatibility.
+	(struct ctf_file): Likewise rename to...
+	(struct ctf_dict): ... this.
+	(ctf_file_close): Rename to...
+	(ctf_dict_close): ... this, keeping compatibility function.
+	(ctf_parent_file): Rename to...
+	(ctf_parent_dict): ... this, keeping compatibility function.
+	All callers adjusted.
+	* ctf.h: Rename references to ctf_file_t to ctf_dict_t.
+	(struct ctf_archive) <ctfa_nfiles>: Rename to...
+	<ctfa_ndicts>: ... this.
+
+2020-10-21  Tom Tromey  <tromey@adacore.com>
+
+	* ctf-api.h (_CTF_ERRORS): New macro.
+
+2020-08-27  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_errwarning_next): New err parameter.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (CTF_LINK_NONDEDUP): New, turn off the
+	deduplicator.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (CTF_LINK_OMIT_VARIABLES_SECTION): New.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (CTF_LINK_SHARE_DUPLICATED): No longer unimplemented.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_link_variable_filter_t): New.
+	(ctf_link_set_variable_filter): Likewise.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (CTF_LINK_EMPTY_CU_MAPPINGS): New.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ECTF_NEEDSBFD): New.
+	(ECTF_NERR): Adjust.
+	(ctf_link): Rename share_mode arg to flags.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ECTF_INTERNAL): Adjust error text.
+	(ctf_errwarning_next): New.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ECTF_FLAGS): New.
+	(ECTF_NERR): Adjust.
+	* ctf.h (CTF_F_MAX): New.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ECTF_NEXT_END): New error.
+	(ECTF_NEXT_WRONGFUN): Likewise.
+	(ECTF_NEXT_WRONGFP): Likewise.
+	(ECTF_NERR): Adjust.
+	(ctf_next_t): New.
+	(ctf_next_create): New prototype.
+	(ctf_next_destroy): Likewise.
+	(ctf_next_copy): Likewise.
+	(ctf_member_next): Likewise.
+	(ctf_enum_next): Likewise.
+	(ctf_type_next): Likewise.
+	(ctf_label_next): Likewise.
+	(ctf_variable_next): Likewise.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_ref): New.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_archive_count): New.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_member_count): New.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_type_kind_forwarded): New.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.c (ctf_type_name_raw): New.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ECTF_*): Improve comments.
+	(ECTF_NERR): New.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h: Fix typos in comments.
+
+2019-12-16  Nick Alcock  <nick.alcock@oracle.com>
+
+	PR libctf/25120
+	* libiberty.h (bsearch_r): New.
+
+2019-12-16  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_arc_bufopen): New.
+
+2019-09-23  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_cuname_set): Can now fail, returning int.
+	(ctf_parent_name_set): Likewise.
+
+2019-08-05  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ECTF_NONREPRESENTABLE): New.
+
+2019-09-23  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h: Note the instability of the ctf_link interfaces.
+
+2019-07-13  Nick Alcock  <nick.alcock@oracle.com>
+
+	* bfdlink.h (elf_strtab_hash): New forward.
+	(elf_sym_strtab): Likewise.
+	(struct bfd_link_callbacks <examine_strtab>): New.
+	(struct bfd_link_callbacks <emit_ctf>): Likewise.
+
+2019-07-13  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (includes): No longer include <sys/param.h>.
+
+2019-07-30  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_link_add_cu_mapping): New.
+	(ctf_link_memb_name_changer_f): New.
+	(ctf_link_set_memb_name_changer): New.
+
+2019-07-13  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ECTF_INTERNAL): New.
+
+2019-07-13  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (struct ctf_link_sym): New, a symbol in flight to the
+	libctf linking machinery.
+	(CTF_LINK_SHARE_UNCONFLICTED): New.
+	(CTF_LINK_SHARE_DUPLICATED): New.
+	(ECTF_LINKADDEDLATE): New, replacing ECTF_UNUSED.
+	(ECTF_NOTYET): New, a 'not yet implemented' message.
+	(ctf_link_add_ctf): New, add an input file's CTF to the link.
+	(ctf_link): New, merge the type and string sections.
+	(ctf_link_strtab_string_f): New, callback for feeding strtab info.
+	(ctf_link_iter_symbol_f): New, callback for feeding symtab info.
+	(ctf_link_add_strtab): New, tell the CTF linker about the ELF
+	strtab's strings.
+	(ctf_link_shuffle_syms): New, ask the CTF linker to shuffle its
+	symbols into symtab order.
+	(ctf_link_write): New, ask the CTF linker to write the CTF out.
+
+2019-07-13  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_arc_write_fd): New.
+	(ctf_write_mem): Likewise.
+	(ctf_gzwrite): Spacing fix.
+
+2019-07-13  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf.h (CTF_SET_STID): New.
+
+2019-07-13  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_type_all_f): New.
+	(ctf_type_iter_all): New.
+
+2019-07-11  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf.h: Add object index and function index sections.  Describe
+	them. Improve the description of the variable section and clarify
+	the constraints on backward-pointing type nodes.
+	(ctf_header): Add cth_objtidxoff, cth_funcidxoff.
+
+2019-07-06  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_cuname): New function.
+	(ctf_cuname_set): Likewise.
+	* ctf.h: Improve comment around upgrading, no longer
+	implying that v2 is the target of upgrades (it is v3 now).
+	(ctf_header_v2_t): New, old-format header for backward
+	compatibility.
+	(ctf_header_t): Add cth_cuname: this is the first of several
+	header changes in format v3.
+
+2019-06-19  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf.h (ctf_slice_t): Make cts_offset and cts_bits unsigned
+	short, so following structures are properly aligned.
+
+2019-07-18  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ECTF_NOTFUNC): Fix description.
+	(ctf_func_type_info): New.
+	(ctf_func_type_args): Likewise.
+	(ctf_type_aname_raw): Likewise.
+
+2019-06-19  Nick Alcock <nick.alcock@oracle.com>
+
+	* ctf.h (ctf_slice_t): Make cts_offset and cts_bits unsigned
+	short, so following structures are properly aligned.
+
+2019-06-03  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf.h (ctf_enum.cte_value): Fix type to int32_t.
+
+2019-05-29  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_sect_t): Drop cts_type, cts_flags, and cts_offset.
+	(ctf_id_t): This is now an unsigned type.
+	(CTF_ERR): Cast it to ctf_id_t.  Note that it should only be used
+	for ctf_id_t-returning functions.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_dump_decorate_f): New.
+	(ctf_dump_state_t): new.
+	(ctf_dump): New.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_label_f): New.
+	(ctf_label_set): New.
+	(ctf_label_get): New.
+	(ctf_label_topmost): New.
+	(ctf_label_info): New.
+	(ctf_label_iter): New.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_version): New.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_func_info): New.
+	(ctf_func_args): Likewise.
+	(ctf_lookup_by_symbol): Likewise.
+	(ctf_lookup_by_symbol): Likewise.
+	(ctf_lookup_variable): Likewise.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_visit_f): New definition.
+	(ctf_member_f): Likewise.
+	(ctf_enum_f): Likewise.
+	(ctf_variable_f): Likewise.
+	(ctf_type_f): Likewise.
+	(ctf_type_isparent): Likewise.
+	(ctf_type_ischild): Likewise.
+	(ctf_type_resolve): Likewise.
+	(ctf_type_aname): Likewise.
+	(ctf_type_lname): Likewise.
+	(ctf_type_name): Likewise.
+	(ctf_type_sizee): Likewise.
+	(ctf_type_align): Likewise.
+	(ctf_type_kind): Likewise.
+	(ctf_type_reference): Likewise.
+	(ctf_type_pointer): Likewise.
+	(ctf_type_encoding): Likewise.
+	(ctf_type_visit): Likewise.
+	(ctf_type_cmp): Likewise.
+	(ctf_type_compat): Likewise.
+	(ctf_member_info): Likewise.
+	(ctf_array_info): Likewise.
+	(ctf_enum_name): Likewise.
+	(ctf_enum_value): Likewise.
+	(ctf_member_iter): Likewise.
+	(ctf_enum_iter): Likewise.
+	(ctf_type_iter): Likewise.
+	(ctf_variable_iter): Likewise.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (struct bfd): New forward.
+	(ctf_fdopen): New.
+	(ctf_bfdopen): Likewise.
+	(ctf_open): Likewise.
+	(ctf_arc_open): Likewise.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf.h (CTFA_MAGIC): New.
+	(struct ctf_archive): New.
+	(struct ctf_archive_modent): Likewise.
+	* ctf-api.h (ctf_archive_member_f): New.
+	(ctf_archive_raw_member_f): Likewise.
+	(ctf_arc_write): Likewise.
+	(ctf_arc_close): Likewise.
+	(ctf_arc_open_by_name): Likewise.
+	(ctf_archive_iter): Likewise.
+	(ctf_archive_raw_iter): Likewise.
+	(ctf_get_arc): Likewise.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_file_close): New declaration.
+	(ctf_getdatasect): Likewise.
+	(ctf_parent_file): Likewise.
+	(ctf_parent_name): Likewise.
+	(ctf_parent_name_set): Likewise.
+	(ctf_import): Likewise.
+	(ctf_setmodel): Likewise.
+	(ctf_getmodel): Likewise.
+	(ctf_setspecific): Likewise.
+	(ctf_getspecific): Likewise.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (zlib.h): New include.
+	(ctf_sect_t): New.
+	(ctf_sect_names_t): Likewise.
+	(ctf_encoding_t): Likewise.
+	(ctf_membinfo_t): Likewise.
+	(ctf_arinfo_t): Likewise.
+	(ctf_funcinfo_t): Likewise.
+	(ctf_lblinfo_t): Likewise.
+	(ctf_snapshot_id_t): Likewise.
+	(CTF_FUNC_VARARG): Likewise.
+	(ctf_simple_open): Likewise.
+	(ctf_bufopen): Likewise.
+	(ctf_create): Likewise.
+	(ctf_add_array): Likewise.
+	(ctf_add_const): Likewise.
+	(ctf_add_enum_encoded): Likewise.
+	(ctf_add_enum): Likewise.
+	(ctf_add_float): Likewise.
+	(ctf_add_forward): Likewise.
+	(ctf_add_function): Likewise.
+	(ctf_add_integer): Likewise.
+	(ctf_add_slice): Likewise.
+	(ctf_add_pointer): Likewise.
+	(ctf_add_type): Likewise.
+	(ctf_add_typedef): Likewise.
+	(ctf_add_restrict): Likewise.
+	(ctf_add_struct): Likewise.
+	(ctf_add_union): Likewise.
+	(ctf_add_struct_sized): Likewise.
+	(ctf_add_union_sized): Likewise.
+	(ctf_add_volatile): Likewise.
+	(ctf_add_enumerator): Likewise.
+	(ctf_add_member): Likewise.
+	(ctf_add_member_offset): Likewise.
+	(ctf_add_member_encoded): Likewise.
+	(ctf_add_variable): Likewise.
+	(ctf_set_array): Likewise.
+	(ctf_update): Likewise.
+	(ctf_snapshot): Likewise.
+	(ctf_rollback): Likewise.
+	(ctf_discard): Likewise.
+	(ctf_write): Likewise.
+	(ctf_gzwrite): Likewise.
+	(ctf_compress_write): Likewise.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_errno): New declaration.
+	(ctf_errmsg): Likewise.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h (ctf_setdebug): New.
+	(ctf_getdebug): Likewise.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-api.h: New file.
+
+2019-05-28  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf.h: New file.
+
 2018-01-13  Nick Clifton  <nickc@redhat.com>
 
 	2.30 branch created.

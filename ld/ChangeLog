@@ -1,3 +1,482 @@
+2021-05-06  Nick Alcock  <nick.alcock@oracle.com>
+
+	* testsuite/ld-ctf/ctf.exp: Use -gctf, not -gt.
+	* testsuite/lib/ld-lib.exp: Likewise.
+	* testsuite/ld-ctf/nonrepresentable-1.c: New test for nonrepresentable types.
+	* testsuite/ld-ctf/nonrepresentable-2.c: Likewise.
+	* testsuite/ld-ctf/nonrepresentable.d: Likewise.
+	* testsuite/ld-ctf/array.d: Larger type section.
+	* testsuite/ld-ctf/data-func-conflicted.d: Likewise.
+	* testsuite/ld-ctf/enums.d: Likewise.
+	* testsuite/ld-ctf/conflicting-enums.d: Don't compare types.
+	* testsuite/ld-ctf/cross-tu-cyclic-conflicting.d: Changed type order.
+	* testsuite/ld-ctf/cross-tu-noncyclic.d: Likewise.
+	* testsuite/ld-ctf/slice.d: Adjust for improved slice emission.
+
+2021-03-25  Nick Alcock  <nick.alcock@oracle.com>
+
+	* testsuite/ld-ctf/array.d: Only check that the data object
+	section is nonempty: do not check its exact size.
+	* testsuite/ld-ctf/diag-parlabel.d: Likewise.
+	* testsuite/ld-ctf/slice.d: Likewise.
+	* testsuite/ld-ctf/data-func-conflicted.d: Likewise, and for the
+	func info section too.
+	* testsuite/ld-ctf/function.d: Likewise, for the func info section.
+
+2021-03-18  Nick Alcock  <nick.alcock@oracle.com>
+
+	* testsuite/ld-ctf/slice.c: Check slices of enums too.
+	* testsuite/ld-ctf/slice.d: Results adjusted.
+
+2021-03-02  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ldelfgen.c (ldelf_ctf_strtab_iter_cb): Skip zero-refcount strings.
+
+2021-01-26  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ldlang.c (lang_merge_ctf): Set CTF_LINK_NO_FILTER_REPORTED_SYMS
+	when appropriate.
+
+2021-01-05  Nick Alcock  <nick.alcock@oracle.com>
+
+	* testsuite/ld-ctf/enum-forward.c: New test.
+	* testsuite/ld-ctf/enum-forward.c: New results.
+
+2021-01-05  Nick Alcock  <nick.alcock@oracle.com>
+
+	* testsuite/ld-ctf/array.d: Adjust for dumper changes.
+	* testsuite/ld-ctf/conflicting-cycle-1.B-1.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-1.B-2.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-1.parent.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-2.A-1.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-2.A-2.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-2.parent.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-3.C-1.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-3.C-2.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-3.parent.d: Likewise.
+	* testsuite/ld-ctf/conflicting-enums.d: Likewise.
+	* testsuite/ld-ctf/conflicting-typedefs.d: Likewise.
+	* testsuite/ld-ctf/cross-tu-cyclic-conflicting.d: Likewise.
+	* testsuite/ld-ctf/cross-tu-cyclic-nonconflicting.d: Likewise.
+	* testsuite/ld-ctf/cross-tu-into-cycle.d: Likewise.
+	* testsuite/ld-ctf/cross-tu-noncyclic.d: Likewise.
+	* testsuite/ld-ctf/cycle-1.d: Likewise.
+	* testsuite/ld-ctf/cycle-2.A.d: Likewise.
+	* testsuite/ld-ctf/cycle-2.B.d: Likewise.
+	* testsuite/ld-ctf/cycle-2.C.d: Likewise.
+	* testsuite/ld-ctf/data-func-conflicted.d: Likewise.
+	* testsuite/ld-ctf/diag-cttname-null.d: Likewise.
+	* testsuite/ld-ctf/diag-cuname.d: Likewise.
+	* testsuite/ld-ctf/diag-parlabel.d: Likewise.
+	* testsuite/ld-ctf/diag-wrong-magic-number-mixed.d: Likewise.
+	* testsuite/ld-ctf/forward.d: Likewise.
+	* testsuite/ld-ctf/function.d: Likewise.
+	* testsuite/ld-ctf/slice.d: Likewise.
+	* testsuite/ld-ctf/super-sub-cycles.d: Likewise.
+	* testsuite/ld-ctf/enums.c: New test.
+	* testsuite/ld-ctf/enums.d: New test.
+
+2021-01-05  Nick Alcock  <nick.alcock@oracle.com>
+
+	* testsuite/ld-ctf/conflicting-cycle-1.parent.d: Adjust for dumper
+	changes.
+	* testsuite/ld-ctf/cross-tu-cyclic-conflicting.d: Likewise.
+	* testsuite/ld-ctf/forward.c: New test...
+	* testsuite/ld-ctf/forward.d: ... and results.
+
+2021-01-05  Nick Alcock  <nick.alcock@oracle.com>
+
+	* testsuite/ld-ctf/array.d: Adjust for dumper changes.
+	* testsuite/ld-ctf/data-func-conflicted.d: Likewise.
+	* testsuite/ld-ctf/diag-cttname-null.d: Likewise.
+	* testsuite/ld-ctf/diag-cuname.d: Likewise.
+	* testsuite/ld-ctf/diag-parlabel.d: Likewise.
+	* testsuite/ld-ctf/function.d: Likewise.
+	* testsuite/ld-ctf/slice.d: Likewise.
+
+2021-01-05  Nick Alcock  <nick.alcock@oracle.com>
+
+	* testsuite/ld-ctf/array.d: Adjust for dumper changes.
+	* testsuite/ld-ctf/conflicting-cycle-1.B-1.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-1.B-2.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-1.parent.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-2.A-1.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-2.A-2.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-2.parent.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-3.C-1.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-3.C-2.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-3.parent.d: Likewise.
+	* testsuite/ld-ctf/conflicting-enums.d: Likewise.
+	* testsuite/ld-ctf/conflicting-typedefs.d: Likewise.
+	* testsuite/ld-ctf/cross-tu-cyclic-conflicting.d: Likewise.
+	* testsuite/ld-ctf/cross-tu-cyclic-nonconflicting.d: Likewise.
+	* testsuite/ld-ctf/cross-tu-into-cycle.d: Likewise.
+	* testsuite/ld-ctf/cross-tu-noncyclic.d: Likewise.
+	* testsuite/ld-ctf/cycle-1.d: Likewise.
+	* testsuite/ld-ctf/cycle-2.A.d: Likewise.
+	* testsuite/ld-ctf/cycle-2.B.d: Likewise.
+	* testsuite/ld-ctf/cycle-2.C.d: Likewise.
+	* testsuite/ld-ctf/data-func-conflicted.d: Likewise.
+	* testsuite/ld-ctf/diag-cttname-null.d: Likewise.
+	* testsuite/ld-ctf/diag-cuname.d: Likewise.
+	* testsuite/ld-ctf/diag-parlabel.d: Likewise.
+	* testsuite/ld-ctf/diag-wrong-magic-number-mixed.d: Likewise.
+	* testsuite/ld-ctf/function.d: Likewise.
+	* testsuite/ld-ctf/slice.d: Likewise.
+	* testsuite/ld-ctf/super-sub-cycles.d: Likewise.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* testsuite/ld-ctf/data-func-conflicted.d: Shrink the expected
+	size of the type section now that function types are being
+	deduplicated properly.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* testsuite/ld-ctf/array.d: Adjust for nonzero flags word and
+	public symbols in the data section rather than variables: use
+	sysv hash style to keep test results the same on non-GNU targets.
+	* testsuite/ld-ctf/diag-cttname-null.d: Likewise.
+	* testsuite/ld-ctf/diag-cuname.d: Likewise.
+	* testsuite/ld-ctf/diag-parlabel.d: Likewise.
+	* testsuite/ld-ctf/slice.d: Likewise.
+	* testsuite/ld-ctf/function.d: Likewise, but in the function section.
+	* testsuite/ld-ctf/conflicting-cycle-1.B-1.d:  Adjust for nonzero
+	flags word.
+	* testsuite/ld-ctf/conflicting-cycle-1.B-2.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-1.parent.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-2.A-1.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-2.A-2.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-2.parent.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-3.C-1.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-3.C-2.d: Likewise.
+	* testsuite/ld-ctf/conflicting-cycle-3.parent.d: Likewise.
+	* testsuite/ld-ctf/cross-tu-noncyclic.d: Likewise.
+	* testsuite/ld-ctf/cycle-1.d: Likewise.
+	* testsuite/ld-ctf/cycle-2.A.d: Likewise.
+	* testsuite/ld-ctf/cycle-2.B.d: Likewise.
+	* testsuite/ld-ctf/cycle-2.C.d: Likewise.
+	* testsuite/ld-ctf/diag-wrong-magic-number-mixed.d:  Likewise.
+	* testsuite/ld-ctf/super-sub-cycles.d:  Likewise.
+	* testsuite/ld-ctf/data-func-1.c: New test.
+	* testsuite/ld-ctf/data-func-2.c: Likewise.
+	* testsuite/ld-ctf/data-func-conflicted.d: Likewise.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ldelfgen.c (struct ctf_strsym_iter_cb_arg): Rename to...
+	(struct ctf_strtab_iter_cb_arg): ... this, changing fields:
+	<syms>: Remove.
+	<symcount>: Remove.
+	<symstrtab>: Rename to...
+	<strtab>: ... this.
+	(ldelf_ctf_strtab_iter_cb): Adjust.
+	(ldelf_ctf_symbols_iter_cb): Remove.
+	(ldelf_new_dynsym_for_ctf): New, tell libctf about a single
+	symbol.
+	(ldelf_examine_strtab_for_ctf): Rename to...
+	(ldelf_acquire_strings_for_ctf): ... this, only doing the strtab
+	portion and not symbols.
+	* ldelfgen.h: Adjust declarations accordingly.
+	* ldemul.c (ldemul_examine_strtab_for_ctf): Rename to...
+	(ldemul_acquire_strings_for_ctf): ... this.
+	(ldemul_new_dynsym_for_ctf): New.
+	* ldemul.h: Adjust declarations accordingly.
+	* ldlang.c (ldlang_ctf_apply_strsym): Rename to...
+	(ldlang_ctf_acquire_strings): ... this.
+	(ldlang_ctf_new_dynsym): New.
+	(lang_write_ctf): Call ldemul_new_dynsym_for_ctf with NULL to do
+	the actual symbol shuffle.
+	* ldlang.h (struct elf_strtab_hash): Adjust accordingly.
+	* ldmain.c (bfd_link_callbacks): Wire up new/renamed callbacks.
+
+	* emultempl/aix.em: Adjust for emulation changes:
+	ldemul_examine_strtab_for_ctf renamed to
+	ldemul_acquire_strings_for_ctf, new ldemul_new_dynsym_for_ctf.
+	* emultempl/armcoff.em: Likewise.
+	* emultempl/beos.em: Likewise.
+	* emultempl/elf.em: Likewise.
+	* emultempl/elf-generic.em: Likewise.
+	* emultempl/linux.em: Likewise.
+	* emultempl/msp430.em: Likewise.
+	* emultempl/pe.em: Likewise.
+	* emultempl/pep.em: Likewise.
+	* emultempl/ticoff.em: Likewise.
+	* emultempl/vanilla.em: Likewise.
+
+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ldlang.c (ctf_output): This is a ctf_dict_t now.
+	(lang_ctf_errs_warnings): Rename ctf_file_t to ctf_dict_t.
+	(ldlang_open_ctf): Adjust comment.
+	(lang_merge_ctf): Use ctf_dict_close, not ctf_file_close.
+	* ldelfgen.h (ldelf_examine_strtab_for_ctf): Rename ctf_file_t to
+	ctf_dict_t.  Change opaque declaration accordingly.
+	* ldelfgen.c (ldelf_examine_strtab_for_ctf): Adjust.
+	* ldemul.h (examine_strtab_for_ctf): Likewise.
+	(ldemul_examine_strtab_for_ctf): Likewise.
+	* ldeuml.c (ldemul_examine_strtab_for_ctf): Likewise.
+
+2020-08-27  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ldlang.c (dump_ctf_errs): Unquote CTF error messages.
+	(ldlang_open_ctf): Likewise.
+	(lang_merge_ctf): Likewise.
+	(lang_write_ctf): Likewise.
+	* testsuite/ld-ctf/diag-ctf-version-f.d: Adjust.
+	* testsuite/ld-ctf/diag-cttname-invalid.d: Adjust.
+	* testsuite/ld-ctf/diag-decompression-failure.d: Adjust.
+	* testsuite/ld-ctf/diag-parname.d: Adjust.
+	* testsuite/ld-ctf/diag-unsupported-flag.d: Adjust.
+	* testsuite/ld-ctf/diag-wrong-magic-number-mixed.d: Adjust.
+	* testsuite/ld-ctf/diag-wrong-magic-number.d: Adjust.
+
+2020-08-27  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ldlang.c (lang_ctf_errs_warnings): Support calls with NULL fp.
+	Adjust for new err parameter to ctf_errwarning_next.  Only
+	check for assertion failures when fp is non-NULL.
+	(ldlang_open_ctf): Call it on open errors.
+	* testsuite/ld-ctf/ctf.exp: Always use the C locale to avoid
+	breaking the diags tests.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* testsuite/ld-ctf/ctf.exp: Skip on non-ELF for now.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ldlang.c (ldlang_open_ctf): Set SEC_EXCLUDE on all but the
+	first input .ctf section.
+
+2020-06-11  Nick Alcock  <nick.alcock@oracle.com>
+
+	* configure.ac (enable_libctf): Substitute it.
+	* Makefile.am (enablings.exp): New.
+	(EXTRA_DEJAGNU_SITE_CONFIG): Add it.
+	(DISTCLEANFILES): Likewise.
+	* Makefile.in: Regenerate.
+	* configure: Likewise.
+	* testsuite/lib/ld-lib.exp (compile_one_cc): New.
+	(check_ctf_available): Likewise.
+	(skip_ctf_tests): Likewise.
+	* testsuite/ld-ctf/ctf.exp: Call skip_ctf_tests.
+
+2020-07-22  Egeyar Bagcioglu  <egeyar.bagcioglu@oracle.com>
+
+	* testsuite/ld-ctf/ctf.exp: New file.
+	* testsuite/ld-ctf/A-2.c: New file.
+	* testsuite/ld-ctf/A.c: New file.
+	* testsuite/ld-ctf/B-2.c: New file.
+	* testsuite/ld-ctf/B.c: New file.
+	* testsuite/ld-ctf/C-2.c: New file.
+	* testsuite/ld-ctf/C.c: New file.
+	* testsuite/ld-ctf/array-char.c: New file.
+	* testsuite/ld-ctf/array-int.c: New file.
+	* testsuite/ld-ctf/array.d: New file.
+	* testsuite/ld-ctf/child-float.c: New file.
+	* testsuite/ld-ctf/child-int.c: New file.
+	* testsuite/ld-ctf/conflicting-cycle-1.B-1.d: New file.
+	* testsuite/ld-ctf/conflicting-cycle-1.B-2.d: New file.
+	* testsuite/ld-ctf/conflicting-cycle-1.parent.d: New file.
+	* testsuite/ld-ctf/conflicting-cycle-2.A-1.d: New file.
+	* testsuite/ld-ctf/conflicting-cycle-2.A-2.d: New file.
+	* testsuite/ld-ctf/conflicting-cycle-2.parent.d: New file.
+	* testsuite/ld-ctf/conflicting-cycle-3.C-1.d: New file.
+	* testsuite/ld-ctf/conflicting-cycle-3.C-2.d: New file.
+	* testsuite/ld-ctf/conflicting-cycle-3.parent.d: New file.
+	* testsuite/ld-ctf/conflicting-enums.d: New file.
+	* testsuite/ld-ctf/conflicting-typedefs.d: New file.
+	* testsuite/ld-ctf/cross-tu-1.c: New file.
+	* testsuite/ld-ctf/cross-tu-2.c: New file.
+	* testsuite/ld-ctf/cross-tu-conflicting-2.c: New file.
+	* testsuite/ld-ctf/cross-tu-cyclic-1.c: New file.
+	* testsuite/ld-ctf/cross-tu-cyclic-2.c: New file.
+	* testsuite/ld-ctf/cross-tu-cyclic-3.c: New file.
+	* testsuite/ld-ctf/cross-tu-cyclic-4.c: New file.
+	* testsuite/ld-ctf/cross-tu-cyclic-conflicting.d: New file.
+	* testsuite/ld-ctf/cross-tu-cyclic-nonconflicting.d: New file.
+	* testsuite/ld-ctf/cross-tu-into-cycle.d: New file.
+	* testsuite/ld-ctf/cross-tu-noncyclic.d: New file.
+	* testsuite/ld-ctf/cycle-1.c: New file.
+	* testsuite/ld-ctf/cycle-1.d: New file.
+	* testsuite/ld-ctf/cycle-2.A.d: New file.
+	* testsuite/ld-ctf/cycle-2.B.d: New file.
+	* testsuite/ld-ctf/cycle-2.C.d: New file.
+	* testsuite/ld-ctf/diag-ctf-version-0.d: New file.
+	* testsuite/ld-ctf/diag-ctf-version-0.s: New file.
+	* testsuite/ld-ctf/diag-ctf-version-2-unsupported-feature.d: New file.
+	* testsuite/ld-ctf/diag-ctf-version-2-unsupported-feature.s: New file.
+	* testsuite/ld-ctf/diag-ctf-version-f.d: New file.
+	* testsuite/ld-ctf/diag-ctf-version-f.s: New file.
+	* testsuite/ld-ctf/diag-cttname-invalid.d: New file.
+	* testsuite/ld-ctf/diag-cttname-invalid.s: New file.
+	* testsuite/ld-ctf/diag-cttname-null.d: New file.
+	* testsuite/ld-ctf/diag-cttname-null.s: New file.
+	* testsuite/ld-ctf/diag-cuname.d: New file.
+	* testsuite/ld-ctf/diag-cuname.s: New file.
+	* testsuite/ld-ctf/diag-decompression-failure.d: New file.
+	* testsuite/ld-ctf/diag-decompression-failure.s: New file.
+	* testsuite/ld-ctf/diag-parlabel.d: New file.
+	* testsuite/ld-ctf/diag-parlabel.s: New file.
+	* testsuite/ld-ctf/diag-parname.d: New file.
+	* testsuite/ld-ctf/diag-parname.s: New file.
+	* testsuite/ld-ctf/diag-unsupported-flag.d: New file.
+	* testsuite/ld-ctf/diag-unsupported-flag.s: New file.
+	* testsuite/ld-ctf/diag-wrong-magic-number-mixed.d: New file.
+	* testsuite/ld-ctf/diag-wrong-magic-number.d: New file.
+	* testsuite/ld-ctf/diag-wrong-magic-number.s: New file.
+	* testsuite/ld-ctf/enum-2.c: New file.
+	* testsuite/ld-ctf/enum.c: New file.
+	* testsuite/ld-ctf/function.c: New file.
+	* testsuite/ld-ctf/function.d: New file.
+	* testsuite/ld-ctf/slice.c: New file.
+	* testsuite/ld-ctf/slice.d: New file.
+	* testsuite/ld-ctf/super-sub-cycles.c: New file.
+	* testsuite/ld-ctf/super-sub-cycles.d: New file.
+	* testsuite/ld-ctf/typedef-int.c: New file.
+	* testsuite/ld-ctf/typedef-long.c: New file.
+	* testsuite/ld-ctf/union-1.c: New file.
+
+2020-06-11  Nick Alcock  <nick.alcock@oracle.com>
+
+	* testsuite/lib/run_dump_test.exp: New, copy of upstream's
+	binutils-common.exp.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ldlex.h (option_values) <OPTION_CTF_VARIABLES,
+	OPTION_NO_CTF_VARIABLES, OPTION_CTF_SHARE_TYPES>: New.
+	* ld.h (ld_config_type) <ctf_variables, ctf_share_duplicated>:
+	New fields.
+	* ldlang.c (lang_merge_ctf): Use them.
+	* lexsup.c (ld_options): Add ctf-variables, no-ctf-variables,
+	ctf-share-types.
+	(parse_args) <OPTION_CTF_VARIABLES, OPTION_NO_CTF_VARIABLES,
+	OPTION_CTF_SHARE_TYPES>: New cases.
+	* ld.texi: Document new options.
+	* NEWS: Likewise.
+
+2020-07-22  Egeyar Bagcioglu  <egeyar.bagcioglu@oracle.com>
+
+	* ldlang.c (lang_merge_ctf): Turn errors into warnings.
+	Fix a comment typo.
+	(lang_write_ctf): Turn an error into a warning.
+	(ldlang_open_ctf): Reformat warnings. Fix printing file names.
+
+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ldlang.c (lang_ctf_errs_warnings): New, print CTF errors
+	and warnings.  Assert when libctf asserts.
+	(lang_merge_ctf): Call it.
+	(land_write_ctf): Likewise.
+
+2020-01-22  Yuri Chornoivan  <yurchor@mageia.org>
+
+	PR 25417
+	* ldlang.c (ldlang_open_ctf): Fix error message typo.
+
+2019-09-30  Nick Alcock  <nick.alcock@oracle.com>
+
+	* configure.ac [--enable-libctf]: New, default yes.
+	Set ENABLE_LIBCTF accordingly.
+	* Makefile.am [!ENABLE_LIBCTF]: Empty LIBCTF.
+	* configure: Regenerate.
+	* config.in: Regenerate.
+	* Makefile.in: Regenerate.
+	* aclocal.m4: Regenerate.
+	* ldlang.c (ctf_output): Conditionalize on ENABLE_LIBCTF.
+	(ldlang_open_ctf): Likewise.
+	(lang_merge_ctf): Likewise.
+	(ldlang_ctf_apply_strsym): Likewise.
+	(lang_write_ctf): Likewise.
+	(ldlang_write_ctf_late): Likewise.
+	(ldlang_open_ctf) [!ENABLE_LIBCTF]: Warn about the presence of CTF
+	sections.
+	(lang_merge_ctf) [!ENABLE_LIBCTF]: New stub.
+	(ldlang_ctf_apply_strsym) [!ENABLE_LIBCTF]: Likewise.
+	(lang_write_ctf) [!ENABLE_LIBCTF]: Likewise.
+	(ldlang_write_ctf_late) [!ENABLE_LIBCTF]: Likewise.
+	* ldelfgen.c (ldelf_emit_ctf_early): Conditionalize on
+	ENABLE_LIBCTF.
+	(struct ctf_strsym_iter_cb_arg): Likewise.
+	(ldelf_ctf_strtab_iter_cb): Likewise.
+	(ldelf_ctf_symbols_iter_cb): Likewise.
+	(ldelf_examine_strtab_for_ctf): Likewise.
+	(ldelf_emit_ctf_early) [!ENABLE_LIBCTF]: New stub.
+	(ldelf_examine_strtab_for_ctf) [!ENABLE_LIBCTF]: New stub.
+
+2019-09-23  Nick Alcock  <nick.alcock@oracle.com>
+
+	* configure.ac (TESTCTFLIB): Set to the .so or .a, like TESTBFDLIB.
+	* Makefile.am (TESTCTFLIB): Use it.
+	(LIBCTF): Use the .la file.
+	(check-DEJAGNU): Use it.
+	* Makefile.in: Regenerated.
+	* configure: Likewise.
+
+2019-07-18  Nick Alcock  <nick.alcock@oracle.com>
+
+	* scripttempl/DWARF.sc: Add .ctf.
+	* ldlang.h (includes): Add elf-bfd.h, ctf-api.h.  Prevent NAME in
+	elf-bfd.h from wreaking havoc.
+	(struct lang_input_statement_struct): Add the_ctf.
+	(ldlang_ctf_apply_strsym): Declare.
+	(ldlang_write_ctf_late): Likewise.
+	* ldemul.h (ldemul_emit_ctf_early): New.
+	(ldemul_examine_strtab_for_ctf): Likewise.
+	(ld_emulation_xfer_type) <emit_ctf_early>: Likewise.
+	(ld_emulation_xfer_type) <examine_strtab_for_ctf>: Likewise.
+	* ldemul.c (ldemul_emit_ctf_early): New.
+	(ldemul_examine_strtab_for_ctf): Likewise.
+	* ldlang.c (includes): elf-bfd.h is now included by ldlang.h.
+	Include elf/internal.h.
+	* ldmain.c (link_callbacks): Add ldlang_ctf_apply_strsym,
+	ldlang_write_ctf_late.
+	(ctf_output): New. Initialized in...
+	(ldlang_open_ctf): ... this new function.  Open all the CTF
+	sections in the input files: mark them non-loaded and empty
+	so as not to copy their contents to the output.
+	(ldlang_merge_ctf): New, merge types via ctf_link_add_ctf and
+	ctf_link.
+	(ldlang_ctf_apply_strsym): New, an examine_strtab callback: wrap
+	ldemul_examine_strtab_for_ctf.
+	(lang_write_ctf): New, write out the CTF section.
+	(ldlang_write_ctf_late): New, late call via bfd's emit_ctf hook.
+	(lang_process): Call ldlang_open_ctf, ldlang_merge_ctf, and
+	lang_write_ctf.
+
+	* emultempl/elf-generic.em
+	(gld_${EMULATION_NAME}_emit_ctf_early): New.
+	(gld_${EMULATION_NAME}_examine_strtab_for_ctf): tell libctf about
+	the symtab and strtab.
+	(struct ctf_strsym_iter_cb_arg): New, state to do so.
+	(gld_${EMULATION_NAME}_ctf_strtab_iter_cb): New: tell libctf about
+	each string in the strtab in turn.
+	(gld_${EMULATION_NAME}_ctf_symbols_iter_cb): New, tell libctf
+	about each symbol in the symtab in turn.
+	(LDEMUL_EMIT_CTF_EARLY): Set it.
+	(LDEMUL_EXAMINE_STRTAB_FOR_CTF): Likewise.
+	* emultempl/aix.em (ld_${EMULATION_NAME}_emulation): Add
+	emit_ctf_early and examine_strtab_for_ctf, NULL by default.
+	* emultempl/armcoff.em (ld_${EMULATION_NAME}_emulation): Likewise.
+	* emultempl/beos.em (ld_${EMULATION_NAME}_emulation): Likewise.
+	* emultempl/elf32.em (ld_${EMULATION_NAME}_emulation): Likewise.
+	* emultempl/generic.em (ld_${EMULATION_NAME}_emulation): Likewise.
+	* emultempl/linux.em (ld_${EMULATION_NAME}_emulation): Likewise.
+	* emultempl/msp430.em (ld_${EMULATION_NAME}_emulation): Likewise.
+	* emultempl/pe.em (ld_${EMULATION_NAME}_emulation): Likewise.
+	* emultempl/pep.em (ld_${EMULATION_NAME}_emulation): Likewise.
+	* emultempl/ticoff.em (ld_${EMULATION_NAME}_emulation): Likewise.
+	* emultempl/vanilla.em (ld_${EMULATION_NAME}_emulation): Likewise.
+
+	* Makefile.am: Pull in libctf (and zlib, a transitive requirement
+	for compressed CTF section emission).  Pass it on to DejaGNU.
+	* configure.ac: Add AM_ZLIB.
+	* aclocal.m4: Added zlib.m4.
+	* Makefile.in: Regenerated.
+	* testsuite/ld-bootstrap/bootstrap.exp: Use it when relinking ld.
+
 2018-01-27  Nick Clifton  <nickc@redhat.com>
 
 	This is the 2.30 release:

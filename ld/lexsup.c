@@ -27,6 +27,7 @@
 #include "safe-ctype.h"
 #include "getopt.h"
 #include "bfdlink.h"
+#include "ctf-api.h"
 #include "ld.h"
 #include "ldmain.h"
 #include "ldmisc.h"
@@ -540,6 +541,18 @@ static const struct ld_option ld_options[] =
     '\0', NULL, N_("Report target memory usage"), TWO_DASHES },
   { {"orphan-handling", required_argument, NULL, OPTION_ORPHAN_HANDLING},
     '\0', N_("=MODE"), N_("Control how orphan sections are handled."),
+    TWO_DASHES },
+  { {"ctf-variables", no_argument, NULL, OPTION_CTF_VARIABLES},
+    '\0', NULL, N_("Emit names and types of static variables in CTF"),
+    TWO_DASHES },
+  { {"no-ctf-variables", no_argument, NULL, OPTION_NO_CTF_VARIABLES},
+    '\0', NULL, N_("Do not emit names and types of static variables in CTF"),
+    TWO_DASHES },
+  { {"ctf-share-types=<method>", required_argument, NULL,
+     OPTION_CTF_SHARE_TYPES},
+    '\0', NULL, N_("How to share CTF types between translation units.\n"
+		   "                                <method> is: share-unconflicted (default),\n"
+		   "                                             share-duplicated"),
     TWO_DASHES },
 };
 
@@ -1573,6 +1586,23 @@ parse_args (unsigned argc, char **argv)
 	  else
 	    einfo (_("%P%F: invalid argument to option"
 		     " \"--orphan-handling\"\n"));
+	  break;
+
+	case OPTION_CTF_VARIABLES:
+	  config.ctf_variables = TRUE;
+	  break;
+
+	case OPTION_NO_CTF_VARIABLES:
+	  config.ctf_variables = FALSE;
+	  break;
+
+	case OPTION_CTF_SHARE_TYPES:
+	  if (strcmp (optarg, "share-unconflicted") == 0)
+	    config.ctf_share_duplicated = FALSE;
+	  else if (strcmp (optarg, "share-duplicated") == 0)
+	    config.ctf_share_duplicated = TRUE;
+	  else
+	    einfo (_("%F%P: bad --ctf-share-types option: %s\n"), optarg);
 	  break;
 	}
     }
