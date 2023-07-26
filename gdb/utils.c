@@ -746,13 +746,11 @@ malloc_failure (long size)
 {
   if (size > 0)
     {
-      internal_error (__FILE__, __LINE__,
-		      _("virtual memory exhausted: can't allocate %ld bytes."),
-		      size);
+      error (_("virtual memory exhausted: can't allocate %ld bytes."), size);
     }
   else
     {
-      internal_error (__FILE__, __LINE__, _("virtual memory exhausted."));
+      error (_("virtual memory exhausted."));
     }
 }
 
