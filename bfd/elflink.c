@@ -4578,7 +4578,8 @@ error_free_dyn:
 		 || h->root.type == bfd_link_hash_warning)
 	    h = (struct elf_link_hash_entry *) h->root.u.i.link;
 
-	  if (elf_tdata (abfd)->verdef != NULL
+	  if (h->versioned != unversioned
+	      && elf_tdata (abfd)->verdef != NULL
 	      && vernum > 1
 	      && definition)
 	    h->verinfo.verdef = &elf_tdata (abfd)->verdef[vernum - 1];
