@@ -3626,9 +3626,9 @@ set_long_section_mode (bfd *output_bfd, bfd *input_bfd, enum long_section_name_h
 /* The top-level control.  */
 
 static void
-copy_file (const char *input_filename, const char *output_filename,
-	   const char *input_target,   const char *output_target,
-	   const bfd_arch_info_type *input_arch)
+copy_file (const char *input_filename, const char *output_filename, int ofd,
+	   struct stat *in_stat, const char *input_target,
+	   const char *output_target, const bfd_arch_info_type *input_arch)
 {
   bfd *ibfd;
   char **obj_matching;
@@ -3647,7 +3647,7 @@ copy_file (const char *input_filename, const char *output_filename,
   /* To allow us to do "strip *" without dying on the first
      non-object file, failures are nonfatal.  */
   ibfd = bfd_openr (input_filename, input_target);
-  if (ibfd == NULL)
+  if (ibfd == NULL || bfd_stat (ibfd, in_stat) != 0)
     {
       bfd_nonfatal_message (input_filename, NULL, NULL, NULL);
       status = 1;
@@ -3701,9 +3701,14 @@ copy_file (const char *input_filename, const char *output_filename,
       else
 	force_output_target = TRUE;
 
-      obfd = bfd_openw (output_filename, output_target);
+      if (ofd >= 0)
+	obfd = bfd_fdopenw (output_filename, output_target, ofd);
+      else
+	obfd = bfd_openw (output_filename, output_target);
+
       if (obfd == NULL)
 	{
+	  close (ofd);
 	  bfd_nonfatal_message (output_filename, NULL, NULL, NULL);
 	  status = 1;
 	  return;
@@ -3723,13 +3728,19 @@ copy_file (const char *input_filename, const char *output_filename,
       if (output_target == NULL)
 	output_target = bfd_get_target (ibfd);
 
-      obfd = bfd_openw (output_filename, output_target);
+      if (ofd >= 0)
+	obfd = bfd_fdopenw (output_filename, output_target, ofd);
+      else
+	obfd = bfd_openw (output_filename, output_target);
+
       if (obfd == NULL)
  	{
+	  close (ofd);
  	  bfd_nonfatal_message (output_filename, NULL, NULL, NULL);
  	  status = 1;
  	  return;
  	}
+
       /* This is a no-op on non-Coff targets.  */
       set_long_section_mode (obfd, ibfd, long_section_names);
 
@@ -4666,6 +4677,8 @@ strip_main (int argc, char *argv[])
       int hold_status = status;
       struct stat statbuf;
       char *tmpname;
+      int tmpfd = -1;
+      int copyfd = -1;
 
       if (get_file_size (argv[i]) < 1)
 	{
@@ -4673,14 +4686,13 @@ strip_main (int argc, char *argv[])
 	  continue;
 	}
 
-      if (preserve_dates)
-	/* No need to check the return value of stat().
-	   It has already been checked in get_file_size().  */
-	stat (argv[i], &statbuf);
-
       if (output_file == NULL
 	  || filename_cmp (argv[i], output_file) == 0)
-	tmpname = make_tempname (argv[i]);
+	{
+	  tmpname = make_tempname (argv[i], &tmpfd);
+	  if (tmpfd >= 0)
+	    copyfd = dup (tmpfd);
+	}
       else
 	tmpname = output_file;
 
@@ -4693,20 +4705,23 @@ strip_main (int argc, char *argv[])
 	}
 
       status = 0;
-      copy_file (argv[i], tmpname, input_target, output_target, NULL);
+      copy_file (argv[i], tmpname, tmpfd, &statbuf, input_target,
+		 output_target, NULL);
       if (status == 0)
 	{
-	  if (preserve_dates)
-	    set_times (tmpname, &statbuf);
 	  if (output_file != tmpname)
-	    status = (smart_rename (tmpname,
-				    output_file ? output_file : argv[i],
-				    preserve_dates) != 0);
+	    status = smart_rename (tmpname,
+				   output_file ? output_file : argv[i],
+				   copyfd, &statbuf, preserve_dates) != 0;
 	  if (status == 0)
 	    status = hold_status;
 	}
       else
-	unlink_if_ordinary (tmpname);
+	{
+	  if (copyfd >= 0)
+	    close (copyfd);
+	  unlink_if_ordinary (tmpname);
+	}
       if (output_file != tmpname)
 	free (tmpname);
     }
@@ -4912,6 +4927,8 @@ copy_main (int argc, char *argv[])
   bfd_boolean change_warn = TRUE;
   bfd_boolean formats_info = FALSE;
   int c;
+  int tmpfd = -1;
+  int copyfd;
   struct stat statbuf;
   const bfd_arch_info_type *input_arch = NULL;
 
@@ -5684,34 +5701,39 @@ copy_main (int argc, char *argv[])
       convert_efi_target (efi);
     }
 
-  if (preserve_dates)
-    if (stat (input_filename, & statbuf) < 0)
-      fatal (_("warning: could not locate '%s'.  System error message: %s"),
-	     input_filename, strerror (errno));
-
   /* If there is no destination file, or the source and destination files
-     are the same, then create a temp and rename the result into the input.  */
+     are the same, then create a temp and copy the result into the input.  */
+  copyfd = -1;
   if (output_filename == NULL
       || filename_cmp (input_filename, output_filename) == 0)
-    tmpname = make_tempname (input_filename);
+    {
+      tmpname = make_tempname (input_filename, &tmpfd);
+      if (tmpfd >= 0)
+	copyfd = dup (tmpfd);
+    }
   else
     tmpname = output_filename;
 
   if (tmpname == NULL)
-    fatal (_("warning: could not create temporary file whilst copying '%s', (error: %s)"),
-	   input_filename, strerror (errno));
+    {
+      fatal (_("warning: could not create temporary file whilst copying '%s', (error: %s)"),
+	     input_filename, strerror (errno));
+    }
 
-  copy_file (input_filename, tmpname, input_target, output_target, input_arch);
+  copy_file (input_filename, tmpname, tmpfd, &statbuf, input_target,
+	     output_target, input_arch);
   if (status == 0)
     {
-      if (preserve_dates)
-	set_times (tmpname, &statbuf);
       if (tmpname != output_filename)
-	status = (smart_rename (tmpname, input_filename,
-				preserve_dates) != 0);
+	status = smart_rename (tmpname, input_filename, copyfd,
+			       &statbuf, preserve_dates) != 0;
     }
   else
-    unlink_if_ordinary (tmpname);
+    {
+      if (copyfd >= 0)
+	close (copyfd);
+      unlink_if_ordinary (tmpname);
+    }
 
   if (tmpname != output_filename)
     free (tmpname);
