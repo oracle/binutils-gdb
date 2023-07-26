@@ -12,6 +12,10 @@
 
 *** Changes in GDB 8.2
 
+* GDB and GDBserver now support access to additional registers on
+  PowerPC GNU/Linux targets: PPR, DSCR, TAR, EBB/PMU registers, and
+  HTM registers.
+
 * The 'set disassembler-options' command now supports specifying options
   for the MIPS target.
 
