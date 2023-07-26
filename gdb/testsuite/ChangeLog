@@ -1,3 +1,9 @@
+2018-11-08  Tom Tromey  <tom@tromey.com>
+
+	PR gdb/23555:
+	PR gdb/23838:
+	* gdb.base/warning.exp: New file.
+
 2018-09-04  Gary Benson <gbenson@redhat.com>
 
 	* gdb.base/batch-exit-status.exp: Use gdb_test_multiple and expect
