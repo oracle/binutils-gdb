@@ -1358,14 +1358,27 @@ svr4_read_so_list (CORE_ADDR lm, CORE_ADDR prev_lm,
 	}
 
       {
-	struct bfd_build_id *build_id;
+	struct bfd_build_id *build_id = NULL;
 
 	strncpy (newobj->so_original_name, buffer.get (), SO_NAME_MAX_PATH_SIZE - 1);
 	newobj->so_original_name[SO_NAME_MAX_PATH_SIZE - 1] = '\0';
 	/* May get overwritten below.  */
 	strcpy (newobj->so_name, newobj->so_original_name);
 
-	build_id = build_id_addr_get (((lm_info_svr4 *) newobj->lm_info)->l_ld);
+	/* In the case the main executable was found according to its build-id
+	   (from a core file) prevent loading a different build of a library
+	   with accidentally the same SO_NAME.
+
+	   It suppresses bogus backtraces (and prints "??" there instead) if
+	   the on-disk files no longer match the running program version.
+
+	   If the main executable was not loaded according to its build-id do
+	   not do any build-id checking of the libraries.  There may be missing
+	   build-ids dumped in the core file and we would map all the libraries
+	   to the only existing file loaded that time - the executable.  */
+	if (symfile_objfile != NULL
+	    && (symfile_objfile->flags & OBJF_BUILD_ID_CORE_LOADED) != 0)
+	  build_id = build_id_addr_get (li->l_ld);
 	if (build_id != NULL)
 	  {
 	    char *name, *build_id_filename;
@@ -1380,23 +1393,7 @@ svr4_read_so_list (CORE_ADDR lm, CORE_ADDR prev_lm,
 		xfree (name);
 	      }
 	    else
-	      {
-		debug_print_missing (newobj->so_name, build_id_filename);
-
-		/* In the case the main executable was found according to
-		   its build-id (from a core file) prevent loading
-		   a different build of a library with accidentally the
-		   same SO_NAME.
-
-		   It suppresses bogus backtraces (and prints "??" there
-		   instead) if the on-disk files no longer match the
-		   running program version.  */
-
-		if (symfile_objfile != NULL
-		    && (symfile_objfile->flags
-			& OBJF_BUILD_ID_CORE_LOADED) != 0)
-		  newobj->so_name[0] = 0;
-	      }
+	      debug_print_missing (newobj->so_name, build_id_filename);
 
 	    xfree (build_id_filename);
 	    xfree (build_id);
