@@ -185,6 +185,10 @@ proc gdb_default_target_compile {source destfile type options} {
     set ldflags ""
     set dest [target_info name]
 
+    if {[board_info $dest exists multilib_flags]} {
+	append add_flags " [board_info $dest multilib_flags]"
+    }
+
     if {[info exists CFLAGS_FOR_TARGET]} {
 	append add_flags " $CFLAGS_FOR_TARGET"
     }
@@ -517,10 +521,6 @@ proc gdb_default_target_compile {source destfile type options} {
 	if {[board_info $dest exists output_format]} {
 	    append add_flags " -Wl,-oformat,[board_info $dest output_format]"
 	}
-    }
-
-    if {[board_info $dest exists multilib_flags]} {
-	append add_flags " [board_info $dest multilib_flags]"
     }
 
     verbose "doing compile"
