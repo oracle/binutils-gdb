@@ -143,7 +143,12 @@ elf_symfile_segments (bfd *abfd)
 	 RealView) use SHT_NOBITS for uninitialized data.  Since it is
 	 uninitialized, it doesn't need a program header.  Such
 	 binaries are not relocatable.  */
-      if (bfd_get_section_size (sect) > 0 && j == num_segments
+
+      /* Exclude debuginfo files from this warning, too, since those
+	 are often not strictly compliant with the standard. See, e.g.,
+	 ld/24717 for more discussion.  */
+      if (!is_debuginfo_file (abfd)
+	  && bfd_get_section_size (sect) > 0 && j == num_segments
 	  && (bfd_get_section_flags (abfd, sect) & SEC_LOAD) != 0)
 	warning (_("Loadable section \"%s\" outside of ELF segments"),
 		 bfd_section_name (abfd, sect));
