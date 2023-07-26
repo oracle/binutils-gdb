@@ -24355,7 +24355,21 @@ dwarf_decode_macro_bytes (struct dwarf2_per_objfile *dwarf2_per_objfile,
 			 is_define ? _("definition") : _("undefinition"),
 			 line == 0 ? _("zero") : _("non-zero"), line, body);
 
-	    if (is_define)
+	    if (body == NULL)
+	      {
+		/* Fedora's rpm-build's "debugedit" binary
+		   corrupted .debug_macro sections.
+
+		   For more info, see
+		   https://bugzilla.redhat.com/show_bug.cgi?id=1708786 */
+		complaint (_("debug info gives %s invalid macro %s "
+			     "without body (corrupted?) at line %d "
+			     "on file %s"),
+			   at_commandline ? _("command-line") : _("in-file"),
+			   is_define ? _("definition") : _("undefinition"),
+			   line, current_file->filename);
+	      }
+	    else if (is_define)
 	      parse_macro_definition (current_file, line, body);
 	    else
 	      {
