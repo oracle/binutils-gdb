@@ -454,7 +454,7 @@ public:
 
   bool stopped_data_address (CORE_ADDR *) override;
 
-  bool watchpoint_addr_within_range (CORE_ADDR, CORE_ADDR, LONGEST) override;
+  bool watchpoint_addr_within_range (CORE_ADDR, CORE_ADDR, int) override;
 
   int can_use_hw_breakpoint (enum bptype, int, int) override;
 
@@ -462,7 +462,7 @@ public:
 
   int remove_hw_breakpoint (struct gdbarch *, struct bp_target_info *) override;
 
-  int region_ok_for_hw_watchpoint (CORE_ADDR, LONGEST) override;
+  int region_ok_for_hw_watchpoint (CORE_ADDR, int) override;
 
   int insert_watchpoint (CORE_ADDR, int, enum target_hw_bp_type,
 			 struct expression *) override;
@@ -10362,7 +10362,7 @@ remote_target::insert_watchpoint (CORE_ADDR addr, int len,
 
 bool
 remote_target::watchpoint_addr_within_range (CORE_ADDR addr,
-					     CORE_ADDR start, LONGEST length)
+					     CORE_ADDR start, int length)
 {
   CORE_ADDR diff = remote_address_masked (addr - start);
 
@@ -10413,7 +10413,7 @@ int remote_hw_watchpoint_length_limit = -1;
 int remote_hw_breakpoint_limit = -1;
 
 int
-remote_target::region_ok_for_hw_watchpoint (CORE_ADDR addr, LONGEST len)
+remote_target::region_ok_for_hw_watchpoint (CORE_ADDR addr, int len)
 {
   if (remote_hw_watchpoint_length_limit == 0)
     return 0;
