@@ -2834,6 +2834,17 @@ string_to_core_addr (const char *my_string)
   return addr;
 }
 
+/* Ensure that the input NUM is not larger than the maximum capacity of the
+   host system.  We choose SIZE_MAX / 8 as a conservative estimate of the size
+   of a resource that a system may allocate.  */
+void
+ulongest_fits_host_or_error (ULONGEST num)
+{
+  if (num > SIZE_MAX / 8)
+    error (_("Insufficient memory in host GDB for object of size %s bytes, "
+	     "maximum allowed %s bytes."), pulongest (num),
+	   pulongest (SIZE_MAX / 8));
+}
 #if GDB_SELF_TEST
 
 static void

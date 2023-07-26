@@ -2088,6 +2088,7 @@ search_struct_method (const char *name, struct value **arg1p,
 	    {
 	      CORE_ADDR address;
 
+	      ulongest_fits_host_or_error (TYPE_LENGTH (baseclass));
 	      gdb::byte_vector tmp (TYPE_LENGTH (baseclass));
 	      address = value_address (*arg1p);
 

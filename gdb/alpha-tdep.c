@@ -413,6 +413,13 @@ alpha_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
     accumulate_size = 0;
   else
     accumulate_size -= sizeof(arg_reg_buffer);
+
+  /* Check for underflow.  */
+  if (sp - accumulate_size > sp)
+    error (_("Insufficient memory in GDB host for arguments, "
+	     "need %s bytes, but less than %s bytes available."),
+	   plongest (accumulate_size), plongest (CORE_ADDR_MAX - sp));
+
   sp -= accumulate_size;
 
   /* Keep sp aligned to a multiple of 16 as the ABI requires.  */

@@ -218,6 +218,7 @@ vax_return_value (struct gdbarch *gdbarch, struct value *function,
 	  ULONGEST addr;
 
 	  regcache_raw_read_unsigned (regcache, VAX_R0_REGNUM, &addr);
+	  ulongest_fits_host_or_error (TYPE_LENGTH (type));
 	  read_memory (addr, readbuf, len);
 	}
 

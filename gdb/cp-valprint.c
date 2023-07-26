@@ -529,6 +529,7 @@ cp_print_value (struct type *type, struct type *real_type,
 	      if ((boffset + offset) < 0
 		  || (boffset + offset) >= TYPE_LENGTH (real_type))
 		{
+		  ulongest_fits_host_or_error (TYPE_LENGTH (baseclass));
 		  gdb::byte_vector buf (TYPE_LENGTH (baseclass));
 
 		  if (target_read_memory (address + boffset, buf.data (),

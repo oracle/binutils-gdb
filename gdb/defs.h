@@ -665,4 +665,6 @@ DEF_ENUM_FLAGS_TYPE (enum user_selected_what_flag, user_selected_what);
 
 #include "utils.h"
 
+extern void ulongest_fits_host_or_error (ULONGEST num);
+
 #endif /* #ifndef DEFS_H */

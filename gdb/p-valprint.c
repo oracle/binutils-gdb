@@ -773,6 +773,7 @@ pascal_object_print_value (struct type *type, const gdb_byte *valaddr,
 
 	  if (boffset < 0 || boffset >= TYPE_LENGTH (type))
 	    {
+	      ulongest_fits_host_or_error (TYPE_LENGTH (baseclass));
 	      buf.resize (TYPE_LENGTH (baseclass));
 
 	      base_valaddr = buf.data ();
