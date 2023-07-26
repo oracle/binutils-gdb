@@ -1462,6 +1462,7 @@ sparc32_store_return_value (struct type *type, struct regcache *regcache,
   if (sparc_floating_p (type) || sparc_complex_floating_p (type))
     {
       /* Floating return values.  */
+      len = (len <= 8) ? len : 8;
       memcpy (buf, valbuf, len);
       regcache->cooked_write (SPARC_F0_REGNUM, buf);
       if (len > 4)
