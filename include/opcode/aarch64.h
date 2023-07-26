@@ -62,6 +62,7 @@ typedef uint32_t aarch64_insn;
 #define AARCH64_FEATURE_COMPNUM	0x40000000	/* Complex # instructions.  */
 #define AARCH64_FEATURE_DOTPROD 0x080000000     /* Dot Product instructions.  */
 #define AARCH64_FEATURE_F16_FML	0x1000000000ULL	/* v8.2 FP16FML ins.  */
+#define AARCH64_FEATURE_RNG     0x80000000000ULL /* Random Number instructions.  */
 
 /* Architectures are the sum of the base and extensions.  */
 #define AARCH64_ARCH_V8		AARCH64_FEATURE (AARCH64_FEATURE_V8, \

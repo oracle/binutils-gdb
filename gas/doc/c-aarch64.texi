@@ -179,6 +179,8 @@ automatically cause those extensions to be disabled.
 @item @code{fp16fml} @tab ARMv8.2-A @tab ARMv8.4-A or later
  @tab Enable ARMv8.2 16-bit floating-point multiplication variant support.
  This implies @code{fp16}.
+@item @code{rng} @tab ARMv8.5-A @tab No
+ @tab Enable ARMv8.5-A random number instructions.
 @end multitable
 
 @node AArch64 Syntax
