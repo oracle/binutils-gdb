@@ -7,6 +7,9 @@
   can be passed using the '[ADDRESS]:PORT' notation, or the regular
   'ADDRESS:PORT' method.
 
+* GDB in batch mode now exits with status 1 if the last command to be
+  executed failed.
+
 *** Changes in GDB 8.2
 
 * The 'set disassembler-options' command now supports specifying options

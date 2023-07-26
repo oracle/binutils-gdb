@@ -1,3 +1,10 @@
+2018-08-16  Gary Benson <gbenson@redhat.com>
+
+	PR gdb/13000:
+	* gdb.base/batch-exit-status.exp: New file.
+	* gdb.base/batch-exit-status.good-commands: Likewise.
+	* gdb.base/batch-exit-status.bad-commands: Likewise.
+
 2018-07-11  Sergio Durigan Junior  <sergiodj@redhat.com>
 	    Jan Kratochvil  <jan.kratochvil@redhat.com>
 	    Paul Fertser  <fercerpav@gmail.com>
