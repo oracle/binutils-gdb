@@ -752,6 +752,9 @@ follow_fork (void)
 	  }
 	else
 	  {
+	    /* Possibly referenced PARENT is no longer valid.  */
+	    reinit_frame_cache ();
+
 	    /* This pending follow fork event is now handled, one way
 	       or another.  The previous selected thread may be gone
 	       from the lists by now, but if it is still around, need
