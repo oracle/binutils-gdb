@@ -689,7 +689,11 @@ static int missing_rpm_list_entries;
 /* Returns the count of newly added rpms.  */
 
 static int
+#ifndef GDB_INDEX_VERIFY_VENDOR
 missing_rpm_enlist (const char *filename)
+#else
+missing_rpm_enlist_1 (const char *filename, int verify_vendor)
+#endif
 {
   static int rpm_init_done = 0;
   rpmts ts;
@@ -796,7 +800,11 @@ missing_rpm_enlist (const char *filename)
   mi = rpmtsInitIterator_p (ts, RPMTAG_BASENAMES, filename, 0);
   if (mi != NULL)
     {
+#ifndef GDB_INDEX_VERIFY_VENDOR
       for (;;)
+#else
+      if (!verify_vendor) for (;;)
+#endif
 	{
 	  Header h;
 	  char *debuginfo, **slot, *s, *s2;
@@ -914,6 +922,37 @@ missing_rpm_enlist (const char *filename)
 	    xfree (debuginfo);
 	  count++;
 	}
+#ifdef GDB_INDEX_VERIFY_VENDOR
+      else /* verify_vendor */
+	{
+	  int vendor_pass = 0, vendor_fail = 0;
+
+	  for (;;)
+	    {
+	      Header h;
+	      errmsg_t err;
+	      char *vendor;
+
+	      h = rpmdbNextIterator_p (mi);
+	      if (h == NULL)
+		break;
+
+	      vendor = headerFormat_p (h, "%{vendor}", &err);
+	      if (!vendor)
+		{
+		  warning (_("Error querying the rpm file `%s': %s"), filename,
+			   err);
+		  continue;
+		}
+	      if (strcmp (vendor, "Red Hat, Inc.") == 0)
+		vendor_pass = 1;
+	      else
+		vendor_fail = 1;
+	      xfree (vendor);
+	    }
+	  count = vendor_pass != 0 && vendor_fail == 0;
+	}
+#endif
 
       rpmdbFreeIterator_p (mi);
     }
@@ -924,6 +963,21 @@ missing_rpm_enlist (const char *filename)
 }
 
 static int
+#ifdef GDB_INDEX_VERIFY_VENDOR
+missing_rpm_enlist (const char *filename)
+{
+  return missing_rpm_enlist_1 (filename, 0);
+}
+
+extern int rpm_verify_vendor (const char *filename);
+int
+rpm_verify_vendor (const char *filename)
+{
+  return missing_rpm_enlist_1 (filename, 1);
+}
+
+static int
+#endif
 missing_rpm_list_compar (const char *const *ap, const char *const *bp)
 {
   return strcoll (*ap, *bp);
