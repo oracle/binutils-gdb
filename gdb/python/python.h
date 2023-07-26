@@ -25,4 +25,6 @@
 /* This is all that python exports to gdb.  */
 extern const struct extension_language_defn extension_language_python;
 
+extern void run_python_script (int argc, char **argv);
+
 #endif /* GDB_PYTHON_H */

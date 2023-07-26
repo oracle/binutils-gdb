@@ -80,6 +80,7 @@ PYTHON_FILE_LIST = \
 	gdb/unwinder.py \
 	gdb/xmethod.py \
 	gdb/command/__init__.py \
+	gdb/command/ignore_errors.py \
 	gdb/command/explore.py \
 	gdb/command/backtrace.py \
 	gdb/command/frame_filters.py \
@@ -92,6 +93,8 @@ PYTHON_FILE_LIST = \
 	gdb/function/as_string.py \
 	gdb/function/caller_is.py \
 	gdb/function/strfns.py \
+	gdb/function/caller_is.py \
+	gdb/function/in_scope.py \
 	gdb/printer/__init__.py \
 	gdb/printer/bound_registers.py
 

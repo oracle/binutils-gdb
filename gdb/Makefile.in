@@ -2112,6 +2112,12 @@ stamp-h: $(srcdir)/config.in config.status
 	  CONFIG_LINKS= \
 	  $(SHELL) config.status
 
+.gdbinit: $(srcdir)/gdbinit.in config.status
+	CONFIG_FILES=".gdbinit:gdbinit.in" \
+	  CONFIG_COMMANDS= \
+	  CONFIG_HEADERS= \
+	  $(SHELL) config.status
+
 config.status: $(srcdir)/configure configure.nat configure.tgt configure.host ../bfd/development.sh
 	$(SHELL) config.status --recheck
 

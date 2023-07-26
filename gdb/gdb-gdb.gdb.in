@@ -1,5 +1,15 @@
 echo Setting up the environment for debugging gdb.\n
 
+# Set up the Python library and "require" command.
+python
+from os.path import abspath
+gdb.datadir = abspath ('@srcdir@/python/lib')
+gdb.pythonlibdir = gdb.datadir
+gdb.__path__ = [gdb.datadir + '/gdb']
+sys.path.insert(0, gdb.datadir)
+end
+source @srcdir@/python/lib/gdb/__init__.py
+
 if !$gdb_init_done
   set variable $gdb_init_done = 1
 

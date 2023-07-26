@@ -384,6 +384,15 @@ proc test_value_after_death {} {
     "print value's type"
 }
 
+# Regression test for a cast failure.  The bug was that if we cast a
+# value to its own type, gdb could crash.  This happened because we
+# could end up double-freeing a struct value.
+proc test_cast_regression {} {
+  gdb_test "python v = gdb.Value(5)" "" "create value for cast test"
+  gdb_test "python v = v.cast(v.type)" "" "cast value for cast test"
+  gdb_test "python print(v)" "5" "print value for cast test"
+}
+
 # Regression test for invalid subscript operations.  The bug was that
 # the type of the value was not being checked before allowing a
 # subscript operation to proceed.
@@ -512,6 +521,7 @@ if ![runto_main] then {
 test_value_in_inferior
 test_inferior_function_call
 test_value_after_death
+test_cast_regression
 
 # Test either C or C++ values. 
 

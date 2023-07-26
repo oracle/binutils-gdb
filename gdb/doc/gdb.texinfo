@@ -1245,6 +1245,16 @@ for remote debugging.
 Run using @var{device} for your program's standard input and output.
 @c FIXME: kingdon thinks there is more to -tty.  Investigate.
 
+@item -P
+@cindex @code{-P}
+@itemx --python
+@cindex @code{--python}
+Change interpretation of command line so that the argument immediately
+following this switch is taken to be the name of a Python script file.
+This option stops option processing; subsequent options are passed to
+Python as @code{sys.argv}.  This option is only available if Python
+scripting support was enabled when @value{GDBN} was configured.
+
 @c resolve the situation of these eventually
 @item -tui
 @cindex @code{--tui}

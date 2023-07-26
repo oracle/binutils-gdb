@@ -95,6 +95,8 @@ const struct extension_language_defn extension_language_python =
 #include "linespec.h"
 #include "source.h"
 #include "version.h"
+#include "inferior.h"
+#include "gdbthread.h"
 #include "target.h"
 #include "gdbthread.h"
 #include "interps.h"
@@ -235,6 +237,29 @@ gdbpy_enter::~gdbpy_enter ()
   python_language = m_language;
 
   restore_active_ext_lang (m_previous_active);
+}
+
+static void
+restore_python_env (void *p)
+{
+  gdbpy_enter *env = (gdbpy_enter *) p;
+
+  delete env;
+}
+
+/* Called before entering the Python interpreter to install the
+   current language and architecture to be used for Python values.
+   Also set the active extension language for GDB so that SIGINT's
+   are directed our way, and if necessary install the right SIGINT
+   handler.  */
+
+struct cleanup *
+ensure_python_env (struct gdbarch *gdbarch,
+                   const struct language_defn *language)
+{
+  gdbpy_enter *env = new gdbpy_enter (gdbarch, language);
+
+  return make_cleanup (restore_python_env, env);
 }
 
 /* Set the quit flag.  */
@@ -1367,6 +1392,92 @@ gdbpy_print_stack (void)
 
 /* Return the current Progspace.
    There always is one.  */
+/* True if 'gdb -P' was used, false otherwise.  */
+static int running_python_script;
+
+/* True if we are currently in a call to 'gdb.cli', false otherwise.  */
+static int in_cli;
+
+/* Enter the command loop.  */
+
+static PyObject *
+gdbpy_cli (PyObject *unused1, PyObject *unused2)
+{
+  if (! running_python_script || in_cli)
+    return PyErr_Format (PyExc_RuntimeError, "cannot invoke CLI recursively");
+  
+  if (current_uiout->is_mi_like_p ())
+    return PyErr_Format (PyExc_RuntimeError, _("Cannot invoke CLI from MI."));
+
+  in_cli = 1;
+  /* See captured_command_loop.  */
+
+  /* Give the interpreter a chance to print a prompt.  */
+  interp_pre_command_loop (top_level_interpreter ());
+
+  /* Now it's time to start the event loop.  */
+  start_event_loop ();
+
+  in_cli = 0;
+
+  Py_RETURN_NONE;
+}
+
+/* Set up the Python argument vector and evaluate a script.  This is
+   used to implement 'gdb -P'.  */
+
+void
+run_python_script (int argc, char **argv)
+{
+  FILE *input;
+
+  /* We never free this, since we plan to exit at the end.  */
+  ensure_python_env (get_current_arch (), current_language);
+
+  running_python_script = 1;
+
+#if PYTHON_ABI_VERSION < 3
+  PySys_SetArgv (argc - 1, argv + 1);
+#else
+  {
+    wchar_t **wargv = (wchar_t **) alloca (sizeof (*wargv) * (argc + 1));
+    int i;
+
+    for (i = 1; i < argc; i++)
+      {
+	size_t len = mbstowcs (NULL, argv[i], 0);
+	/* Python-related GDB sources are built with -DNDEBUG
+	   https://sourceware.org/bugzilla/show_bug.cgi?id=20445 */
+	size_t len2 ATTRIBUTE_UNUSED;
+
+	if (len == (size_t) -1)
+	  {
+	    fprintf (stderr, "Invalid multibyte argument #%d \"%s\"\n",
+		     i, argv[i]);
+	    exit (1);
+	  }
+	wargv[i] = (wchar_t *) alloca (sizeof (**wargv) * (len + 1));
+	len2 = mbstowcs (wargv[i], argv[i], len + 1);
+	assert (len2 == len);
+      }
+    wargv[argc] = NULL;
+    PySys_SetArgv (argc - 1, wargv + 1);
+  }
+#endif
+
+  input = fopen (argv[0], "r");
+  if (! input)
+    {
+      fprintf (stderr, "could not open %s: %s\n", argv[0], strerror (errno));
+      exit (1);
+    }
+  PyRun_SimpleFile (input, argv[0]);
+  fclose (input);
+  exit (0);
+}
+
+
+
 
 static PyObject *
 gdbpy_get_current_progspace (PyObject *unused1, PyObject *unused2)
@@ -2057,6 +2168,8 @@ PyMethodDef python_GdbMethods[] =
 Evaluate command, a string, as a gdb CLI command.  Optionally returns\n\
 a Python String containing the output of the command if to_string is\n\
 set to True." },
+  { "cli", gdbpy_cli, METH_NOARGS,
+    "Enter the gdb CLI" },
   { "parameter", gdbpy_parameter, METH_VARARGS,
     "Return a gdb parameter's value" },
 
