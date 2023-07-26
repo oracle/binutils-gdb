@@ -29,6 +29,7 @@ set testfile "solib-symbol-main"
 set srcfile ${srcdir}/${subdir}/${testfile}.c
 set binfile [standard_output_file ${testfile}]
 set bin_flags [list debug shlib=${binfile_lib}]
+set executable ${testfile}
 
 if [get_compiler_info] {
     return -1
@@ -72,8 +73,26 @@ gdb_test "br foo2" \
 	 "Breakpoint.*: foo2. .2 locations..*" \
 	 "foo2 in mdlib"
 
-gdb_exit
+# Test GDB warns for shared libraris which have not been found.
 
-return 0
+gdb_test "info sharedlibrary" "/${libname}.*"
 
+clean_restart ${executable}
+gdb_breakpoint "main"
+gdb_run_cmd
+set test "no warning for missing libraries"
+gdb_test_multiple "" $test {
+    -re "warning: Could not load shared library symbols for \[0-9\]+ libraries,.*\r\n$gdb_prompt $" {
+	fail $test
+    }
+    -re "Breakpoint \[0-9\]+, main .*\r\n$gdb_prompt $" {
+	pass $test
+    }
+}
 
+clean_restart ${executable}
+gdb_test_no_output "set solib-absolute-prefix /doESnotEXIST"
+gdb_breakpoint "main"
+gdb_run_cmd
+gdb_test "" "warning: Could not load shared library symbols for \[0-9\]+ libraries,.*\r\nBreakpoint \[0-9\]+, main .*" \
+	 "warning for missing libraries"
