@@ -3165,6 +3165,13 @@ find_pc_sect_line (CORE_ADDR pc, struct obj_section *section, int notcurrent)
 	     SYMBOL_LINKAGE_NAME (msymbol)); */
 	  ;
 	/* fall through */
+	/* `msymbol' trampoline may be located before its .text symbol
+	   but this text symbol may be the address we were looking for.
+	   Avoid `find_pc_sect_line'<->`find_pc_line' infinite loop.
+	   Red Hat Bug 218379.  */
+	else if (BMSYMBOL_VALUE_ADDRESS (mfunsym) == pc)
+	  warning ("In stub for %s (0x%s); interlocked, please submit the binary to http://bugzilla.redhat.com", MSYMBOL_LINKAGE_NAME (msymbol.minsym), paddress (target_gdbarch (), pc));
+	/* fall through */
 	else
 	  return find_pc_line (BMSYMBOL_VALUE_ADDRESS (mfunsym), 0);
       }
