@@ -331,7 +331,7 @@ proc mi_cli_step {cli_output_re message} {
 
     send_gdb "interpreter-exec console \"step\"\n"
     gdb_expect {
-	-re "\\^running\r\n\\*running,thread-id=\"all\"\r\n${mi_gdb_prompt}${cli_output_re}" {
+	-re "\\^running\r\n\\*running,thread-id=\"1\"\r\n${mi_gdb_prompt}${cli_output_re}" {
 	    pass $message
 	}
 	timeout {

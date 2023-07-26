@@ -60,6 +60,9 @@ if  { [gdb_compile "${srcdir}/${subdir}/${srcfile}" "${binfile}" executable {deb
 
 mi_run_to_main
 
+# thread-id=\"all\" vs. thread-id=\"1\" below:
+mi_gdb_test "210-gdb-set scheduler-locking off" "210\\^done" "set scheduler-locking off"
+
 # The output we get from the target depends on how it is hosted.  If
 # we are semihosted (e.g., the sim or a remote target that supports
 # the File I/O remote protocol extension), we see the target I/O
