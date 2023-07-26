@@ -4661,7 +4661,10 @@ error_free_dyn:
 	     object and a shared object.  */
 	  bfd_boolean dynsym = FALSE;
 
-	  if (! dynamic)
+	  /* Plugin symbols aren't normal.  Don't set def/ref flags.  */
+	  if ((abfd->flags & BFD_PLUGIN) != 0)
+	    ;
+	  else if (!dynamic)
 	    {
 	      if (! definition)
 		{
@@ -4678,14 +4681,6 @@ error_free_dyn:
 		      h->ref_dynamic = 1;
 		    }
 		}
-
-	      /* If the indirect symbol has been forced local, don't
-		 make the real symbol dynamic.  */
-	      if ((h == hi || !hi->forced_local)
-		  && (bfd_link_dll (info)
-		      || h->def_dynamic
-		      || h->ref_dynamic))
-		dynsym = TRUE;
 	    }
 	  else
 	    {
@@ -4699,14 +4694,25 @@ error_free_dyn:
 		  h->def_dynamic = 1;
 		  hi->def_dynamic = 1;
 		}
+	    }
 
-	      /* If the indirect symbol has been forced local, don't
-		 make the real symbol dynamic.  */
-	      if ((h == hi || !hi->forced_local)
-		  && (h->def_regular
-		      || h->ref_regular
-		      || (h->is_weakalias
-			  && weakdef (h)->dynindx != -1)))
+	  /* If an indirect symbol has been forced local, don't
+	     make the real symbol dynamic.  */
+	  if (h != hi && hi->forced_local)
+	    ;
+	  else if (!dynamic)
+	    {
+	      if (bfd_link_dll (info)
+		  || h->def_dynamic
+		  || h->ref_dynamic)
+		dynsym = TRUE;
+	    }
+	  else
+	    {
+	      if (h->def_regular
+		  || h->ref_regular
+		  || (h->is_weakalias
+		      && weakdef (h)->dynindx != -1))
 		dynsym = TRUE;
 	    }
 
@@ -4841,6 +4847,10 @@ error_free_dyn:
 	      && !bfd_link_relocatable (info))
 	    dynsym = FALSE;
 
+	  /* Nor should we make plugin symbols dynamic.  */
+	  if ((abfd->flags & BFD_PLUGIN) != 0)
+	    dynsym = FALSE;
+
 	  if (definition)
 	    {
 	      h->target_internal = isym->st_target_internal;
@@ -4866,8 +4876,8 @@ error_free_dyn:
 		  nondeflt_vers[nondeflt_vers_cnt++] = h;
 		}
 	    }
-
-	  if (dynsym && (abfd->flags & BFD_PLUGIN) == 0 && h->dynindx == -1)
+	
+	  if (dynsym && h->dynindx == -1)
 	    {
 	      if (! bfd_elf_link_record_dynamic_symbol (info, h))
 		goto error_free_vers;
@@ -4897,9 +4907,10 @@ error_free_dyn:
 	      && matched
 	      && definition
 	      && ((dynsym
-		   && h->ref_regular_nonweak
-		   && (old_bfd == NULL
-		       || (old_bfd->flags & BFD_PLUGIN) == 0))
+		   && h->ref_regular_nonweak)
+		  || (old_bfd != NULL
+		      && (old_bfd->flags & BFD_PLUGIN) != 0
+		      && bind != STB_WEAK)
 		  || (h->ref_dynamic_nonweak
 		      && (elf_dyn_lib_class (abfd) & DYN_AS_NEEDED) != 0
 		      && !on_needed_list (elf_dt_name (abfd),

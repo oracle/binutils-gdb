@@ -133,7 +133,16 @@ set lto_link_tests [list \
    {lto-15a.c} {} ""] \
   [list "Build liblto-15.a" \
    "$plug_opt" "-flto" \
-   {lto-15b.c} {} "liblto-15.a"] \
+       {lto-15b.c} {} "liblto-15.a"] \
+  [list {liblto-19.a} \
+   "$plug_opt" {-flto -O2 -fPIC} \
+   {lto-19a.c} {} {liblto-19.a}] \
+  [list {compile lto-19b.c} \
+   "$plug_opt" {-flto -O2 -fPIC} \
+   {lto-19b.c} {} {} {c}] \
+  [list {liblto-19.so} \
+   {-shared tmpdir/lto-19b.o tmpdir/liblto-19.a} {-O2 -fPIC} \
+   {dummy.c} {} {liblto-19.so}] \
   [list "PR ld/12696" \
    "-O2 -flto -fuse-linker-plugin -r -nostdlib" "-O2 -flto" \
    {pr12696-1.cc} {} "pr12696-1r.o" "c++"] \
@@ -244,6 +253,9 @@ set lto_link_tests [list \
    {dummy.c} \
    {{error_output "pr26267.err"}} \
    "pr26267b"] \
+  [list {pr26806.so} \
+   {-shared} {-fpic -O2 -flto} \
+   {pr26806.c} {{nm {-D} pr26806.d}} {pr26806.so}] \
 ]
 
 if { [at_least_gcc_version 4 7] } {
@@ -438,6 +450,10 @@ set lto_run_elf_shared_tests [list \
   [list {pr22220b} \
    {-flto -fuse-linker-plugin -Wl,--no-as-needed tmpdir/pr22220lib.so tmpdir/pr22220main.o} {} \
    {dummy.c} {pr22220b.exe} {pass.out} {} {c++}] \
+  [list {lto-19} \
+   {-Wl,--as-needed,-R,tmpdir} {} \
+   {lto-19a.c lto-19b.c lto-19c.c} {lto-19.exe} {pass.out} {-flto -O2} {c} {} \
+   {tmpdir/liblto-19.so tmpdir/liblto-19.a}] \
 ]
 
 # LTO run-time tests for ELF
