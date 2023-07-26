@@ -1,0 +1,37 @@
+# threadcrash.exp - The point of this program is to crash in a multi-threaded app.
+
+
+set testfile threadcrash
+set srcfile ${testfile}.c
+set shellfile ${srcdir}/${subdir}/${testfile}.sh
+set binfile [standard_output_file ${testfile}]
+
+set GDB_abs ${GDB}
+if [regexp "^\[^/\]" ${GDB_abs}] {
+    set GDB_abs $env(PWD)/${GDB_abs}
+}
+
+if [istarget "*-*-linux"] then {
+    set target_cflags "-D_MIT_POSIX_THREADS"
+} else {
+    set target_cflags ""
+}
+
+if {[gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile}" executable {debug}] != "" } {
+    return -1
+}
+
+# ${shellfile} argument must not contain any directories.
+set fd [open "|bash ${shellfile} ${binfile} $GDB $INTERNAL_GDBFLAGS $GDBFLAGS [host_info gdb_opts]" r]
+while { [gets $fd line] >= 0 } {
+    if [regexp " PASS: (.*)$" $line trash message] {
+	pass $message
+    } elseif [regexp " FAIL: (.*)$" $line trash message] {
+	fail $message
+    }
+}
+catch {
+    close $fd
+}
+
+return 0
