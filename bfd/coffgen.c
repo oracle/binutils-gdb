@@ -1838,10 +1838,7 @@ coff_get_normalized_symtab (bfd *abfd)
       internal_ptr->is_sym = TRUE;
 
       /* PR 17512: file: 1353-1166-0.004.  */
-      if (symbol_ptr->u.syment.n_sclass == C_FILE
-	  && symbol_ptr->u.syment.n_numaux > 0
-	  && raw_src + symesz + symbol_ptr->u.syment.n_numaux
-	  * symesz > raw_end)
+      if (symbol_ptr->u.syment.n_numaux > ((raw_end - 1) - raw_src) / symesz)
 	{
 	  bfd_release (abfd, internal);
 	  return NULL;
