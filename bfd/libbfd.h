@@ -679,8 +679,9 @@ extern bfd_reloc_status_type _bfd_relocate_contents
   (reloc_howto_type *, bfd *, bfd_vma, bfd_byte *);
 
 /* Clear a given location using a given howto.  */
-extern void _bfd_clear_contents (reloc_howto_type *howto, bfd *input_bfd,
-				 asection *input_section, bfd_byte *location);
+extern bfd_reloc_status_type _bfd_clear_contents
+  (reloc_howto_type *howto, bfd *input_bfd,
+   asection *input_section, bfd_byte *, bfd_vma);
 
 /* Link stabs in sections in the first pass.  */
 
