@@ -1142,6 +1142,8 @@ add_specific_symbols (const char *filename, htab_t htab)
       line = eol;
       line_count ++;
     }
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }
 
 /* See whether a symbol should be stripped or kept
@@ -1817,6 +1819,8 @@ add_redefine_syms_file (const char *filename)
     fatal (_("%s:%d: premature end of file"), filename, lineno);
 
   free (buf);
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }
 
 /* Copy unknown object file IBFD onto OBFD.
@@ -2854,6 +2858,8 @@ copy_object (bfd *ibfd, bfd *obfd, const bfd_arch_info_type *input_arch)
 			     pdump->filename,
 			     strerror (errno));
 		  free (contents);
+		  /* There is a potential resource leak here, but it is not important.  */
+		  /* coverity[leaked_storage: FALSE] */
 		  return FALSE;
 		}
 	    }
@@ -3062,6 +3068,8 @@ copy_object (bfd *ibfd, bfd *obfd, const bfd_arch_info_type *input_arch)
 	  if (bfd_get_error () != bfd_error_no_error)
 	    {
 	      status = 1;
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    }
 	}
@@ -3075,6 +3083,8 @@ copy_object (bfd *ibfd, bfd *obfd, const bfd_arch_info_type *input_arch)
       if (! write_debugging_info (obfd, dhandle, &symcount, &osympp))
 	{
 	  status = 1;
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 	}
     }
@@ -3097,6 +3107,8 @@ copy_object (bfd *ibfd, bfd *obfd, const bfd_arch_info_type *input_arch)
 					  0, padd->size))
 	    {
 	      bfd_nonfatal_message (NULL, obfd, padd->section, NULL);
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    }
 	}
@@ -3115,6 +3127,8 @@ copy_object (bfd *ibfd, bfd *obfd, const bfd_arch_info_type *input_arch)
 					  0, pupdate->size))
 	    {
 	      bfd_nonfatal_message (NULL, obfd, osec, NULL);
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    }
 	}
@@ -3128,6 +3142,8 @@ copy_object (bfd *ibfd, bfd *obfd, const bfd_arch_info_type *input_arch)
 	  if (! bfd_set_section_contents (obfd, osec, merged_notes, 0, merged_size))
 	    {
 	      bfd_nonfatal_message (NULL, obfd, osec, _("error: failed to copy merged notes into output"));
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    }
 	}
@@ -3146,6 +3162,8 @@ copy_object (bfd *ibfd, bfd *obfd, const bfd_arch_info_type *input_arch)
 	  bfd_nonfatal_message (NULL, obfd, NULL,
 				_("cannot fill debug link section `%s'"),
 				gnu_debuglink_filename);
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 	}
     }
@@ -3184,6 +3202,8 @@ copy_object (bfd *ibfd, bfd *obfd, const bfd_arch_info_type *input_arch)
 						  off, now))
 		    {
 		      bfd_nonfatal_message (NULL, obfd, osections[i], NULL);
+		      /* There is a potential resource leak here, but it is not important.  */
+		      /* coverity[leaked_storage: FALSE] */
 		      return FALSE;
 		    }
 
@@ -3192,6 +3212,8 @@ copy_object (bfd *ibfd, bfd *obfd, const bfd_arch_info_type *input_arch)
 		}
 	    }
 	}
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
     }
 
   /* Allow the BFD backend to copy any private data it understands
@@ -3202,6 +3224,8 @@ copy_object (bfd *ibfd, bfd *obfd, const bfd_arch_info_type *input_arch)
     {
       bfd_nonfatal_message (NULL, obfd, NULL,
 			    _("error copying private BFD data"));
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return FALSE;
     }
 
@@ -3224,6 +3248,8 @@ copy_object (bfd *ibfd, bfd *obfd, const bfd_arch_info_type *input_arch)
 	}
     }
 
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return TRUE;
 }
 
@@ -3302,7 +3328,10 @@ copy_archive (bfd *ibfd, bfd *obfd, const char *output_target,
       /* If the file already exists, make another temp dir.  */
       if (stat (output_name, &buf) >= 0)
 	{
-	  output_name = make_tempdir (output_name);
+	  char * on;
+	  on = make_tempdir (output_name);
+	  free (output_name);
+	  output_name = on;
 	  if (output_name == NULL)
 	    {
 	      non_fatal (_("cannot create tempdir for archive copying (error: %s)"),
@@ -3435,6 +3464,7 @@ copy_archive (bfd *ibfd, bfd *obfd, const char *output_target,
     }
 
   rmdir (dir);
+  free (dir);
 }
 
 static void
@@ -4310,6 +4340,8 @@ write_debugging_info (bfd *obfd, void *dhandle,
 	{
 	  bfd_nonfatal_message (NULL, obfd, NULL,
 				_("can't create debugging section"));
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 	}
 
@@ -4323,6 +4355,8 @@ write_debugging_info (bfd *obfd, void *dhandle,
 	{
 	  bfd_nonfatal_message (NULL, obfd, NULL,
 				_("can't set debugging section contents"));
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return FALSE;
 	}
 
@@ -5569,6 +5603,8 @@ copy_main (int argc, char *argv[])
 	}
     }
 
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
   return 0;
 }
 

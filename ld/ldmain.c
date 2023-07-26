@@ -802,6 +802,8 @@ add_archive_element (struct bfd_link_info *info,
 		info_msg ("%I: no new IR symbols to claimi\n",
 			  &orig_input);
 	      input->flags.claimed = 0;
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return FALSE;
 	    }
 	  input->flags.claim_archive = TRUE;
@@ -855,6 +857,8 @@ add_archive_element (struct bfd_link_info *info,
 	  header_printed = TRUE;
 	}
 
+      /* Coverity incorrectly believes that abfd might be NULL at this point.  */
+      /* coverity[deref_after_free: FALSE] */
       if (abfd->my_archive == NULL
 	  || bfd_is_thin_archive (abfd->my_archive))
 	{

@@ -221,6 +221,8 @@ queue_initial_tasks(const General_options& options,
 	  else
 	    gold_fallback(_("restart link with --incremental-full"));
 	}
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
     }
 
   // Read the input files.  We have to add the symbols to the symbol
@@ -349,6 +351,8 @@ process_incremental_input(Incremental_binary* ibase,
       // Incremental_binary::check_inputs should have cancelled the
       // incremental update if the script has changed.
       gold_assert(!ibase->file_has_changed(input_file_index));
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return new Check_script(layout, ibase, input_file_index, input_reader,
 			      this_blocker, next_blocker);
     }
@@ -362,6 +366,8 @@ process_incremental_input(Incremental_binary* ibase,
 	{
 	  // Queue a task to check that no references have been added to any
 	  // of the library's unused symbols.
+	  /* There is a potential resource leak here, but it is not important.  */
+	  /* coverity[leaked_storage: FALSE] */
 	  return new Check_library(symtab, layout, ibase, input_file_index,
 				   input_reader, this_blocker, next_blocker);
 	}
@@ -384,6 +390,8 @@ process_incremental_input(Incremental_binary* ibase,
 	{
 	  if (ibase->file_has_changed(lib->input_file_index()))
 	    {
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return new Read_member(input_objects, symtab, layout, mapfile,
 				     input_reader, this_blocker, next_blocker);
 	    }

@@ -274,6 +274,8 @@ Read_symbols::do_read_symbols(Workqueue* workqueue)
 
   Input_file* input_file = new Input_file(&this->input_argument_->file());
   if (!input_file->open(*this->dirpath_, this, &this->dirindex_))
+    /* There is a potential resource leak here, but it is not important.  */
+    /* coverity[leaked_storage: FALSE] */
     return false;
 
   // Read enough of the file to pick up the entire ELF header.

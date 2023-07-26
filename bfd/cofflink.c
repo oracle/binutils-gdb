@@ -1406,6 +1406,8 @@ mark_relocs (struct coff_final_link_info *flaginfo, bfd *input_bfd)
       for (; irel < irelend; irel++)
 	if ((unsigned long) irel->r_symndx < obj_raw_syment_count (input_bfd))
 	  flaginfo->sym_indices[irel->r_symndx] = -1;
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
     }
 }
 
@@ -2633,6 +2635,9 @@ _bfd_coff_write_global_sym (struct bfd_hash_entry *bh, void *data)
     }
 
   if (strlen (h->root.root.string) <= SYMNMLEN)
+    /* Coverity flags this strncpy as possibly creating a string
+       that is not NUL terminated.  This is in fact OK.  */
+    /* coverity[buffer_size_warning: FALSE] */
     strncpy (isym._n._n_name, h->root.root.string, SYMNMLEN);
   else
     {

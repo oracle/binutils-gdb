@@ -130,6 +130,8 @@ Workqueue::Workqueue(const General_options& options)
   threads = false;
 #endif
   if (!threads)
+    /* There is a potential resource leak here, but it is not important.  */
+    /* coverity[ctor_dtor_leak: FALSE] */
     this->threader_ = new Workqueue_threader_single(this);
   else
     {

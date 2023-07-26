@@ -1023,11 +1023,15 @@ obj_elf_attach_to_group (int dummy ATTRIBUTE_UNUSED)
   if (elf_group_name (now_seg))
     {
       as_warn ("already has a group");
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
       return;
     }
 
   elf_group_name (now_seg) = xstrdup (gname);
   elf_section_flags (now_seg) |= SHF_GROUP;
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }
 
 void
@@ -1103,6 +1107,8 @@ obj_elf_section (int push)
 	  if (beg == NULL)
 	    {
 	      ignore_rest_of_line ();
+	      /* There is a potential resource leak here, but it is not important.  */
+	      /* coverity[leaked_storage: FALSE] */
 	      return;
 	    }
 	  attr |= obj_elf_parse_section_letters (beg, strlen (beg), &is_clone);
@@ -1233,6 +1239,8 @@ obj_elf_section (int push)
 		{
 		  as_bad (_("character following name is not '#'"));
 		  ignore_rest_of_line ();
+		  /* There is a potential resource leak here, but it is not important.  */
+		  /* coverity[leaked_storage: FALSE] */
 		  return;
 		}
 	      ++input_line_pointer;

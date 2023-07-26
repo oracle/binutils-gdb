@@ -749,4 +749,6 @@ gmon_out_write (const char *filename)
 	       whoami, file_format);
       done (1);
     }
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }

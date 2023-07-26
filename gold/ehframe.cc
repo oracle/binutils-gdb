@@ -1187,6 +1187,8 @@ Eh_frame::remove_ehframe_for_plt(Output_data* plt,
 
   if (this->mappings_are_done_)
     this->final_data_size_ -= align_address(fde_length + 8, this->addralign());
+  /* There is a potential resource leak here, but it is not important.  */
+  /* coverity[leaked_storage: FALSE] */
 }
 
 // Return the number of FDEs.

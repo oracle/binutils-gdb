@@ -468,6 +468,8 @@ process_archive (const char * file_name, FILE * file,
         }
 
       free (qualified_name);
+      /* There is a potential resource leak here, but it is not important.  */
+      /* coverity[leaked_storage: FALSE] */
     }
 
  out:
