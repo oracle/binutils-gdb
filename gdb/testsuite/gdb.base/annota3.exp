@@ -38,6 +38,8 @@ if  { [gdb_compile "${srcdir}/${subdir}/${srcfile}" "${binfile}" executable {deb
 
 clean_restart ${binfile}
 
+gdb_test "set breakpoint pending off" "" "Avoid lockup on nonexisting functions"
+
 # The commands we test here produce many lines of output; disable "press 
 # <return> to continue" prompts.
 gdb_test_no_output "set height 0"
