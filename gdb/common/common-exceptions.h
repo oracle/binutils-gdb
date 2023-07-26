@@ -104,6 +104,9 @@ enum errors {
      "_ERROR" is appended to the name.  */
   MAX_COMPLETIONS_REACHED_ERROR,
 
+  /* Attempt to load a core file as executable.  */
+  IS_CORE_ERROR,
+
   /* Add more errors here.  */
   NR_ERRORS
 };
