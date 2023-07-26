@@ -607,6 +607,13 @@ holding the child stopped.  Try \"set detach-on-fork\" or \
 				target_pid_to_str (process_ptid));
 	    }
 
+#ifdef NEED_DETACH_SIGSTOP
+	  /* We should check PID_WAS_STOPPED and detach it stopped accordingly.
+	     In this point of code it cannot be 1 as we would not get FORK
+	     executed without CONTINUE first which resets PID_WAS_STOPPED.
+	     We would have to first TARGET_STOP and WAITPID it as with running
+	     inferior PTRACE_DETACH, SIGSTOP will ignore the signal.  */
+#endif
 	  target_detach (parent_inf, 0);
 	}
 

@@ -56,7 +56,65 @@ proc corefunc { threadtype } {
     gdb_reinitialize_dir $srcdir/$subdir
     gdb_load ${binfile}
 
-    # Verify that we can attach to the stopped process.
+    # Verify that we can attach to the process by first giving its
+    # executable name via the file command, and using attach with the
+    # process ID.
+
+    set test "$threadtype: set file, before attach1 to stopped process"
+    gdb_test_multiple "file $binfile" "$test" {
+       -re "Load new symbol table from.*y or n. $" {
+	    gdb_test "y" "Reading symbols from $escapedbinfile\.\.\.*done." \
+		    "$test (re-read)"
+	}
+	-re "Reading symbols from $escapedbinfile\.\.\.*done.*$gdb_prompt $" {
+	    pass "$test"
+	}
+    }
+
+    set test "$threadtype: attach1 to stopped, after setting file"
+    gdb_test_multiple "attach $testpid" "$test" {
+	-re "Attaching to program.*`?$escapedbinfile'?, process $testpid.*$gdb_prompt $" {
+	    pass "$test"
+	}
+    }
+
+    # ".*sleep.*clone.*" would fail on s390x as bt stops at START_THREAD there.
+    if {[string equal $threadtype threaded]} {
+	gdb_test "thread apply all bt" ".*sleep.*start_thread.*" "$threadtype: attach1 to stopped bt"
+    } else {
+	gdb_test "bt" ".*sleep.*main.*" "$threadtype: attach1 to stopped bt"
+    }
+
+    # Exit and detach the process.
+       
+    gdb_exit
+
+    # Avoid some race:
+    sleep 2
+
+    if [catch {open /proc/${testpid}/status r} fileid] {
+	set line2 "NOTFOUND"
+    } else {
+	gets $fileid line1;
+	gets $fileid line2;
+	close $fileid;
+    }
+
+    set test "$threadtype: attach1, exit leaves process stopped"
+    if {[string match "*(stopped)*" $line2]} {
+      pass $test
+    } else {
+      fail $test
+    }
+
+    # At this point, the process should still be stopped
+
+    gdb_start
+    gdb_reinitialize_dir $srcdir/$subdir
+    gdb_load ${binfile}
+
+    # Verify that we can attach to the process just by giving the
+    # process ID.
        
     set test "$threadtype: attach2 to stopped, after setting file"
     gdb_test_multiple "attach $testpid" "$test" {

@@ -10499,6 +10499,13 @@ private:
 static void
 process_die (struct die_info *die, struct dwarf2_cu *cu)
 {
+  if (die->in_process)
+    {
+      complaint (_("DIE at 0x%s attempted to be processed twice"),
+		 sect_offset_str (die->sect_off));
+      return;
+    }
+
   process_die_scope scope (die, cu);
 
   switch (die->tag)

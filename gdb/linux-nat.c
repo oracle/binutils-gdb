@@ -191,6 +191,12 @@ struct linux_nat_target *linux_target;
 /* Does the current host support PTRACE_GETREGSET?  */
 enum tribool have_ptrace_getregset = TRIBOOL_UNKNOWN;
 
+#ifdef NEED_DETACH_SIGSTOP
+/* PID of the inferior stopped by SIGSTOP before attaching (or zero).  */
+static pid_t pid_was_stopped;
+
+#endif
+
 /* The saved to_close method, inherited from inf-ptrace.c.
    Called by our to_close.  */
 static void (*super_close) (struct target_ops *);
@@ -1027,6 +1033,9 @@ linux_nat_post_attach_wait (ptid_t ptid, int *signalled)
       if (debug_linux_nat)
 	fprintf_unfiltered (gdb_stdlog,
 			    "LNPAW: Attaching to a stopped process\n");
+#ifdef NEED_DETACH_SIGSTOP
+      pid_was_stopped = ptid.pid ();
+#endif
 
       /* The process is definitely stopped.  It is in a job control
 	 stop, unless the kernel predates the TASK_STOPPED /
@@ -1359,6 +1368,25 @@ get_detach_signal (struct lwp_info *lp)
       return gdb_signal_to_host (signo);
     }
 
+#ifdef NEED_DETACH_SIGSTOP
+  /* Workaround RHEL-5 kernel which has unreliable PTRACE_DETACH, SIGSTOP (that
+     many TIDs are left unstopped).  See RH Bug 496732.  */
+  if (lp->ptid.pid () == pid_was_stopped)
+    {
+      int err;
+
+      errno = 0;
+      err = kill_lwp (lp->ptid.lwp (), SIGSTOP);
+      if (debug_linux_nat)
+	{
+	  fprintf_unfiltered (gdb_stdlog,
+			      "SC:  lwp kill %d %s\n",
+			      err,
+			      errno ? safe_strerror (errno) : "ERRNO-OK");
+	}
+    }
+
+#endif
   return 0;
 }
 
@@ -1507,6 +1535,10 @@ linux_nat_target::detach (inferior *inf, int from_tty)
       detach_one_lwp (main_lwp, &signo);
 
       detach_success (inf);
+
+#ifdef NEED_DETACH_SIGSTOP
+      pid_was_stopped = 0;
+#endif
     }
 }
 
@@ -1765,6 +1797,16 @@ linux_nat_target::resume (ptid_t ptid, int step, enum gdb_signal signo)
       return;
     }
 
+#ifdef NEED_DETACH_SIGSTOP
+  /* At this point, we are going to resume the inferior and if we
+     have attached to a stopped process, we no longer should leave
+     it as stopped if the user detaches.  PTID variable has PID set to LWP
+     while we need to check the real PID here.  */
+
+  if (!step && lp && pid_was_stopped == lp->ptid.pid ())
+    pid_was_stopped = 0;
+
+#endif
   if (resume_many)
     iterate_over_lwps (ptid, linux_nat_resume_callback, lp);
 
@@ -3761,6 +3803,10 @@ linux_nat_target::mourn_inferior ()
 
   /* Let the arch-specific native code know this process is gone.  */
   linux_target->low_forget_process (pid);
+#ifdef NEED_DETACH_SIGSTOP
+
+  pid_was_stopped = 0;
+#endif
 }
 
 /* Convert a native/host siginfo object, into/from the siginfo in the
