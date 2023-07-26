@@ -560,6 +560,28 @@ strerrno (int err)
 int
 main ()
 {
+  /* These tests
+       Open for write but no write permission returns EACCES
+       Unlinking a file in a directory w/o write access returns EACCES
+     fail if we are being run as root - drop the privileges here.  */
+
+  if (geteuid () == 0)
+    {
+      uid_t uid = 99;
+
+      if (chown (OUTDIR, uid, uid) != 0)
+	{
+	  printf ("chown %d.%d %s: %s\n", (int) uid, (int) uid,
+		  OUTDIR, strerror (errno));
+	  exit (1);
+	}
+      if (setuid (uid) || geteuid () == 0)
+	{
+	  printf ("setuid %d: %s\n", (int) uid, strerror (errno));
+	  exit (1);
+	}
+    }
+
   /* Don't change the order of the calls.  They partly depend on each other */
   test_open ();
   test_write ();

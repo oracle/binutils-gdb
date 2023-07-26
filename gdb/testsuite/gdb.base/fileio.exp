@@ -24,9 +24,9 @@ if [target_info exists gdb,nofileio] {
 standard_testfile
 
 if {[is_remote host]} {
-    set outdir .
+    set outdir "fileio.dir"
 } else {
-    set outdir [standard_output_file {}]
+    set outdir [standard_output_file "fileio.dir"]
 }
 
 if  { [gdb_compile "${srcdir}/${subdir}/${srcfile}" "${binfile}" \
@@ -47,7 +47,8 @@ set dir2 [standard_output_file dir2.fileio.test]
 if {[file exists $dir2] && ![file writable $dir2]} {
     system "chmod +w $dir2"
 }
-system "rm -rf [standard_output_file *.fileio.test]"
+system "rm -rf [standard_output_file fileio.dir]"
+system "mkdir -m777 [standard_output_file fileio.dir]"
 
 set oldtimeout $timeout
 set timeout [expr "$timeout + 60"]
@@ -89,7 +90,7 @@ gdb_test continue \
 
 gdb_test "continue" ".*" ""
 
-catch "system \"chmod -f -w [standard_output_file nowrt.fileio.test]\""
+catch "system \"chmod -f -w [standard_output_file fileio.dir/nowrt.fileio.test]\""
 
 gdb_test continue \
 "Continuing\\..*open 5:.*EACCES$stop_msg" \
@@ -276,9 +277,7 @@ gdb_test continue \
 gdb_exit
 
 # Make dir2 writable again so rm -rf of a build tree Just Works.
-if {[file exists $dir2] && ![file writable $dir2]} {
-    system "chmod +w $dir2"
-}
+system "chmod -R +w $outdir"
 
 set timeout $oldtimeout
 return 0
