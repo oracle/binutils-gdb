@@ -532,6 +532,10 @@ read_section (bfd *	      abfd,
   /* The section may have already been read.  */
   if (contents == NULL)
     {
+      bfd_size_type amt;
+      asection *msec;
+      ufile_ptr filesize;
+
       msec = bfd_get_section_by_name (abfd, section_name);
       if (! msec)
 	{
@@ -547,10 +551,22 @@ read_section (bfd *	      abfd,
 	  return FALSE;
 	}
 
-      *section_size = msec->rawsize ? msec->rawsize : msec->size;
+      amt = bfd_get_section_limit_octets (abfd, msec);
+      filesize = bfd_get_file_size (abfd);
+      if (amt >= filesize)
+       {
+         /* PR 26946 */
+         _bfd_error_handler (_("DWARF error: section %s is larger than its filesize! (0x%lx vs 0x%lx)"),
+                             section_name, (long) amt, (long) filesize);
+         bfd_set_error (bfd_error_bad_value);
+         return FALSE;
+       }
+      *section_size = amt;
+
       /* Paranoia - alloc one extra so that we can make sure a string
 	 section is NUL terminated.  */
-      amt = *section_size + 1;
+      amt += 1;
+
       if (amt == 0)
 	{
 	  bfd_set_error (bfd_error_no_memory);
