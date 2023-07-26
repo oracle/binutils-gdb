@@ -257,31 +257,63 @@ arglist :	subrange
    
 arglist	:	arglist ',' exp   %prec ABOVE_COMMA
 			{ arglist_len++; }
+	|	arglist ',' subrange	%prec ABOVE_COMMA
+			{ arglist_len++; }
 	;
 
 /* There are four sorts of subrange types in F90.  */
 
 subrange:	exp ':' exp	%prec ABOVE_COMMA
-			{ write_exp_elt_opcode (pstate, OP_RANGE); 
-			  write_exp_elt_longcst (pstate, NONE_BOUND_DEFAULT);
+			{ write_exp_elt_opcode (pstate, OP_RANGE);
+			  write_exp_elt_longcst (pstate,
+						 SUBARRAY_LOW_BOUND | SUBARRAY_HIGH_BOUND);
 			  write_exp_elt_opcode (pstate, OP_RANGE); }
 	;
 
 subrange:	exp ':'	%prec ABOVE_COMMA
 			{ write_exp_elt_opcode (pstate, OP_RANGE);
-			  write_exp_elt_longcst (pstate, HIGH_BOUND_DEFAULT);
+			  write_exp_elt_longcst (pstate, SUBARRAY_LOW_BOUND);
 			  write_exp_elt_opcode (pstate, OP_RANGE); }
 	;
 
 subrange:	':' exp	%prec ABOVE_COMMA
 			{ write_exp_elt_opcode (pstate, OP_RANGE);
-			  write_exp_elt_longcst (pstate, LOW_BOUND_DEFAULT);
+			  write_exp_elt_longcst (pstate, SUBARRAY_HIGH_BOUND);
 			  write_exp_elt_opcode (pstate, OP_RANGE); }
 	;
 
 subrange:	':'	%prec ABOVE_COMMA
 			{ write_exp_elt_opcode (pstate, OP_RANGE);
-			  write_exp_elt_longcst (pstate, BOTH_BOUND_DEFAULT);
+			  write_exp_elt_longcst (pstate, SUBARRAY_NONE_BOUND);
+			  write_exp_elt_opcode (pstate, OP_RANGE); }
+	;
+
+/* Each subrange type can have a stride argument.  */
+subrange:	exp ':' exp ':' exp %prec ABOVE_COMMA
+			{ write_exp_elt_opcode (pstate, OP_RANGE);
+			  write_exp_elt_longcst (pstate, SUBARRAY_LOW_BOUND
+						 | SUBARRAY_HIGH_BOUND
+						 | SUBARRAY_STRIDE);
+			  write_exp_elt_opcode (pstate, OP_RANGE); }
+	;
+
+subrange:	exp ':' ':' exp %prec ABOVE_COMMA
+			{ write_exp_elt_opcode (pstate, OP_RANGE);
+			  write_exp_elt_longcst (pstate, SUBARRAY_LOW_BOUND
+						 | SUBARRAY_STRIDE);
+			  write_exp_elt_opcode (pstate, OP_RANGE); }
+	;
+
+subrange:	':' exp ':' exp %prec ABOVE_COMMA
+			{ write_exp_elt_opcode (pstate, OP_RANGE);
+			  write_exp_elt_longcst (pstate, SUBARRAY_HIGH_BOUND
+						 | SUBARRAY_STRIDE);
+			  write_exp_elt_opcode (pstate, OP_RANGE); }
+	;
+
+subrange:	':' ':' exp %prec ABOVE_COMMA
+			{ write_exp_elt_opcode (pstate, OP_RANGE);
+			  write_exp_elt_longcst (pstate, SUBARRAY_STRIDE);
 			  write_exp_elt_opcode (pstate, OP_RANGE); }
 	;
 

@@ -578,17 +578,14 @@ print_subexp_standard (struct expression *exp, int *pos,
 	  longest_to_int (exp->elts[pc + 1].longconst);
 	*pos += 2;
 
-	if (range_type == NONE_BOUND_DEFAULT_EXCLUSIVE
-	    || range_type == LOW_BOUND_DEFAULT_EXCLUSIVE)
+	if ((range_type & SUBARRAY_HIGH_BOUND_EXCLUSIVE)
+	    == SUBARRAY_HIGH_BOUND_EXCLUSIVE)
 	  fputs_filtered ("EXCLUSIVE_", stream);
 	fputs_filtered ("RANGE(", stream);
-	if (range_type == HIGH_BOUND_DEFAULT
-	    || range_type == NONE_BOUND_DEFAULT
-	    || range_type == NONE_BOUND_DEFAULT_EXCLUSIVE)
+	if ((range_type & SUBARRAY_LOW_BOUND) == SUBARRAY_LOW_BOUND)
 	  print_subexp (exp, pos, stream, PREC_ABOVE_COMMA);
 	fputs_filtered ("..", stream);
-	if (range_type == LOW_BOUND_DEFAULT
-	    || range_type == NONE_BOUND_DEFAULT)
+	if ((range_type & SUBARRAY_HIGH_BOUND) == SUBARRAY_HIGH_BOUND)
 	  print_subexp (exp, pos, stream, PREC_ABOVE_COMMA);
 	fputs_filtered (")", stream);
 	return;
@@ -1098,22 +1095,24 @@ dump_subexp_body_standard (struct expression *exp,
 
 	switch (range_type)
 	  {
-	  case BOTH_BOUND_DEFAULT:
+	  case SUBARRAY_NONE_BOUND:
 	    fputs_filtered ("Range '..'", stream);
 	    break;
-	  case LOW_BOUND_DEFAULT:
+	  case SUBARRAY_HIGH_BOUND:
 	    fputs_filtered ("Range '..EXP'", stream);
 	    break;
-	  case LOW_BOUND_DEFAULT_EXCLUSIVE:
-	    fputs_filtered ("ExclusiveRange '..EXP'", stream);
-	    break;
-	  case HIGH_BOUND_DEFAULT:
+	  case SUBARRAY_LOW_BOUND:
 	    fputs_filtered ("Range 'EXP..'", stream);
 	    break;
-	  case NONE_BOUND_DEFAULT:
+	  case (SUBARRAY_LOW_BOUND
+		| SUBARRAY_HIGH_BOUND
+		| SUBARRAY_HIGH_BOUND_EXCLUSIVE):
+	    fputs_filtered ("ExclusiveRange '..EXP'", stream);
+	    break;
+	  case (SUBARRAY_LOW_BOUND | SUBARRAY_HIGH_BOUND):
 	    fputs_filtered ("Range 'EXP..EXP'", stream);
 	    break;
-	  case NONE_BOUND_DEFAULT_EXCLUSIVE:
+	  case (SUBARRAY_HIGH_BOUND | SUBARRAY_HIGH_BOUND_EXCLUSIVE):
 	    fputs_filtered ("ExclusiveRange 'EXP..EXP'", stream);
 	    break;
 	  default:
@@ -1121,11 +1120,9 @@ dump_subexp_body_standard (struct expression *exp,
 	    break;
 	  }
 
-	if (range_type == HIGH_BOUND_DEFAULT
-	    || range_type == NONE_BOUND_DEFAULT)
+	if ((range_type & SUBARRAY_LOW_BOUND) == SUBARRAY_LOW_BOUND)
 	  elt = dump_subexp (exp, stream, elt);
-	if (range_type == LOW_BOUND_DEFAULT
-	    || range_type == NONE_BOUND_DEFAULT)
+	if ((range_type & SUBARRAY_HIGH_BOUND) == SUBARRAY_HIGH_BOUND)
 	  elt = dump_subexp (exp, stream, elt);
       }
       break;

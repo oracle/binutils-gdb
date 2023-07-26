@@ -148,28 +148,27 @@ extern void dump_raw_expression (struct expression *,
 				 struct ui_file *, const char *);
 extern void dump_prefix_expression (struct expression *, struct ui_file *);
 
-/* In an OP_RANGE expression, either bound could be empty, indicating
-   that its value is by default that of the corresponding bound of the
-   array or string.  Also, the upper end of the range can be exclusive
-   or inclusive.  So we have six sorts of subrange.  This enumeration
-   type is to identify this.  */
+/* In an OP_RANGE expression, either bound can be provided by the
+   user, or not.  In addition to this, the user can also specify a
+   stride value to indicated only certain elements of the array.
+   Also, the upper end of the range can be exclusive or inclusive.
+   This enumeration type is to identify this.  */
 
 enum range_type
-{
-  /* Neither the low nor the high bound was given -- so this refers to
-     the entire available range.  */
-  BOTH_BOUND_DEFAULT,
-  /* The low bound was not given and the high bound is inclusive.  */
-  LOW_BOUND_DEFAULT,
-  /* The high bound was not given and the low bound in inclusive.  */
-  HIGH_BOUND_DEFAULT,
-  /* Both bounds were given and both are inclusive.  */
-  NONE_BOUND_DEFAULT,
-  /* The low bound was not given and the high bound is exclusive.  */
-  NONE_BOUND_DEFAULT_EXCLUSIVE,
-  /* Both bounds were given.  The low bound is inclusive and the high
-     bound is exclusive.  */
-  LOW_BOUND_DEFAULT_EXCLUSIVE,
-};
+  {
+    SUBARRAY_NONE_BOUND = 0x0,		/* "( : )"  */
+    SUBARRAY_LOW_BOUND = 0x1,		/* "(low:)"  */
+    SUBARRAY_HIGH_BOUND = 0x2,		/* "(:high)"  */
+    SUBARRAY_STRIDE = 0x4,		/* "(::stride)"  */
+    /* The low bound was not given and the high bound is exclusive.
+       In this case we always use (SUBARRAY_HIGH_BOUND |
+       SUBARRAY_HIGH_BOUND_EXCLUSIVE).  */
+    SUBARRAY_HIGH_BOUND_EXCLUSIVE = 0x8,
+    /* Both bounds were given.  The low bound is inclusive and the high
+       bound is exclusive.  In this case, we use (SUBARRAY_LOW_BOUND |
+       SUBARRAY_HIGH_BOUND | SUBARRAY_HIGH_BOUND_EXCLUSIVE).  */
+    // SUBARRAY_LOW_BOUND_EXCLUSIVE = (SUBARRAY_LOW_BOUND
+    // 				    | SUBARRAY_HIGH_BOUND_EXCLUSIVE),
+  };
 
 #endif /* !defined (EXPRESSION_H) */
