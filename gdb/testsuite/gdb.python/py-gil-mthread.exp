@@ -1,0 +1,69 @@
+# Copyright (C) 2014 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+standard_testfile .c .py
+set executable $testfile
+
+if { [prepare_for_testing $testfile.exp $executable $srcfile] } {
+    return -1
+}
+
+# Skip all tests if Python scripting is not enabled.
+if { [skip_python_tests] } { continue }
+
+if ![runto_main] {
+    return -1
+}
+
+gdb_breakpoint $srcfile:[gdb_get_line_number "break-here"] temporary
+gdb_continue_to_breakpoint "break-here" ".* break-here .*"
+
+set test "response"
+set timeout 60
+set sleeping_last -1
+set hello_last 0
+set minimal 5
+gdb_test_multiple "python exec (open ('$srcdir/$subdir/$srcfile2').read ())" $test {
+    -re "Error: unable to start thread\r\n" {
+	fail $test
+	# Not $gdb_prompt-synced!
+    }
+    -re "Sleeping (\[0-9\]+)\r\n" {
+	set n $expect_out(1,string)
+	if { $sleeping_last + 1 != $n } {
+	    fail $test
+	} else {
+	    set sleeping_last $n
+	    if { $sleeping_last >= $minimal && $hello_last >= $minimal } {
+		pass $test
+	    } else {
+		exp_continue
+	    }
+	}
+    }
+    -re "Hello \\( (\[0-9\]+) \\)\r\n" {
+	set n $expect_out(1,string)
+	if { $hello_last + 1 != $n } {
+	    fail $test
+	} else {
+	    set hello_last $n
+	    if { $sleeping_last >= $minimal && $hello_last >= $minimal } {
+		pass $test
+	    } else {
+		exp_continue
+	    }
+	}
+    }
+}

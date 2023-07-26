@@ -148,6 +148,8 @@ typedef int Py_ssize_t;
 #define PyGILState_Release(ARG) ((void)(ARG))
 #define PyEval_InitThreads()
 #define PyThreadState_Swap(ARG) ((void)(ARG))
+#define PyEval_SaveThread() ((void)(ARG))
+#define PyEval_RestoreThread(ARG) ((void)(ARG))
 #define PyEval_ReleaseLock()
 #endif
 

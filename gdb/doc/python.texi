@@ -232,6 +232,14 @@ returned as a string.  The default is @code{False}, in which case the
 return value is @code{None}.  If @var{to_string} is @code{True}, the
 @value{GDBN} virtual terminal will be temporarily set to unlimited width
 and height, and its pagination will be disabled; @pxref{Screen Size}.
+
+The @var{release_gil} flag specifies whether @value{GDBN} ought to
+release the Python GIL before executing the command.  This is useful
+in multi-threaded Python programs where by default the Python
+interpreter will acquire the GIL and lock other threads from
+executing.  After the command has completed executing in @value{GDBN}
+the Python GIL is reacquired. This flag must be a boolean value.  If
+omitted, it defaults to @code{False}.
 @end defun
 
 @findex gdb.breakpoints
