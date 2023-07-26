@@ -1477,7 +1477,7 @@ else
   AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
 #include <linux/perf_event.h>
 #ifndef PERF_ATTR_SIZE_VER5
-# error
+// error // PERF_ATTR_SIZE_VER5_BUNDLE is not available here - Fedora+RHEL
 #endif
   ]])], [perf_event=yes], [perf_event=no])
   if test "$perf_event" != yes; then

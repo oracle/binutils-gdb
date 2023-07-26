@@ -20,10 +20,18 @@
 #include "main.h"
 #include "interps.h"
 
+#ifdef PERF_ATTR_SIZE_VER5_BUNDLE
+extern "C" void __libipt_init(void);
+#endif
+
 int
 main (int argc, char **argv)
 {
   struct captured_main_args args;
+
+#ifdef PERF_ATTR_SIZE_VER5_BUNDLE
+  __libipt_init();
+#endif
 
   memset (&args, 0, sizeof args);
   args.argc = argc;
