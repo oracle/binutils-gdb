@@ -149,7 +149,7 @@ f_type_print_varspec_suffix (struct type *type, struct ui_file *stream,
 			     int show, int passed_a_ptr, int demangled_args,
 			     int arrayprint_recurse_level, int print_rank_only)
 {
-  int upper_bound, lower_bound;
+  LONGEST upper_bound, lower_bound;
 
   /* No static variables are permitted as an error call may occur during
      execution of this function.  */
@@ -196,7 +196,7 @@ f_type_print_varspec_suffix (struct type *type, struct ui_file *stream,
 	{
 	  lower_bound = f77_get_lowerbound (type);
 	  if (lower_bound != 1)	/* Not the default.  */
-	    fprintf_filtered (stream, "%d:", lower_bound);
+	    fprintf_filtered (stream, "%s:", plongest (lower_bound));
 
 	  /* Make sure that, if we have an assumed size array, we
 	       print out a warning and print the upperbound as '*'.  */
@@ -206,7 +206,7 @@ f_type_print_varspec_suffix (struct type *type, struct ui_file *stream,
 	  else
 	    {
 	      upper_bound = f77_get_upperbound (type);
-	      fprintf_filtered (stream, "%d", upper_bound);
+	      fprintf_filtered (stream, "%s", plongest (upper_bound));
 	    }
 	}
 
@@ -278,7 +278,7 @@ void
 f_type_print_base (struct type *type, struct ui_file *stream, int show,
 		   int level)
 {
-  int upper_bound;
+  LONGEST upper_bound;
   int index;
 
   QUIT;
@@ -370,7 +370,7 @@ f_type_print_base (struct type *type, struct ui_file *stream, int show,
       else
 	{
 	  upper_bound = f77_get_upperbound (type);
-	  fprintf_filtered (stream, "character*%d", upper_bound);
+	  fprintf_filtered (stream, "character*%s", plongest (upper_bound));
 	}
       break;
 
