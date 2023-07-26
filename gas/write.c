@@ -2987,7 +2987,12 @@ relax_segment (struct frag *segment_frag_root, segT segment, int pass)
 #ifdef TC_GENERIC_RELAX_TABLE
 		/* The default way to relax a frag is to look through
 		   TC_GENERIC_RELAX_TABLE.  */
+#ifdef md_generic_table_relax_frag
+		growth = md_generic_table_relax_frag (segment, fragP,
+						      stretch);
+#else
 		growth = relax_frag (segment, fragP, stretch);
+#endif /* md_generic_table_relax_frag */
 #endif /* TC_GENERIC_RELAX_TABLE  */
 #endif
 		break;
