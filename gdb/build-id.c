@@ -1013,6 +1013,8 @@ missing_rpm_list_print (void)
   printf_unfiltered (_("Missing separate debuginfos, use: %s"),
 #ifdef DNF_DEBUGINFO_INSTALL
 		     "dnf "
+#else
+		     "yum "
 #endif
 		     "debuginfo-install");
   for (array_iter = array; array_iter < array + missing_rpm_list_entries;
