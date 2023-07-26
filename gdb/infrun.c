@@ -6695,6 +6695,16 @@ process_event_stop_test (struct execution_control_state *ecs)
 
       if (ecs->event_thread->control.step_over_calls == STEP_OVER_ALL)
 	{
+	  struct symbol *stop_fn = find_pc_function (stop_pc);
+	  struct minimal_symbol *stopf = lookup_minimal_symbol_by_pc (stop_pc).minsym;
+
+	  if ((stop_fn == NULL
+	       || strstr (SYMBOL_LINKAGE_NAME (stop_fn), ".omp_fn.") == NULL)
+	      /* gcc-4.7.2-9.fc19.x86_64 uses a new format.  */
+	      && (stopf == NULL
+		  || strstr (MSYMBOL_LINKAGE_NAME (stopf), "._omp_fn.") == NULL))
+{	/* ".omp_fn." */
+
 	  /* We're doing a "next".
 
 	     Normal (forward) execution: set a breakpoint at the
@@ -6728,6 +6738,7 @@ process_event_stop_test (struct execution_control_state *ecs)
 
 	  keep_going (ecs);
 	  return;
+}	/* ".omp_fn." */
 	}
 
       /* If we are in a function call trampoline (a stub between the

@@ -1,0 +1,31 @@
+# Copyright 2009 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set testfile "omp-step"
+set srcfile ${testfile}.f90
+if { [prepare_for_testing $testfile.exp $testfile $srcfile {debug f90 additional_flags=-fopenmp}] } {
+    return -1
+}
+
+if ![runto [gdb_get_line_number "start-here"]] {
+    perror "Couldn't run to start-here"
+    return 0
+}
+
+gdb_test "next" {!\$omp parallel} "step closer"
+gdb_test "next" {a\(omp_get_thread_num\(\) \+ 1\) = 1} "step into omp"
+
+gdb_breakpoint [gdb_get_line_number "success"]
+gdb_continue_to_breakpoint "success" ".*success.*"
