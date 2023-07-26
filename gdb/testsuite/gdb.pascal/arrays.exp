@@ -1,0 +1,104 @@
+# Copyright 2008, 2009 Free Software Foundation, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+if $tracelevel then {
+    strace $tracelevel
+}
+
+load_lib "pascal.exp"
+
+set testfile "arrays"
+set srcfile ${testfile}.pas
+set binfile [standard_output_file ${testfile}$EXEEXT]
+
+# These tests only work with fpc, using the -gw3 compile-option
+pascal_init
+if { $pascal_compiler_is_fpc != 1 } {
+  return -1
+}
+
+# Detect if the fpc version is below 2.3.0
+set fpc_generates_dwarf_for_dynamic_arrays 1
+if { ($fpcversion_major < 2) || ( ($fpcversion_major == 2) && ($fpcversion_minor < 3))}  {
+  set fpc_generates_dwarf_for_dynamic_arrays 0
+}
+
+
+if {[gdb_compile_pascal "-gw3 ${srcdir}/${subdir}/${srcfile}" "${binfile}" executable [list debug ]] != "" } {
+  return -1
+}
+
+gdb_exit
+gdb_start
+gdb_reinitialize_dir $srcdir/$subdir
+gdb_load ${binfile}
+set bp_location1 [gdb_get_line_number "set breakpoint 1 here"]
+set bp_location2 [gdb_get_line_number "set breakpoint 2 here"]
+
+
+if { [gdb_breakpoint ${srcfile}:${bp_location1}] } {
+    pass "setting breakpoint 1"
+}
+if { [gdb_breakpoint ${srcfile}:${bp_location2}] } {
+    pass "setting breakpoint 2"
+}
+
+# Verify that "start" lands inside the right procedure.
+if { [gdb_start_cmd] < 0 } {
+    untested start
+    return -1
+}
+
+gdb_test "" ".* at .*${srcfile}.*" "start"
+
+gdb_test "cont" "Breakpoint .*:${bp_location1}.*" "Going to first breakpoint"
+
+gdb_test "print StatArrInt" ".* = \\{50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61\\}" "Print static array of integer type"
+gdb_test "print StatArrInt_" ".* = \\{50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61\\}" "Print static array of integer"
+
+gdb_test "cont" "Breakpoint .*:${bp_location2}.*" "Going to second breakpoint"
+
+gdb_test "print StatArrChar" ".* = 'abcdefghijkl'" "Print static array of char"
+gdb_test "print Stat2dArrInt" ".* = \\{\\{0, 1, 2, 3, 4\\}, \\{1, 2, 3, 4, 5\\}, \\{2, 3, 4, 5, 6\\}, \\{3, 4, 5, 6, 7\\}, \\{4, 5, 6, 7, 8\\}, \\{5, 6, 7, 8, 9\\}, \\{6, 7, 8, 9, 10\\}, \\{7, 8, 9, 10, 11\\}, \\{8, 9, 10, 11, 12\\}, \\{9, 10, 11, 12, 13\\}, \\{10, 11, 12, 13, 14\\}, \\{11, 12, 13, 14, 15\\}\\}" "Print static 2-dimensional array of integer"
+
+if { $fpc_generates_dwarf_for_dynamic_arrays == 0} {
+  setup_xfail "*-*-*"
+}
+gdb_test "print DynArrInt" ".* = \\{50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62\\}" "Print dynamic array of integer type"
+if { $fpc_generates_dwarf_for_dynamic_arrays == 0} {
+  setup_xfail "*-*-*"
+}
+gdb_test "print DynArrInt_" ".* = \\{50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62\\}" "Print dynamic array of integer"
+
+if { $fpc_generates_dwarf_for_dynamic_arrays == 0} {
+  setup_xfail "*-*-*"
+}
+gdb_test "print s" ".* = 'test'#0'string'" "Print string containing null-char"
+
+if { $fpc_generates_dwarf_for_dynamic_arrays == 0} {
+  setup_xfail "*-*-*"
+}
+gdb_test "print DynArrStr" ".* = \\{'dstr0', 'dstr1', 'dstr2', 'dstr3', 'dstr4', 'dstr5', 'dstr6', 'dstr7', 'dstr8', 'dstr9', 'dstr10', 'dstr11', 'dstr12'\\}" "Print dynamic array of string"
+
+if { $fpc_generates_dwarf_for_dynamic_arrays == 0} {
+  setup_xfail "*-*-*"
+}
+gdb_test "print StatArrStr" ".* = \\{'str0', 'str1', 'str2', 'str3', 'str4', 'str5', 'str6', 'str7', 'str8', 'str9', 'str10', 'str11', 'str12'\\}" "Print static array of string"
+
+if { $fpc_generates_dwarf_for_dynamic_arrays == 0} {
+  setup_xfail "*-*-*"
+}
+gdb_test "print DynArrChar" ".* = 'abcdefghijklm'" "Print dynamic array of char"
+

@@ -1,0 +1,182 @@
+# Copyright 2008, 2009 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+if $tracelevel then {
+    strace $tracelevel
+}
+
+if { [skip_cplus_tests] } { continue }
+
+set testfile "gdb9593"
+set srcfile ${testfile}.cc
+set binfile [standard_output_file $testfile]
+
+# Create and source the file that provides information about the compiler
+# used to compile the test case.
+if [get_compiler_info "c++"] {
+    untested gdb9593.exp
+    return -1
+}
+
+if { [gdb_compile "${srcdir}/${subdir}/${srcfile}" "${binfile}" executable {debug c++}] != "" } {
+    untested gdb9593.exp
+    return -1
+}
+
+# Some targets can't do function calls, so don't even bother with this
+# test.
+if [target_info exists gdb,cannot_call_functions] {
+    setup_xfail "*-*-*" 9593
+    fail "This target can not call functions"
+    continue
+}
+
+gdb_exit
+gdb_start
+gdb_reinitialize_dir $srcdir/$subdir
+gdb_load ${binfile}
+
+if ![runto_main] then {
+    perror "couldn't run to main"
+    continue
+} 
+
+# See whether we have the needed unwinder hooks.
+set ok 1
+gdb_test_multiple "print _Unwind_DebugHook" "check for unwinder hook" {
+    -re "= .*_Unwind_DebugHook.*\r\n$gdb_prompt $" {
+	pass "check for unwinder hook"
+    }
+    -re "No symbol .* in current context.\r\n$gdb_prompt $" {
+	# Pass the test so we don't get bogus fails in the results.
+	pass "check for unwinder hook"
+	set ok 0
+    }
+}
+if {!$ok} {
+    untested gdb9593.exp
+    return -1
+}
+
+# See http://sourceware.org/bugzilla/show_bug.cgi?id=9593
+
+gdb_test "next" \
+    ".*catch (...).*" \
+    "next over a throw 1"
+
+gdb_test "next" \
+  ".*next_cases.function2.*" \
+  "next past catch 1"
+
+gdb_test "next" \
+    ".*catch (...).*" \
+    "next over a throw 2"
+
+gdb_test "next" \
+  ".*next_cases.function2.*" \
+  "next past catch 2"
+
+gdb_test "step" \
+  ".*function1().*" \
+  "step into function2 1"
+
+gdb_test "next" \
+    ".*catch (...).*" \
+    "next over a throw 3"
+
+gdb_test "next" \
+  ".*next_cases.function3.*" \
+  "next past catch 3"
+
+gdb_test "next" \
+  ".*next_cases.rethrow.*" \
+    "next over a throw 4"
+
+gdb_test "next" \
+  ".*catch (...).*" \
+  "next over a rethrow"
+
+gdb_test "next" \
+  ".*next_cases.function2.*" \
+  "next after a rethrow"
+
+gdb_test "step" \
+  ".*function1().*" \
+  "step into function2 2"
+
+gdb_test "finish" \
+  ".*catch (...).*" \
+  "finish 1"
+
+gdb_test "next" \
+  ".*next_cases.finish ().*" \
+  "next past catch 4"
+
+gdb_test "step" \
+  ".*function1 ().*" \
+  "step into finish method"
+
+gdb_test "finish" \
+  ".*catch (...).*" \
+  "finish 2"
+
+gdb_test "next" \
+  ".*next_cases.finish ().*" \
+  "next past catch 5"
+
+gdb_test "step" \
+  ".*function1 ().*" \
+  "step into finish, for until"
+
+gdb_test "until" \
+  ".*function1 ().*" \
+  "until with no argument 1"
+
+set line [gdb_get_line_number "marker for until" $testfile.cc]
+
+gdb_test "until $line" \
+  ".*function1 ().*" \
+  "next past catch 6"
+
+gdb_test "until" \
+  ".*catch (...).*" \
+  "until with no argument 2"
+
+set line [gdb_get_line_number "until here" $testfile.cc]
+
+gdb_test "next" \
+  ".*next_cases.until ().*" \
+  "next past catch 6"
+
+gdb_test "step" \
+  ".*function1 ().*" \
+  "step into until"
+
+gdb_test "until $line" \
+  ".*catch (...).*" \
+  "until-over-throw"
+
+gdb_test "next" \
+  ".*next_cases.until ().*" \
+  "next past catch 7"
+
+gdb_test "step" \
+  ".*function1 ().*" \
+  "step into until, for advance"
+
+gdb_test "advance $line" \
+  ".*catch (...).*" \
+  "advance-over-throw"

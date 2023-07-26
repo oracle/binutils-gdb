@@ -1,0 +1,72 @@
+# Copyright 2011 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+if { [skip_fortran_tests] } { return -1 }
+
+set testfile "subrange"
+set srcfile ${testfile}.f90
+if { [prepare_for_testing ${testfile}.exp ${testfile} ${srcfile} {debug f90}] } {
+    return -1
+}
+
+if ![runto MAIN__] {
+    perror "Couldn't run to MAIN__"
+    continue
+}
+
+# Depending on the compiler version being used, the name of the 4-byte integer
+# and real types can be printed differently.  For instance, gfortran-4.1 uses
+# "int4" whereas gfortran-4.3 uses "int(kind=4)".
+set int4 "(int4|integer\\(kind=4\\))"
+
+gdb_breakpoint [gdb_get_line_number "break-static"]
+gdb_continue_to_breakpoint "break-static" ".*break-static.*"
+
+foreach var {a alloc ptr} {
+    global pf_prefix
+    set old_prefix $pf_prefix
+    lappend pf_prefix "$var:"
+
+    setup_kfail "*-*-*" "vlaregression/9999"
+    gdb_test "p $var (2, 2:3)" { = \(22, 32\)}
+    setup_kfail "*-*-*" "vlaregression/9999"
+    gdb_test "p $var (2:3, 3)" { = \(32, 33\)}
+    setup_kfail "*-*-*" "vlaregression/9999"
+    gdb_test "p $var (1, 2:)" { = \(21, 31\)}
+    setup_kfail "*-*-*" "vlaregression/9999"
+    gdb_test "p $var (2, :2)" { = \(12, 22\)}
+    setup_kfail "*-*-*" "vlaregression/9999"
+    gdb_test "p $var (3, 2:2)" { = \(23\)}
+    setup_kfail "*-*-*" "vlaregression/9999"
+    gdb_test "ptype $var (3, 2:2)" " = $int4 \\(2:2\\)"
+    setup_kfail "*-*-*" "vlaregression/9999"
+    gdb_test "p $var (4, :)" { = \(14, 24, 34\)}
+    setup_kfail "*-*-*" "vlaregression/9999"
+    gdb_test "p $var (:, :)" { = \(\( *11, 12, 13, 14\) \( *21, 22, 23, 24\) \( *31, 32, 33, 34\) *\)}
+    setup_kfail "*-*-*" "vlaregression/9999"
+    gdb_test "ptype $var (:, :)" " = $int4 \\(4,3\\)"
+    setup_kfail "*-*-*" "vlaregression/9999"
+    gdb_test "p $var (:)" "Wrong number of subscripts"
+    setup_kfail "*-*-*" "vlaregression/9999"
+    gdb_test "p $var (:, :, :)" "Wrong number of subscripts"
+
+    set pf_prefix $old_prefix
+}
+
+gdb_test_no_output {set $a=a}
+delete_breakpoints
+gdb_unload
+setup_kfail "*-*-*" "vlaregression/9999"
+gdb_test {p $a (3, 2:2)} { = \(23\)}

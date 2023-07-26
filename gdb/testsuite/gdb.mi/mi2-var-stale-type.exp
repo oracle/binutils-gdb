@@ -1,0 +1,57 @@
+# Copyright 2011 Free Software Foundation, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+load_lib mi-support.exp
+set MIFLAGS "-i=mi2"
+
+gdb_exit
+if [mi_gdb_start] {
+    continue
+}
+
+set testfile "mi2-var-stale-type"
+set srcfile ${testfile}.c
+set binfile [standard_output_file ${testfile}]
+if {[build_executable ${testfile}.exp $testfile $srcfile] == -1} {
+    return -1
+}
+
+mi_delete_breakpoints
+mi_gdb_reinitialize_dir $srcdir/$subdir
+mi_gdb_load ${binfile}
+
+mi_gdb_test {-interpreter-exec console "maintenance set internal-error quit yes"} \
+  {\^done} \
+  "maintenance set internal-error quit yes"
+
+mi_gdb_test {-interpreter-exec console "maintenance set internal-error corefile yes"} \
+  {\^done} \
+  "maintenance set internal-error corefile yes"
+
+set line [gdb_get_line_number "break-here"]
+set func "main"
+
+mi_gdb_test "-break-insert -t $srcfile:$line" \
+  "\\^done,bkpt=\{number=\"\[0-9\]+\",type=\"breakpoint\",disp=\"del\",enabled=\"y\",addr=\"$hex\",func=\"$func\(\\\(.*\\\)\)?\",file=\".*\",fullname=\".*\",line=\"$line\",\[^\r\n\]*,original-location=\".*\"\}" \
+  "breakpoint at $func"
+
+if { [mi_run_cmd] < 0 } {
+    return -1
+}
+mi_expect_stop "breakpoint-hit" $func ".*" ".*" "\[0-9\]+" { "" "disp=\"del\"" } "stop after initializing vla"
+
+mi_create_varobj "vla" "vla" "create local variable vla"
+
+mi_gdb_test "-var-update *" "\\^done,changelist=.*" "-var-update *"

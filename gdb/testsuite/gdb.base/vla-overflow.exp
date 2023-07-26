@@ -1,0 +1,109 @@
+# Copyright 2008 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# We could crash in:
+# #0  block_linkage_function (bl=0x0) at ../../gdb/block.c:69
+# #1  in dwarf_block_get_frame_base (...) at ../../gdb/dwarf2block.c:97
+#   97	  framefunc = block_linkage_function (get_frame_block (frame, NULL));
+# #2  in execute_stack_op (...) at ../../gdb/dwarf2expr.c:496
+# #3  in dwarf_block_exec_core () at ../../gdb/dwarf2block.c:156
+# #4  dwarf_block_exec (...) at ../../gdb/dwarf2block.c:206
+# #5  in range_type_count_bound_internal (...) at ../../gdb/gdbtypes.c:1430
+# #6  in create_array_type (...) at ../../gdb/gdbtypes.c:840
+# ...
+# #21 in psymtab_to_symtab (...) at ../../gdb/symfile.c:292
+# ...
+# #29 in backtrace_command_1 () at ../../gdb/stack.c:1273
+
+set testfile vla-overflow
+set shfile [standard_output_file ${testfile}-gdb.sh]
+set srcfile ${testfile}.c
+set binfile [standard_output_file ${testfile}]
+if  { [gdb_compile "${srcdir}/${subdir}/${srcfile}" "${binfile}" executable {debug}] != "" } {
+    untested "Couldn't compile test program"
+    return -1
+}
+
+set f [open "|getconf PAGESIZE" "r"]
+gets $f pagesize
+close $f
+
+gdb_exit
+gdb_start
+gdb_reinitialize_dir $srcdir/$subdir
+gdb_load ${binfile}
+
+set pid_of_gdb [exp_pid -i [board_info host fileid]]
+
+if { [runto_main] < 0 } {
+    untested vla-overflow
+    return -1
+}
+
+# Get the GDB memory size when we stay at main.
+
+proc memory_v_pages_get {} {
+    global pid_of_gdb pagesize
+    set fd [open "/proc/$pid_of_gdb/statm"]
+    gets $fd line
+    close $fd
+    # number of pages of virtual memory
+    scan $line "%d" drs
+    return $drs
+}
+
+set pages_found [memory_v_pages_get]
+
+# s390x with glibc-debuginfo.s390x installed used approx. 16MB.
+set mb_reserve 40
+verbose -log "pages_found = $pages_found, mb_reserve = $mb_reserve"
+set kb_found [expr $pages_found * $pagesize / 1024]
+set kb_permit [expr $kb_found + 1 * 1024 + $mb_reserve * 1024]
+verbose -log "kb_found = $kb_found, kb_permit = $kb_permit"
+
+# Create the ulimit wrapper.
+set f [open $shfile "w"]
+puts $f "#! /bin/sh"
+puts $f "ulimit -v $kb_permit"
+puts $f "exec $GDB \"\$@\""
+close $f
+remote_exec host "chmod +x $shfile"
+
+gdb_exit
+set GDBold $GDB
+set GDB "$shfile"
+gdb_start
+set GDB $GDBold
+
+gdb_reinitialize_dir $srcdir/$subdir
+gdb_load ${binfile}
+
+set pid_of_gdb [exp_pid -i [board_info host fileid]]
+
+# Check the size again after the second run.
+# We must not stop in main as it would cache `array' and never crash later.
+
+gdb_run_cmd
+
+verbose -log "kb_found before abort() = [expr [memory_v_pages_get] * $pagesize / 1024]"
+
+gdb_test "" "Program received signal SIGABRT, Aborted..*" "Enter abort()"
+
+verbose -log "kb_found in abort() = [expr [memory_v_pages_get] * $pagesize / 1024]"
+
+# `abort' can get expressed as `*__GI_abort'.
+gdb_test "bt" "in \[^ \]*abort \\(.* in main \\(.*" "Backtrace after abort()"
+
+verbose -log "kb_found in bt after abort() = [expr [memory_v_pages_get] * $pagesize / 1024]"

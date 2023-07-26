@@ -1,0 +1,79 @@
+# Copyright 2006 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+# Minimal DWARF-2 unit test
+
+# This test can only be run on targets which support DWARF-2.
+# For now pick a sampling of likely targets.
+if {![istarget *-*-linux*]
+    && ![istarget *-*-gnu*]
+    && ![istarget *-*-elf*]
+    && ![istarget *-*-openbsd*]
+    && ![istarget arm-*-eabi*]
+    && ![istarget powerpc-*-eabi*]} {
+    return 0  
+}
+
+set testfile "dw2-stripped"
+set srcfile ${testfile}.c
+set binfile [standard_output_file ${testfile}.x]
+
+remote_exec build "rm -f ${binfile}"
+
+# get the value of gcc_compiled
+if [get_compiler_info ${binfile}] {
+    return -1
+}
+
+# This test can only be run on gcc as we use additional_flags=FIXME
+if {$gcc_compiled == 0} {
+    return 0
+}
+
+if  { [gdb_compile "${srcdir}/${subdir}/${srcfile}" "${binfile}" executable {debug additional_flags=-ggdb3}] != "" } {
+    return -1
+}
+
+remote_exec build "objcopy -R .debug_loc ${binfile}"
+set strip_output [remote_exec build "objdump -h ${binfile}"]
+
+set test "stripping test file preservation"
+if [ regexp ".debug_info " $strip_output]  {
+    pass "$test (.debug_info preserved)"
+} else {
+    fail "$test (.debug_info got also stripped)"
+}
+
+set test "stripping test file functionality"
+if [ regexp ".debug_loc " $strip_output]  {
+    fail "$test (.debug_loc still present)"
+} else {
+    pass "$test (.debug_loc stripped)"
+}
+
+gdb_exit
+gdb_start
+gdb_reinitialize_dir $srcdir/$subdir
+gdb_load ${binfile}
+
+# For C programs, "start" should stop in main().
+
+gdb_test "start" \
+         ".*main \\(\\) at .*" \
+         "start"
+gdb_test "step" \
+         "func.* \\(.*\\) at .*" \
+         "step"

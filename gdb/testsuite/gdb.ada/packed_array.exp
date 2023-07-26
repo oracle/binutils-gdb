@@ -56,5 +56,11 @@ gdb_test_multiple "$test" "$test" {
         # are.  Observed with (FSF GNU Ada 4.5.3 20110124).
         xfail $test
     }
+    -re "= \\(\\)\[\r\n\]+$gdb_prompt $" {
+	# archer-jankratochvil-vla resolves it as a dynamic type resolved as an
+	# empty array [0..-1].
+	# DW_AT_upper_bound : (DW_OP_fbreg: -48; DW_OP_deref)
+        xfail $test
+    }
 }
 

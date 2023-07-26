@@ -1,0 +1,39 @@
+# Copyright 2009 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  
+
+# This file was written by Jan Kratochvil <jan.kratochvil@redhat.com>.
+
+# Test GDB can cope with Fortran strings having their length present in a CPU
+# register.  With -O0 the string length is passed on the stack.  To make this
+# test meaningful the follow assertion should pass.  It is not being checked
+# here as the "_s" symbol is compiler dependent:
+#   (gdb) info address _s
+#   Symbol "_s" is a variable in register XX.
+
+set test fortran-string
+set srcfile ${test}.f90
+if { [prepare_for_testing ${test}.exp ${test} ${srcfile} {debug f90 additional_flags=-O2}] } {
+    return -1
+}
+
+if ![runto $srcfile:[gdb_get_line_number "s = s"]] then {
+    perror "couldn't run to breakpoint MAIN__"
+    continue
+}
+
+gdb_test "frame" ".*s='foo'.*"
+gdb_test "ptype s" "type = character\\*3"
+gdb_test "p s" "\\$\[0-9\]* = 'foo'"

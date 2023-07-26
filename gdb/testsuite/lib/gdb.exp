@@ -170,6 +170,11 @@ proc gdb_unload {} {
 	    send_gdb "y\n"
 	    exp_continue
 	}
+	-re "A program is being debugged already..*Are you sure you want to change the file.*y or n. $"\
+	    { send_gdb "y\n"
+		verbose "\t\tUnloading symbols for program being debugged"
+	    exp_continue
+	}
 	-re "Discard symbol table from .*y or n.*$" {
 	    send_gdb "y\n"
 	    exp_continue

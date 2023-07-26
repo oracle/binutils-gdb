@@ -37,6 +37,9 @@ proc pascal_init {} {
     global pascal_compiler_is_fpc
     global gpc_compiler
     global fpc_compiler
+    global fpcversion_major
+    global fpcversion_minor
+    global fpcversion_release
     global env
  
     if { $pascal_init_done == 1 } {
@@ -63,6 +66,20 @@ proc pascal_init {} {
         } elseif { [which $fpc_compiler] != 0 } {
 	    set pascal_compiler_is_fpc 1
 	    verbose -log "Free Pascal compiler found"
+	}
+
+	# Detect the fpc-version
+	if { $pascal_compiler_is_fpc == 1 } {
+	    set fpcversion_major 1
+	    set fpcversion_minor 0
+	    set fpcversion_release 0
+	    set fpcversion [ remote_exec host $fpc_compiler "-iV" ] 
+	    if [regexp {.*([0-9]+)\.([0-9]+)\.([0-9]+).?} $fpcversion] {
+              regsub {.*([0-9]+)\.([0-9]+)\.([0-9]+).?\n?.?} $fpcversion {\1} fpcversion_major
+              regsub {.*([0-9]+)\.([0-9]+)\.([0-9]+).?\n?.?} $fpcversion {\2} fpcversion_minor
+              regsub {.*([0-9]+)\.([0-9]+)\.([0-9]+).?\n?.?} $fpcversion {\3} fpcversion_release
+	    }
+            verbose -log "Freepascal version: $fpcversion_major.$fpcversion_minor.$fpcversion_release"
 	}
     }
     set pascal_init_done 1

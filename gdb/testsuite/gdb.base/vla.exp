@@ -1,0 +1,62 @@
+# Copyright 2008 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set testfile vla
+set srcfile ${testfile}.c
+set binfile [standard_output_file ${testfile}]
+if  { [gdb_compile "${srcdir}/${subdir}/${srcfile}" "${binfile}" executable {debug}] != "" } {
+    untested "Couldn't compile test program"
+    return -1
+}
+
+gdb_exit
+gdb_start
+gdb_reinitialize_dir $srcdir/$subdir
+gdb_load ${binfile}
+
+if ![runto_main] {
+    untested vla
+    return -1
+}
+
+gdb_breakpoint [gdb_get_line_number "break-here"]
+
+gdb_continue_to_breakpoint "break-here"
+
+gdb_test "whatis temp1" "type = char \\\[26\\\]" "first: whatis temp1"
+gdb_test "whatis temp2" "type = char \\\[26\\\]" "first: whatis temp2"
+gdb_test "whatis temp3" "type = char \\\[48\\\]" "first: whatis temp3"
+
+gdb_test "ptype temp1" "type = char \\\[26\\\]" "first: ptype temp1"
+gdb_test "ptype temp2" "type = char \\\[26\\\]" "first: ptype temp2"
+gdb_test "ptype temp3" "type = char \\\[48\\\]" "first: ptype temp3"
+
+gdb_test "p temp1" " = '1' <repeats 26 times>" "first: print temp1"
+gdb_test "p temp2" " = '2' <repeats 26 times>" "first: print temp2"
+gdb_test "p temp3" " = '3' <repeats 48 times>" "first: print temp3"
+
+gdb_continue_to_breakpoint "break-here"
+
+gdb_test "whatis temp1" "type = char \\\[78\\\]" "second: whatis temp1"
+gdb_test "whatis temp2" "type = char \\\[78\\\]" "second: whatis temp2"
+gdb_test "whatis temp3" "type = char \\\[48\\\]" "second: whatis temp3"
+
+gdb_test "ptype temp1" "type = char \\\[78\\\]" "second: ptype temp1"
+gdb_test "ptype temp2" "type = char \\\[78\\\]" "second: ptype temp2"
+gdb_test "ptype temp3" "type = char \\\[48\\\]" "second: ptype temp3"
+
+gdb_test "p temp1" " = '1' <repeats 78 times>" "second: print temp1"
+gdb_test "p temp2" " = '2' <repeats 78 times>" "second: print temp2"
+gdb_test "p temp3" " = '3' <repeats 48 times>" "second: print temp3"

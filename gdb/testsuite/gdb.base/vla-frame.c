@@ -1,6 +1,6 @@
 /* This testcase is part of GDB, the GNU debugger.
 
-   Copyright 2005-2018 Free Software Foundation, Inc.
+   Copyright 2011 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,19 +15,17 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-int array[] = {1, 2, 3, 4};
-
-#ifdef __GNUC__
-struct
-  {
-    int a[0];
-  } unbound;
-#endif
+#include <string.h>
 
 int
-main (void)
+main (int argc, char **argv)
 {
-  array[0] = 5;
+  char s[2 + argc];
+  void (*f) (char *) = 0;
 
+  memset (s, 0, sizeof (s));
+  s[0] = 'X';
+
+  f (s);
   return 0;
 }

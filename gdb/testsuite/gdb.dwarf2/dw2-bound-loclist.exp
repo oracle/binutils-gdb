@@ -1,0 +1,66 @@
+# Copyright 2010 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Test printing variable with dynamic bounds which reference a different
+# (artificial in the GCC case) variable containing loclist as its location.
+# This testcase uses value (not address) of the referenced variable:
+# http://gcc.gnu.org/bugzilla/show_bug.cgi?id=43762
+
+# This test can only be run on targets which support DWARF-2 and use gas.
+# For now pick a sampling of likely targets.
+if {![istarget *-*-linux*]
+    && ![istarget *-*-gnu*]
+    && ![istarget *-*-elf*]
+    && ![istarget *-*-openbsd*]
+    && ![istarget arm-*-eabi*]
+    && ![istarget powerpc-*-eabi*]} {
+    return 0
+}
+
+set testfile dw2-bound-loclist
+if { [prepare_for_testing ${testfile}.exp ${testfile} [list ${testfile}.S main.c] {}] } {
+    return -1
+}
+
+# Verify it behaves at least as an unbound array without inferior.
+
+# FIXME: FSF GDB crashes due to !has_stack_frames ().
+# But in practice that should not happen.
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=43762
+#set test "p a_string"
+#gdb_test_multiple $test $test {
+#    -re " = 0x\[0-9a-f\]+ \"seennotseen\"\r\n$gdb_prompt $" {
+#	pass $test
+#    }
+#    -re "No registers\\.\r\n$gdb_prompt $" {
+#	kfail "vlaregression" $test
+#    }
+#}
+#
+#gdb_test "ptype a_string" {type = char \[variable length\]}
+
+# Not runto_main as dw2-bound-loclist.S handles only the first byte of main.
+if ![runto "*main"] {
+    return -1
+}
+
+gdb_test "p a_string" { = "seen"}
+gdb_test "ptype a_string" {type = char \[4\]}
+
+gdb_test "p b_string" { = (0x[0-9a-f]+ )?"seennotseen"}
+gdb_test "ptype b_string" {type = char \[\]}
+
+# The register contains unpredictable value - the array size.
+gdb_test "ptype reg_string" {type = char \[-?[0-9]+\]}

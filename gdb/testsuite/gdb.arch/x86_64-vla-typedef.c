@@ -1,6 +1,6 @@
 /* This testcase is part of GDB, the GNU debugger.
 
-   Copyright 2005-2018 Free Software Foundation, Inc.
+   Copyright 2008 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,19 +15,31 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-int array[] = {1, 2, 3, 4};
+#if 0
 
-#ifdef __GNUC__
-struct
-  {
-    int a[0];
-  } unbound;
-#endif
+void
+foo (int size)
+{
+  typedef char array_t[size];
+  array_t array;
+  int i;
+
+  for (i = 0; i < size; i++)
+    array[i] = i;
+
+  array[0] = 0;	/* break-here */
+}
+
+#else
+
+void foo (int size);
 
 int
 main (void)
 {
-  array[0] = 5;
-
+  foo (26);
+  foo (78);
   return 0;
 }
+
+#endif
