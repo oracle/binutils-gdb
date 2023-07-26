@@ -47,7 +47,7 @@
 #include "osdata.h"
 #include "common/gdb_splay_tree.h"
 #include "tracepoint.h"
-#include "ctf.h"
+#include "tracectf.h"
 #include "ada-lang.h"
 #include "linespec.h"
 #include "extension.h"

@@ -523,4 +523,9 @@ extern void dump_core (void);
 
 extern char *make_hex_string (const gdb_byte *data, size_t length);
 
+/* Find an integer type SIZE_IN_BYTES bytes in size from OF and return it.
+   UNSIGNED_P controls if the integer is unsigned or not.  */
+extern struct type *objfile_int_type (struct objfile *of, int size_in_bytes,
+				      bool unsigned_p);
+
 #endif /* UTILS_H */

@@ -19,7 +19,7 @@
 
 #include "defs.h"
 #include "tracefile.h"
-#include "ctf.h"
+#include "tracectf.h"
 #include "exec.h"
 #include "regcache.h"
 #include "common/byte-vector.h"

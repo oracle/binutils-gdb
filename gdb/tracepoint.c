@@ -51,7 +51,6 @@
 #include "memrange.h"
 #include "cli/cli-utils.h"
 #include "probe.h"
-#include "ctf.h"
 #include "filestuff.h"
 #include "rsp-low.h"
 #include "tracefile.h"

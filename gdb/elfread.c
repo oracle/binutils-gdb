@@ -1,6 +1,6 @@
 /* Read ELF (Executable and Linking Format) object files for GDB.
 
-   Copyright (C) 1991-2018 Free Software Foundation, Inc.
+   Copyright (C) 1991-2019 Free Software Foundation, Inc.
 
    Written by Fred Fish at Cygnus Support.
 
@@ -48,6 +48,7 @@
 #include "build-id.h"
 #include "location.h"
 #include "auxv.h"
+#include "ctfread.h"
 
 /* Forward declarations.  */
 extern const struct sym_fns elf_sym_fns_gdb_index;
@@ -62,6 +63,7 @@ struct elfinfo
   {
     asection *stabsect;		/* Section pointer for .stab section */
     asection *mdebugsect;	/* Section pointer for .mdebug section */
+    asection *ctfsect;		/* Section pointer for .ctf section */
   };
 
 /* Per-BFD data for probe info.  */
@@ -189,6 +191,10 @@ elf_locate_sections (bfd *ignore_abfd, asection *sectp, void *eip)
   else if (strcmp (sectp->name, ".mdebug") == 0)
     {
       ei->mdebugsect = sectp;
+    }
+  else if (strcmp (sectp->name, ".ctf") == 0)
+    {
+      ei->ctfsect = sectp;
     }
 }
 
@@ -1060,7 +1066,8 @@ elf_read_minimal_symbols (struct objfile *objfile, int symfile_flags,
      go away once all types of symbols are in the per-BFD object.  */
   if (objfile->per_bfd->minsyms_read
       && ei->stabsect == NULL
-      && ei->mdebugsect == NULL)
+      && ei->mdebugsect == NULL
+      && ei->ctfsect == NULL)
     {
       if (symtab_create_debug)
 	fprintf_unfiltered (gdb_stdlog,
@@ -1205,6 +1212,7 @@ elf_symfile_read (struct objfile *objfile, symfile_add_flags symfile_flags)
 {
   bfd *abfd = objfile->obfd;
   struct elfinfo ei;
+  bool has_dwarf2 = true;
 
   memset ((char *) &ei, 0, sizeof (ei));
   if (!(objfile->flags & OBJF_READNEVER))
@@ -1310,9 +1318,20 @@ elf_symfile_read (struct objfile *objfile, symfile_add_flags symfile_flags)
 				    symfile_flags, objfile);
 	}
       /* Check if any separate debug info has been extracted out.  */
-      else if (bfd_get_section_by_name (objfile->obfd, ".gnu_debuglink")
-	       != NULL)
-	debug_print_missing (objfile_name (objfile), build_id_filename.get ());
+      else
+	{
+	  if (bfd_get_section_by_name (objfile->obfd, ".gnu_debuglink")
+	      != NULL)
+	    debug_print_missing (objfile_name (objfile), build_id_filename.get ());
+
+	  has_dwarf2 = false;
+	}
+    }
+
+  /* Read the CTF section only if there is no DWARF info.  */
+  if (!has_dwarf2 && ei.ctfsect)
+    {
+      elfctf_build_psymtabs (objfile);
     }
 }
 

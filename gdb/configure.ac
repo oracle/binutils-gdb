@@ -2466,6 +2466,24 @@ else
   fi
 fi
 
+GCC_ENABLE([libctf], [yes], [], [Handle .ctf type-info sections])
+if test x${enable_static} = xno; then
+  LIBCTF="-Wl,--rpath,../libctf/.libs ../libctf/.libs/libctf.so"
+  CTF_DEPS="../libctf/.libs/libctf.so"
+else
+  LIBCTF="../libctf/.libs/libctf.a"
+  CTF_DEPS="$LIBCTF"
+fi
+if test "${enable_libctf}" = yes; then
+  AC_DEFINE(ENABLE_LIBCTF, 1, [Handle .ctf type-info sections])
+else
+  LIBCTF=
+  CTF_DEPS=
+fi
+AC_SUBST(ENABLE_LIBCTF)
+AC_SUBST(LIBCTF)
+AC_SUBST(CTF_DEPS)
+
 # If nativefile (NAT_FILE) is not set in configure.nat, we link to an
 # empty version.
 

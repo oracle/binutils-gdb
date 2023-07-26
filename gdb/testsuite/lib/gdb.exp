@@ -1897,6 +1897,23 @@ proc skip_tui_tests {} {
     return 0
 }
 
+# Return 1 if we should skip CTF-related tests.
+
+gdb_caching_proc skip_ctf_tests {
+    set me "skip_ctf_tests"
+    set src { int main () {return 0;} }
+    set compile_flags "additional_flags=-gt"
+    global enable_libctf
+
+    if {$enable_libctf eq "no"} {
+	return 1
+    }
+    if {![gdb_simple_compile $me $src executable $compile_flags]} {
+	return 1
+    }
+    return 0
+}
+
 # Test files shall make sure all the test result lines in gdb.sum are
 # unique in a test run, so that comparing the gdb.sum files of two
 # test runs gives correct results.  Test files that exercise
@@ -3537,6 +3554,46 @@ gdb_caching_proc universal_compile_options {
 
     verbose "$me:  returning $options" 2
     return $options
+}
+
+# Compile the code in $code to a file based on $name, using the flags
+# $compile_flag as well as debug, nowarning and quiet.
+# Return 1 if code can be compiled
+# Leave the file name of the resulting object in the upvar object.
+
+proc gdb_simple_compile {name code {type object} {compile_flags {}} {object obj}} {
+    upvar $object obj
+
+    switch -regexp -- $type {
+        "executable" {
+            set postfix "x"
+        }
+        "object" {
+            set postfix "o"
+        }
+        "preprocess" {
+            set postfix "i"
+        }
+        "assembly" {
+            set postfix "s"
+        }
+    }
+    set src [standard_temp_file $name-[pid].c]
+    set obj [standard_temp_file $name-[pid].$postfix]
+    set compile_flags [concat $compile_flags {debug nowarnings quiet}]
+
+    gdb_produce_source $src $code
+
+    verbose "$name:  compiling testfile $src" 2
+    set lines [gdb_compile $src $obj $type $compile_flags]
+
+    file delete $src
+
+    if ![string match "" $lines] then {
+        verbose "$name:  compilation failed, returning 0" 2
+        return 0
+    }
+    return 1
 }
 
 # Some targets need to always link a special object in.  Save its path here.

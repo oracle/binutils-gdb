@@ -158,6 +158,10 @@ INCLUDE_CFLAGS = -I$(INCLUDE_DIR)
 # Where is the "-liberty" library?  Typically in ../libiberty.
 LIBIBERTY = ../libiberty/libiberty.a
 
+# Where is the CTF library?  Typically in ../libctf.
+LIBCTF = @LIBCTF@
+CTF_DEPS = @CTF_DEPS@
+
 # Where is the BFD library?  Typically in ../bfd.
 BFD_DIR = ../bfd
 BFD = $(BFD_DIR)/libbfd.a
@@ -596,12 +600,13 @@ INTERNAL_LDFLAGS = \
 # Libraries and corresponding dependencies for compiling gdb.
 # XM_CLIBS, defined in *config files, have host-dependent libs.
 # LIBIBERTY appears twice on purpose.
-CLIBS = $(SIM) $(READLINE) $(OPCODES) $(BFD) $(ZLIB) $(INTL) $(LIBIBERTY) $(LIBDECNUMBER) \
+CLIBS = $(SIM) $(READLINE) $(OPCODES) $(LIBCTF) $(BFD) $(ZLIB) \
+        $(INTL) $(LIBIBERTY) $(LIBDECNUMBER) \
 	$(XM_CLIBS) $(NAT_CLIBS) $(GDBTKLIBS) \
 	@LIBS@ @GUILE_LIBS@ @PYTHON_LIBS@ \
 	$(LIBEXPAT) $(LIBLZMA) $(LIBBABELTRACE) $(LIBIPT) \
 	$(LIBIBERTY) $(WIN32LIBS) $(LIBGNU) $(LIBICONV) $(LIBMPFR)
-CDEPS = $(XM_CDEPS) $(NAT_CDEPS) $(SIM) $(BFD) $(READLINE_DEPS) \
+CDEPS = $(XM_CDEPS) $(NAT_CDEPS) $(SIM) $(BFD) $(READLINE_DEPS) $(CTF_DEPS) \
 	$(OPCODES) $(INTL_DEPS) $(LIBIBERTY) $(CONFIG_DEPS) $(LIBGNU)
 
 ADD_FILES = $(XM_ADD_FILES) $(TM_ADD_FILES) $(NAT_ADD_FILES)
@@ -990,7 +995,7 @@ COMMON_SFILES = \
 	cp-namespace.c \
 	cp-support.c \
 	cp-valprint.c \
-	ctf.c \
+	ctfread.c \
 	d-lang.c \
 	d-namespace.c \
 	d-valprint.c \
@@ -1120,6 +1125,7 @@ COMMON_SFILES = \
 	thread-fsm.c \
 	tid-parse.c \
 	top.c \
+	tracectf.c \
 	tracefile.c \
 	tracefile-tfile.c \
 	tracepoint.c \
@@ -1216,7 +1222,7 @@ HFILES_NO_SRCDIR = \
 	completer.h \
 	cp-abi.h \
 	cp-support.h \
-	ctf.h \
+	tracectf.h \
 	d-lang.h \
 	darwin-nat.h \
 	dcache.h \
@@ -2135,6 +2141,7 @@ aclocal_m4_deps = \
 	transform.m4 \
 	../bfd/bfd.m4 \
 	../config/acinclude.m4 \
+	../config/enable.m4 \
 	../config/plugins.m4 \
 	../config/lead-dot.m4 \
 	../config/override.m4 \

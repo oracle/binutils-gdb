@@ -3275,6 +3275,32 @@ strip_leading_path_elements (const char *path, int n)
   return p;
 }
 
+/* See utils.h.  */
+
+struct type *
+objfile_int_type (struct objfile *of, int size_in_bytes, bool unsigned_p)
+{
+  struct type *int_type;
+
+  /* Helper macro to examine the various builtin types.  */
+#define TRY_TYPE(F)                                                     \
+  int_type = (unsigned_p                                                \
+              ? objfile_type (of)->builtin_unsigned_ ## F               \
+              : objfile_type (of)->builtin_ ## F);                      \
+  if (int_type != NULL && TYPE_LENGTH (int_type) == size_in_bytes)      \
+    return int_type
+
+  TRY_TYPE (char);
+  TRY_TYPE (short);
+  TRY_TYPE (int);
+  TRY_TYPE (long);
+  TRY_TYPE (long_long);
+
+#undef TRY_TYPE
+
+  gdb_assert_not_reached ("unable to find suitable integer type");
+}
+
 void
 _initialize_utils (void)
 {
