@@ -587,6 +587,14 @@ build_address_symbolic (struct gdbarch *gdbarch,
 	  addr = overlay_mapped_address (addr, section);
 	}
     }
+  /* To ensure that the symbol returned belongs to the correct setion
+     (and that the last [random] symbol from the previous section
+     isn't returned) try to find the section containing PC.  First try
+     the overlay code (which by default returns NULL); and second try
+     the normal section code (which almost always succeeds).  */
+  section = find_pc_overlay (addr);
+  if (section == NULL)
+    section = find_pc_section (addr);
 
   /* First try to find the address in the symbol table, then
      in the minsyms.  Take the closest one.  */
