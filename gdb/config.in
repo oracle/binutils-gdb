@@ -33,6 +33,9 @@
 /* Define to BFD's default target vector. */
 #undef DEFAULT_BFD_VEC
 
+/* librpm version specific library name to dlopen. */
+#undef DLOPEN_LIBRPM
+
 /* Define to 1 if translation of program messages to the user's native
    language is requested. */
 #undef ENABLE_NLS
@@ -269,6 +272,9 @@
 
 /* Define if Python 2.7 is being used. */
 #undef HAVE_LIBPYTHON2_7
+
+/* Define if librpm library is being used. */
+#undef HAVE_LIBRPM
 
 /* Define to 1 if you have the <libunwind-ia64.h> header file. */
 #undef HAVE_LIBUNWIND_IA64_H

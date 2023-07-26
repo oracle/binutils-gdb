@@ -366,7 +366,7 @@ build_id_locate_exec (int from_tty)
         symfile_objfile->flags |= OBJF_BUILD_ID_CORE_LOADED;
     }
   else
-    debug_print_missing (_("the main executable file"), build_id_filename);
+    debug_print_missing (BUILD_ID_MAIN_EXECUTABLE_FILENAME, build_id_filename);
 
   do_cleanups (back_to);
 

@@ -35,6 +35,8 @@
 #include "elf/common.h"
 #include "elf-bfd.h"
 #include <sys/stat.h>
+#include "elf/external.h"
+#include "inferior.h"
 
 #define BUILD_ID_VERBOSE_NONE 0
 #define BUILD_ID_VERBOSE_FILENAMES 1
@@ -640,8 +642,366 @@ build_id_to_filename (const struct bfd_build_id *build_id, char **link_return)
   return result;
 }
 
+#ifdef HAVE_LIBRPM
+
+#include <rpm/rpmlib.h>
+#include <rpm/rpmts.h>
+#include <rpm/rpmdb.h>
+#include <rpm/header.h>
+#ifdef DLOPEN_LIBRPM
+#include <dlfcn.h>
+#endif
+
+/* This MISSING_RPM_HASH tracker is used to collect all the missing rpm files
+   and avoid their duplicities during a single inferior run.  */
+
+static struct htab *missing_rpm_hash;
+
+/* This MISSING_RPM_LIST tracker is used to collect and print as a single line
+   all the rpms right before the nearest GDB prompt.  It gets cleared after
+   each such print (it is questionable if we should clear it after the print).
+   */
+
+struct missing_rpm
+  {
+    struct missing_rpm *next;
+    char rpm[1];
+  };
+static struct missing_rpm *missing_rpm_list;
+static int missing_rpm_list_entries;
+
+/* Returns the count of newly added rpms.  */
+
+static int
+missing_rpm_enlist (const char *filename)
+{
+  static int rpm_init_done = 0;
+  rpmts ts;
+  rpmdbMatchIterator mi;
+  int count = 0;
+
+#ifdef DLOPEN_LIBRPM
+  /* Duplicate here the declarations to verify they match.  The same sanity
+     check is present also in `configure.ac'.  */
+  extern char * headerFormat(Header h, const char * fmt, errmsg_t * errmsg);
+  static char *(*headerFormat_p) (Header h, const char * fmt, errmsg_t *errmsg);
+  extern int rpmReadConfigFiles(const char * file, const char * target);
+  static int (*rpmReadConfigFiles_p) (const char * file, const char * target);
+  extern rpmdbMatchIterator rpmdbFreeIterator(rpmdbMatchIterator mi);
+  static rpmdbMatchIterator (*rpmdbFreeIterator_p) (rpmdbMatchIterator mi);
+  extern Header rpmdbNextIterator(rpmdbMatchIterator mi);
+  static Header (*rpmdbNextIterator_p) (rpmdbMatchIterator mi);
+  extern rpmts rpmtsCreate(void);
+  static rpmts (*rpmtsCreate_p) (void);
+  extern rpmts rpmtsFree(rpmts ts);
+  static rpmts (*rpmtsFree_p) (rpmts ts);
+  extern rpmdbMatchIterator rpmtsInitIterator(const rpmts ts, rpmTag rpmtag,
+                                              const void * keyp, size_t keylen);
+  static rpmdbMatchIterator (*rpmtsInitIterator_p) (const rpmts ts,
+						    rpmTag rpmtag,
+						    const void *keyp,
+						    size_t keylen);
+#else	/* !DLOPEN_LIBRPM */
+# define headerFormat_p headerFormat
+# define rpmReadConfigFiles_p rpmReadConfigFiles
+# define rpmdbFreeIterator_p rpmdbFreeIterator
+# define rpmdbNextIterator_p rpmdbNextIterator
+# define rpmtsCreate_p rpmtsCreate
+# define rpmtsFree_p rpmtsFree
+# define rpmtsInitIterator_p rpmtsInitIterator
+#endif	/* !DLOPEN_LIBRPM */
+
+  gdb_assert (filename != NULL);
+
+  if (strcmp (filename, BUILD_ID_MAIN_EXECUTABLE_FILENAME) == 0)
+    return 0;
+
+  if (is_target_filename (filename))
+    return 0;
+
+  if (filename[0] != '/')
+    {
+      warning (_("Ignoring non-absolute filename: <%s>"), filename);
+      return 0;
+    }
+
+  if (!rpm_init_done)
+    {
+      static int init_tried;
+
+      /* Already failed the initialization before?  */
+      if (init_tried)
+      	return 0;
+      init_tried = 1;
+
+#ifdef DLOPEN_LIBRPM
+      {
+	void *h;
+
+	h = dlopen (DLOPEN_LIBRPM, RTLD_LAZY);
+	if (!h)
+	  {
+	    warning (_("Unable to open \"%s\" (%s), "
+		      "missing debuginfos notifications will not be displayed"),
+		     DLOPEN_LIBRPM, dlerror ());
+	    return 0;
+	  }
+
+	if (!((headerFormat_p = (char *(*) (Header h, const char * fmt, errmsg_t *errmsg)) dlsym (h, "headerFormat"))
+	      && (rpmReadConfigFiles_p = (int (*) (const char * file, const char * target)) dlsym (h, "rpmReadConfigFiles"))
+	      && (rpmdbFreeIterator_p = (rpmdbMatchIterator (*) (rpmdbMatchIterator mi)) dlsym (h, "rpmdbFreeIterator"))
+	      && (rpmdbNextIterator_p = (Header (*) (rpmdbMatchIterator mi)) dlsym (h, "rpmdbNextIterator"))
+	      && (rpmtsCreate_p = (rpmts (*) (void)) dlsym (h, "rpmtsCreate"))
+	      && (rpmtsFree_p = (rpmts (*) (rpmts ts)) dlsym (h, "rpmtsFree"))
+	      && (rpmtsInitIterator_p = (rpmdbMatchIterator (*) (const rpmts ts, rpmTag rpmtag, const void *keyp, size_t keylen)) dlsym (h, "rpmtsInitIterator"))))
+	  {
+	    warning (_("Opened library \"%s\" is incompatible (%s), "
+		      "missing debuginfos notifications will not be displayed"),
+		     DLOPEN_LIBRPM, dlerror ());
+	    if (dlclose (h))
+	      warning (_("Error closing library \"%s\": %s\n"), DLOPEN_LIBRPM,
+		       dlerror ());
+	    return 0;
+	  }
+      }
+#endif	/* DLOPEN_LIBRPM */
+
+      if (rpmReadConfigFiles_p (NULL, NULL) != 0)
+	{
+	  warning (_("Error reading the rpm configuration files"));
+	  return 0;
+	}
+
+      rpm_init_done = 1;
+    }
+
+  ts = rpmtsCreate_p ();
+
+  mi = rpmtsInitIterator_p (ts, RPMTAG_BASENAMES, filename, 0);
+  if (mi != NULL)
+    {
+      for (;;)
+	{
+	  Header h;
+	  char *debuginfo, **slot, *s, *s2;
+	  errmsg_t err;
+	  size_t srcrpmlen = sizeof (".src.rpm") - 1;
+	  size_t debuginfolen = sizeof ("-debuginfo") - 1;
+	  rpmdbMatchIterator mi_debuginfo;
+
+	  h = rpmdbNextIterator_p (mi);
+	  if (h == NULL)
+	    break;
+
+	  /* Verify the debuginfo file is not already installed.  */
+
+	  debuginfo = headerFormat_p (h, "%{sourcerpm}-debuginfo.%{arch}",
+				      &err);
+	  if (!debuginfo)
+	    {
+	      warning (_("Error querying the rpm file `%s': %s"), filename,
+	               err);
+	      continue;
+	    }
+	  /* s = `.src.rpm-debuginfo.%{arch}' */
+	  s = strrchr (debuginfo, '-') - srcrpmlen;
+	  s2 = NULL;
+	  if (s > debuginfo && memcmp (s, ".src.rpm", srcrpmlen) == 0)
+	    {
+	      /* s2 = `-%{release}.src.rpm-debuginfo.%{arch}' */
+	      s2 = (char *) memrchr (debuginfo, '-', s - debuginfo);
+	    }
+	  if (s2)
+	    {
+	      /* s2 = `-%{version}-%{release}.src.rpm-debuginfo.%{arch}' */
+	      s2 = (char *) memrchr (debuginfo, '-', s2 - debuginfo);
+	    }
+	  if (!s2)
+	    {
+	      warning (_("Error querying the rpm file `%s': %s"), filename,
+	               debuginfo);
+	      xfree (debuginfo);
+	      continue;
+	    }
+	  /* s = `.src.rpm-debuginfo.%{arch}' */
+	  /* s2 = `-%{version}-%{release}.src.rpm-debuginfo.%{arch}' */
+	  memmove (s2 + debuginfolen, s2, s - s2);
+	  memcpy (s2, "-debuginfo", debuginfolen);
+	  /* s = `XXXX.%{arch}' */
+	  /* strlen ("XXXX") == srcrpmlen + debuginfolen */
+	  /* s2 = `-debuginfo-%{version}-%{release}XX.%{arch}' */
+	  /* strlen ("XX") == srcrpmlen */
+	  memmove (s + debuginfolen, s + srcrpmlen + debuginfolen,
+		   strlen (s + srcrpmlen + debuginfolen) + 1);
+	  /* s = `-debuginfo-%{version}-%{release}.%{arch}' */
+
+	  /* RPMDBI_PACKAGES requires keylen == sizeof (int).  */
+	  /* RPMDBI_LABEL is an interface for NVR-based dbiFindByLabel().  */
+	  mi_debuginfo = rpmtsInitIterator_p (ts, (rpmTag) RPMDBI_LABEL, debuginfo, 0);
+	  xfree (debuginfo);
+	  if (mi_debuginfo)
+	    {
+	      rpmdbFreeIterator_p (mi_debuginfo);
+	      count = 0;
+	      break;
+	    }
+
+	  /* The allocated memory gets utilized below for MISSING_RPM_HASH.  */
+	  debuginfo = headerFormat_p (h,
+				      "%{name}-%{version}-%{release}.%{arch}",
+				      &err);
+	  if (!debuginfo)
+	    {
+	      warning (_("Error querying the rpm file `%s': %s"), filename,
+	               err);
+	      continue;
+	    }
+
+	  /* Base package name for `debuginfo-install'.  We do not use the
+	     `yum' command directly as the line
+		 yum --enablerepo='*debug*' install NAME-debuginfo.ARCH
+	     would be more complicated than just:
+		 debuginfo-install NAME-VERSION-RELEASE.ARCH
+	     Do not supply the rpm base name (derived from .src.rpm name) as
+	     debuginfo-install is unable to install the debuginfo package if
+	     the base name PKG binary rpm is not installed while for example
+	     PKG-libs would be installed (RH Bug 467901).
+	     FUTURE: After multiple debuginfo versions simultaneously installed
+	     get supported the support for the VERSION-RELEASE tags handling
+	     may need an update.  */
+
+	  if (missing_rpm_hash == NULL)
+	    {
+	      /* DEL_F is passed NULL as MISSING_RPM_LIST's HTAB_DELETE
+		 should not deallocate the entries.  */
+
+	      missing_rpm_hash = htab_create_alloc (64, htab_hash_string,
+			       (int (*) (const void *, const void *)) streq,
+						    NULL, xcalloc, xfree);
+	    }
+	  slot = (char **) htab_find_slot (missing_rpm_hash, debuginfo, INSERT);
+	  /* XCALLOC never returns NULL.  */
+	  gdb_assert (slot != NULL);
+	  if (*slot == NULL)
+	    {
+	      struct missing_rpm *missing_rpm;
+
+	      *slot = debuginfo;
+
+	      missing_rpm = (struct missing_rpm *) xmalloc (sizeof (*missing_rpm) + strlen (debuginfo));
+	      strcpy (missing_rpm->rpm, debuginfo);
+	      missing_rpm->next = missing_rpm_list;
+	      missing_rpm_list = missing_rpm;
+	      missing_rpm_list_entries++;
+	    }
+	  else
+	    xfree (debuginfo);
+	  count++;
+	}
+
+      rpmdbFreeIterator_p (mi);
+    }
+
+  rpmtsFree_p (ts);
+
+  return count;
+}
+
+static int
+missing_rpm_list_compar (const char *const *ap, const char *const *bp)
+{
+  return strcoll (*ap, *bp);
+}
+
+/* It returns a NULL-terminated array of strings needing to be FREEd.  It may
+   also return only NULL.  */
+
+static void
+missing_rpm_list_print (void)
+{
+  char **array, **array_iter;
+  struct missing_rpm *list_iter;
+  struct cleanup *cleanups;
+
+  if (missing_rpm_list_entries == 0)
+    return;
+
+  array = (char **) xmalloc (sizeof (*array) * missing_rpm_list_entries);
+  cleanups = make_cleanup (xfree, array);
+
+  array_iter = array;
+  for (list_iter = missing_rpm_list; list_iter != NULL;
+       list_iter = list_iter->next)
+    {
+      *array_iter++ = list_iter->rpm;
+    }
+  gdb_assert (array_iter == array + missing_rpm_list_entries);
+
+  qsort (array, missing_rpm_list_entries, sizeof (*array),
+	 (int (*) (const void *, const void *)) missing_rpm_list_compar);
+
+  printf_unfiltered (_("Missing separate debuginfos, use: %s"),
+#ifdef DNF_DEBUGINFO_INSTALL
+		     "dnf "
+#endif
+		     "debuginfo-install");
+  for (array_iter = array; array_iter < array + missing_rpm_list_entries;
+       array_iter++)
+    {
+      putchar_unfiltered (' ');
+      puts_unfiltered (*array_iter);
+    }
+  putchar_unfiltered ('\n');
+
+  while (missing_rpm_list != NULL)
+    {
+      list_iter = missing_rpm_list;
+      missing_rpm_list = list_iter->next;
+      xfree (list_iter);
+    }
+  missing_rpm_list_entries = 0;
+
+  do_cleanups (cleanups);
+}
+
+static void
+missing_rpm_change (void)
+{
+  debug_flush_missing ();
+
+  gdb_assert (missing_rpm_list == NULL);
+  if (missing_rpm_hash != NULL)
+    {
+      htab_delete (missing_rpm_hash);
+      missing_rpm_hash = NULL;
+    }
+}
+
+enum missing_exec
+  {
+    /* Init state.  EXEC_BFD also still could be NULL.  */
+    MISSING_EXEC_NOT_TRIED,
+    /* We saw a non-NULL EXEC_BFD but RPM has no info about it.  */
+    MISSING_EXEC_NOT_FOUND,
+    /* We found EXEC_BFD by RPM and we either have its symbols (either embedded
+       or separate) or the main executable's RPM is now contained in
+       MISSING_RPM_HASH.  */
+    MISSING_EXEC_ENLISTED
+  };
+static enum missing_exec missing_exec = MISSING_EXEC_NOT_TRIED;
+
+#endif	/* HAVE_LIBRPM */
+
+void
+debug_flush_missing (void)
+{
+#ifdef HAVE_LIBRPM
+  missing_rpm_list_print ();
+#endif
+}
+
 /* This MISSING_FILEPAIR_HASH tracker is used only for the duplicite messages
-     Try to install the hash file ...
+     yum --enablerepo='*debug*' install ...
    avoidance.  */
 
 struct missing_filepair
@@ -695,11 +1055,17 @@ missing_filepair_change (void)
       /* All their memory came just from missing_filepair_OBSTACK.  */
       missing_filepair_hash = NULL;
     }
+#ifdef HAVE_LIBRPM
+  missing_exec = MISSING_EXEC_NOT_TRIED;
+#endif
 }
 
 static void
 debug_print_executable_changed (void)
 {
+#ifdef HAVE_LIBRPM
+  missing_rpm_change ();
+#endif
   missing_filepair_change ();
 }
 
@@ -766,14 +1132,39 @@ debug_print_missing (const char *binary, const char *debug)
 
   *slot = missing_filepair;
 
-  /* We do not collect and flush these messages as each such message
-     already requires its own separate lines.  */
+#ifdef HAVE_LIBRPM
+  if (missing_exec == MISSING_EXEC_NOT_TRIED)
+    {
+      char *execfilename;
 
-  fprintf_unfiltered (gdb_stdlog,
-		      _("Missing separate debuginfo for %s\n"), binary);
-  if (debug != NULL)
-    fprintf_unfiltered (gdb_stdlog, _("Try to install the hash file %s\n"),
-			debug);
+      execfilename = get_exec_file (0);
+      if (execfilename != NULL)
+	{
+	  if (missing_rpm_enlist (execfilename) == 0)
+	    missing_exec = MISSING_EXEC_NOT_FOUND;
+	  else
+	    missing_exec = MISSING_EXEC_ENLISTED;
+	}
+    }
+  if (missing_exec != MISSING_EXEC_ENLISTED)
+    if ((binary[0] == 0 || missing_rpm_enlist (binary) == 0)
+	&& (debug == NULL || missing_rpm_enlist (debug) == 0))
+#endif	/* HAVE_LIBRPM */
+      {
+	/* We do not collect and flush these messages as each such message
+	   already requires its own separate lines.  */
+
+	fprintf_unfiltered (gdb_stdlog,
+			    _("Missing separate debuginfo for %s\n"), binary);
+        if (debug != NULL)
+	  fprintf_unfiltered (gdb_stdlog, _("Try: %s %s\n"),
+#ifdef DNF_DEBUGINFO_INSTALL
+			      "dnf"
+#else
+			      "yum"
+#endif
+			      " --enablerepo='*debug*' install", debug);
+      }
 }
 
 /* See build-id.h.  */
