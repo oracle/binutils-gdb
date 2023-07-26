@@ -109,6 +109,8 @@ SH-5/SH64 running OpenBSD 	SH-5/SH64 support in sh*-*-openbsd*
 
 *** Changes in GDB 8.1
 
+* Fortran: Support pointers to dynamic types.
+
 * GDB now supports dynamically creating arbitrary register groups specified
   in XML target descriptions.  This allows for finer grain grouping of
   registers on systems with a large amount of registers.
