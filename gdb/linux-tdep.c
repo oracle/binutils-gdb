@@ -710,6 +710,25 @@ dump_mapping_p (filter_flags filterflags, const struct smaps_vmflags *v,
     }
 }
 
+/* As above, but return true only when we should dump the NT_FILE
+   entry.  */
+
+static int
+dump_note_entry_p (filter_flags filterflags, const struct smaps_vmflags *v,
+		int maybe_private_p, int mapping_anon_p, int mapping_file_p,
+		const char *filename)
+{
+  /* vDSO and vsyscall mappings will end up in the core file.  Don't
+     put them in the NT_FILE note.  */
+  if (strcmp ("[vdso]", filename) == 0
+      || strcmp ("[vsyscall]", filename) == 0)
+    return 0;
+
+  /* Otherwise, any other file-based mapping should be placed in the
+     note.  */
+  return filename != nullptr;
+}
+
 /* Implement the "info proc" command.  */
 
 static void
@@ -1224,10 +1243,18 @@ typedef int linux_find_memory_region_ftype (ULONGEST vaddr, ULONGEST size,
 					    const char *filename,
 					    void *data);
 
+typedef int linux_dump_mapping_p_ftype (filter_flags filterflags,
+					const struct smaps_vmflags *v,
+					int maybe_private_p,
+					int mapping_anon_p,
+					int mapping_file_p,
+					const char *filename);
+
 /* List memory regions in the inferior for a corefile.  */
 
 static int
 linux_find_memory_regions_full (struct gdbarch *gdbarch,
+				linux_dump_mapping_p_ftype *should_dump_mapping_p,
 				linux_find_memory_region_ftype *func,
 				void *obfd)
 {
@@ -1378,7 +1405,7 @@ linux_find_memory_regions_full (struct gdbarch *gdbarch,
 	    }
 
 	  if (has_anonymous)
-	    should_dump_p = dump_mapping_p (filterflags, &v, priv,
+	    should_dump_p = should_dump_mapping_p (filterflags, &v, priv,
 					    mapping_anon_p, mapping_file_p,
 					    filename);
 	  else
@@ -1444,6 +1471,7 @@ linux_find_memory_regions (struct gdbarch *gdbarch,
   data.obfd = obfd;
 
   return linux_find_memory_regions_full (gdbarch,
+					 dump_mapping_p,
 					 linux_find_memory_regions_thunk,
 					 &data);
 }
@@ -1606,7 +1634,9 @@ linux_make_mappings_corefile_notes (struct gdbarch *gdbarch, bfd *obfd,
   pack_long (buf, long_type, 1);
   obstack_grow (&data_obstack, buf, TYPE_LENGTH (long_type));
 
-  linux_find_memory_regions_full (gdbarch, linux_make_mappings_callback,
+  linux_find_memory_regions_full (gdbarch, 
+				  dump_note_entry_p,
+				  linux_make_mappings_callback,
 				  &mapping_data);
 
   if (mapping_data.file_count != 0)
