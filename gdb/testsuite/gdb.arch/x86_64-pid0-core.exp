@@ -1,0 +1,46 @@
+# This testcase is part of GDB, the GNU debugger.
+# 
+# Copyright 2010 Free Software Foundation, Inc.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  
+
+# Some kernel core files have PID 0 - for the idle task.
+
+if ![istarget "x86_64-*-*"] {
+    verbose "Skipping x86_64-pid0-core test."
+    return
+}
+
+set testfile "x86_64-pid0-core"
+set corebz2uufile ${srcdir}/${subdir}/${testfile}.core.bz2.uu
+set corefile [standard_output_file ${testfile}.core]
+
+if {[catch "system \"uudecode -o - ${corebz2uufile} | bzip2 -dc >${corefile}\""] != 0} {
+    untested "failed uudecode or bzip2"
+    return -1
+}
+file stat ${corefile} corestat
+if {$corestat(size) != 8798208} {
+    untested "uudecode or bzip2 produce invalid result"
+    return -1
+}
+
+gdb_exit
+gdb_start
+gdb_reinitialize_dir $srcdir/$subdir
+
+# Former crash was:
+# thread.c:884: internal-error: switch_to_thread: Assertion `inf != NULL' failed.
+gdb_test "core-file ${corefile}" "Program terminated with signal (11|SIGSEGV), Segmentation fault\\.\r\n.*"
