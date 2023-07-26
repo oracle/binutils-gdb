@@ -1,0 +1,47 @@
+# This testcase is part of GDB, the GNU debugger.
+
+# Copyright 2005 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  
+
+# Check that GDB can properly print an inherited member variable
+# (Bugzilla 146835)
+
+set testfile "b146835"
+set srcfile ${testfile}.cc
+set srcfile2 ${testfile}b.cc
+set binfile [standard_output_file ${testfile}]
+if {[gdb_compile "${srcdir}/${subdir}/${srcfile} ${srcdir}/${subdir}/${srcfile2}" "${binfile}" executable {debug c++}] != "" } {
+    return -1
+}
+
+gdb_exit
+gdb_start
+gdb_reinitialize_dir $srcdir/$subdir
+gdb_load ${binfile}
+
+#
+# Run to `main' where we begin our tests.
+#
+
+if ![runto_main] then {
+    gdb_suppress_tests
+}
+
+gdb_test "break 'F::foo()'" ""
+gdb_continue_to_breakpoint "First line foo"
+
+# Verify that we can access the inherited member d
+gdb_test "p d" " = \\(D \\*\\) *0x0" "Verify inherited member d accessible"
