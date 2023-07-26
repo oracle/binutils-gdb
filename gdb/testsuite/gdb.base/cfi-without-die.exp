@@ -1,0 +1,71 @@
+# Copyright 2010 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Test CFI is parsed even for range (function) not described by any DIE.
+
+set testfile cfi-without-die
+set srcmainfile ${testfile}-main.c
+set srccallerfile ${testfile}-caller.c
+set executable ${testfile}
+set objmainfile [standard_output_file ${testfile}-main.o]
+set objcallerfile [standard_output_file ${testfile}-caller.o]
+set binfile [standard_output_file ${executable}]
+
+if { [gdb_compile "${srcdir}/${subdir}/${srccallerfile}" ${objcallerfile} \
+      object [list {additional_flags=-fomit-frame-pointer -fno-unwind-tables -fno-asynchronous-unwind-tables}]] != ""
+     || [gdb_compile "${srcdir}/${subdir}/${srcmainfile}" ${objmainfile} object {debug}] != ""
+     || [gdb_compile "${objmainfile} ${objcallerfile}" ${binfile} executable {}] != "" } {
+     untested ${testfile}.exp
+     return -1
+}
+
+clean_restart $executable
+
+if ![runto callback] then {
+   fail "verify unwinding: Can't run to callback"
+   return 0
+}
+set test "verify unwinding breaks without CFI"
+gdb_test_multiple "bt" $test {
+    -re " in \[?\]\[?\] .*\r\n$gdb_prompt $" {
+	# It may backtrace through some random frames even to main().
+	pass $test
+    }
+    -re " in main .*\r\n$gdb_prompt $" {
+	fail $test
+    }
+    -re "\r\n$gdb_prompt $" {
+	pass $test
+    }
+}
+
+if { [gdb_compile "${srcdir}/${subdir}/${srccallerfile}" ${objcallerfile} \
+      object [list {additional_flags=-fomit-frame-pointer -funwind-tables -fasynchronous-unwind-tables}]] != ""
+     || [gdb_compile "${srcdir}/${subdir}/${srcmainfile}" ${objmainfile} object {debug}] != ""
+     || [gdb_compile "${objmainfile} ${objcallerfile}" ${binfile} executable {}] != "" } {
+     untested ${testfile}.exp
+     return -1
+}
+
+clean_restart $executable
+
+if ![runto callback] then {
+   fail "test CFI without DIEs: Can't run to callback"
+   return 0
+}
+# #0  callback () at ...
+# #1  0x00000000004004e9 in caller ()
+# #2  0x00000000004004cd in main () at ...
+gdb_test "bt" "#0 +callback \[^\r\n\]+\r\n#1 \[^\r\n\]+ in caller \[^\r\n\]+\r\n#2 \[^\r\n\]+ in main \[^\r\n\]+" "verify unwindin works for CFI without DIEs"
