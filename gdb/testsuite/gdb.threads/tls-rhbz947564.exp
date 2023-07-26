@@ -1,0 +1,75 @@
+# Copyright (C) 2013 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+
+set testfile tls-rhbz947564
+set srcfile ${testfile}.cc
+set binfile [standard_output_file ${testfile}]
+
+if [istarget "*-*-linux"] then {
+    set target_cflags "-D_MIT_POSIX_THREADS"
+} else {
+    set target_cflags ""
+}
+
+if {[gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile}" executable [list c++ debug]] != "" } {
+    return -1
+}
+
+gdb_exit
+gdb_start
+gdb_reinitialize_dir $srcdir/$subdir
+
+gdb_load ${binfile}
+
+if { ![runto_main] } {
+    fail "Can't run to function main"
+    return 0
+}
+
+gdb_breakpoint "foo"
+gdb_continue_to_breakpoint "foo" ".* foo_marker .*"
+
+proc get_xp_val {try} {
+    global expect_out
+    global gdb_prompt
+    global hex
+
+    set xp_val ""
+    gdb_test_multiple "print *yp" "print yp value" {
+	-re { = \{v = 0, static xp = (0x[0-9a-f]+)\}.* } {
+	    pass "print $try value of *yp"
+	    set xp_val $expect_out(1,string)
+	}
+	-re "$gdb_prompt $" {
+	    fail "print $try value of *yp"
+	}
+	timeout {
+	    fail "print $try value of *yp (timeout)"
+	}
+    }
+    return $xp_val
+}
+
+set first_run [get_xp_val "first"]
+
+gdb_test "continue" "Breakpoint \[0-9\]+, foo \\\(yp=$hex\\\) at.*"
+
+set second_run [get_xp_val "second"]
+
+if { $first_run != $second_run } {
+    pass "different values for TLS variable"
+} else {
+    fail "different values for TLS variable"
+}
