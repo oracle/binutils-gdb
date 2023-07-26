@@ -20,9 +20,14 @@
 
 set testfile threaded-exec
 set srcfile ${testfile}.c
-set binfile [standard_output_file ${testfile}]
+set binfile_nothreads [standard_output_file ${testfile}N]
+set binfile_threads [standard_output_file ${testfile}Y]
 
-if {[gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile}" executable []] != "" } {
+if {[gdb_compile "${srcdir}/${subdir}/${srcfile}" "${binfile_nothreads}" executable {additional_flags=-UTHREADS}] != "" } {
+    return -1
+}
+
+if {[gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile_threads}" executable {additional_flags=-DTHREADS}] != "" } {
     return -1
 }
 
@@ -30,9 +35,9 @@ gdb_exit
 gdb_start
 gdb_reinitialize_dir $srcdir/$subdir
 
-gdb_load ${binfile}
+gdb_load ${binfile_nothreads}
 
-gdb_run_cmd
+gdb_run_cmd ${binfile_nothreads} ${binfile_threads} 0
 
 gdb_test_multiple {} "Program exited" {
    -re "\r\n\\\[Inferior .* exited normally\\\]\r\n$gdb_prompt $" {
