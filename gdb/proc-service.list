@@ -37,4 +37,7 @@
   ps_pstop;
   ps_ptread;
   ps_ptwrite;
+
+  /* gdb-6.6-buildid-locate-rpm.patch */
+  rpmsqEnable;
 };
