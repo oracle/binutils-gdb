@@ -813,40 +813,40 @@ objfile_relocate1 (struct objfile *objfile,
     }
 
     ALL_OBJFILE_COMPUNITS (objfile, cust)
-    {
-      const struct blockvector *bv = COMPUNIT_BLOCKVECTOR (cust);
-      int block_line_section = COMPUNIT_BLOCK_LINE_SECTION (cust);
+      {
+	const struct blockvector *bv = COMPUNIT_BLOCKVECTOR (cust);
+	int block_line_section = COMPUNIT_BLOCK_LINE_SECTION (cust);
 
-      if (BLOCKVECTOR_MAP (bv))
-	addrmap_relocate (BLOCKVECTOR_MAP (bv),
-			  ANOFFSET (delta, block_line_section));
+	if (BLOCKVECTOR_MAP (bv))
+	  addrmap_relocate (BLOCKVECTOR_MAP (bv),
+			    ANOFFSET (delta, block_line_section));
 
-      for (i = 0; i < BLOCKVECTOR_NBLOCKS (bv); ++i)
-	{
-	  struct block *b;
-	  struct symbol *sym;
-	  struct dict_iterator iter;
+	for (int i = 0; i < BLOCKVECTOR_NBLOCKS (bv); ++i)
+	  {
+	    struct block *b;
+	    struct symbol *sym;
+	    struct mdict_iterator miter;
 
-	  b = BLOCKVECTOR_BLOCK (bv, i);
-	  BLOCK_START (b) += ANOFFSET (delta, block_line_section);
-	  BLOCK_END (b) += ANOFFSET (delta, block_line_section);
+	    b = BLOCKVECTOR_BLOCK (bv, i);
+	    BLOCK_START (b) += ANOFFSET (delta, block_line_section);
+	    BLOCK_END (b) += ANOFFSET (delta, block_line_section);
 
-	  if (BLOCK_RANGES (b) != nullptr)
-	    for (int j = 0; j < BLOCK_NRANGES (b); j++)
+	    if (BLOCK_RANGES (b) != nullptr)
+	      for (int j = 0; j < BLOCK_NRANGES (b); j++)
+		{
+		  BLOCK_RANGE_START (b, j)
+		    += ANOFFSET (delta, block_line_section);
+		  BLOCK_RANGE_END (b, j) += ANOFFSET (delta, block_line_section);
+		}
+
+	    /* We only want to iterate over the local symbols, not any
+	       symbols in included symtabs.  */
+	    ALL_DICT_SYMBOLS (BLOCK_MULTIDICT (b), miter, sym)
 	      {
-		BLOCK_RANGE_START (b, j)
-		  += ANOFFSET (delta, block_line_section);
-		BLOCK_RANGE_END (b, j) += ANOFFSET (delta, block_line_section);
+		relocate_one_symbol (sym, objfile, delta);
 	      }
-
-	  /* We only want to iterate over the local symbols, not any
-	     symbols in included symtabs.  */
-	  ALL_DICT_SYMBOLS (BLOCK_DICT (b), iter, sym)
-	    {
-	      relocate_one_symbol (sym, objfile, delta);
-	    }
-	}
-    }
+	  }
+      }
   }
 
   /* Relocate isolated symbols.  */
