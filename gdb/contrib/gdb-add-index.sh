@@ -21,6 +21,11 @@
 GDB=${GDB:=gdb}
 OBJCOPY=${OBJCOPY:=objcopy}
 
+GDB2=/usr/libexec/gdb
+if test -x $GDB2 && ! which $GDB &>/dev/null; then
+    GDB=$GDB2
+fi
+
 myname="${0##*/}"
 
 dwarf5=""
