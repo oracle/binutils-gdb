@@ -15523,6 +15523,50 @@ initialize_breakpoint_ops (void)
 static struct cmd_list_element *enablebreaklist = NULL;
 
 void
+breakpoints_relocate (struct objfile *objfile, struct section_offsets *delta)
+{
+  struct bp_location *bl, **blp_tmp;
+  int changed = 0;
+
+  gdb_assert (objfile->separate_debug_objfile_backlink == NULL);
+
+  ALL_BP_LOCATIONS (bl, blp_tmp)
+    {
+      struct obj_section *osect;
+
+      /* BL->SECTION can be correctly NULL for breakpoints with multiple
+         locations expanded through symtab.  */
+
+      ALL_OBJFILE_OSECTIONS (objfile, osect)
+	{
+	  CORE_ADDR relocated_address;
+	  CORE_ADDR delta_offset;
+
+	  delta_offset = ANOFFSET (delta, osect->the_bfd_section->index);
+	  if (delta_offset == 0)
+	    continue;
+	  relocated_address = bl->address + delta_offset;
+
+	  if (obj_section_addr (osect) <= relocated_address
+	      && relocated_address < obj_section_endaddr (osect))
+	    {
+	      if (bl->inserted)
+		remove_breakpoint (bl);
+
+	      bl->address += delta_offset;
+	      bl->requested_address += delta_offset;
+
+	      changed = 1;
+	    }
+	}
+    }
+
+  if (changed)
+    qsort (bp_locations, bp_locations_count, sizeof (*bp_locations),
+	   bp_locations_compare);
+}
+
+void
 _initialize_breakpoint (void)
 {
   struct cmd_list_element *c;

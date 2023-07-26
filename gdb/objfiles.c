@@ -883,6 +883,11 @@ objfile_relocate1 (struct objfile *objfile,
 				obj_section_addr (s));
     }
 
+  /* Final call of breakpoint_re_set can keep breakpoint locations disabled if
+     their addresses match.  */
+  if (objfile->separate_debug_objfile_backlink == NULL)
+    breakpoints_relocate (objfile, delta);
+
   /* Data changed.  */
   return 1;
 }
