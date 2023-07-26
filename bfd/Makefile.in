@@ -1047,7 +1047,9 @@ BFD64_BACKENDS = \
 	mmo.lo \
 	nlm32-alpha.lo \
 	nlm64.lo \
+	pe-aarch64igen.lo \
 	pe-x86_64.lo \
+	pei-aarch64.lo \
 	pei-ia64.lo \
 	pei-x86_64.lo \
 	pepigen.lo \
@@ -1090,6 +1092,7 @@ BFD64_BACKENDS_CFILES = \
 	nlm32-alpha.c \
 	nlm64.c \
 	pe-x86_64.c \
+	pei-aarch64.c \
 	pei-ia64.c \
 	pei-x86_64.c \
 	vms-alpha.c
@@ -1151,7 +1154,7 @@ BUILD_CFILES = \
 	elf32-aarch64.c elf64-aarch64.c \
 	elf32-ia64.c elf64-ia64.c \
 	elf32-riscv.c elf64-riscv.c \
-	peigen.c pepigen.c pex64igen.c
+	peigen.c pepigen.c pex64igen.c pe-aarch64igen.c
 
 CFILES = $(SOURCE_CFILES) $(BUILD_CFILES)
 SOURCE_HFILES = \
@@ -1172,6 +1175,8 @@ BUILD_HFILES = \
 # Ensure they are built early:
 BUILT_SOURCES = $(BUILD_HFILES)
 HFILES = $(SOURCE_HFILES) $(BUILD_HFILES)
+BFD_H_DEPS = $(INCDIR)/ansidecl.h $(INCDIR)/symcat.h
+LOCAL_H_DEPS = libbfd.h sysdep.h config.h
 SRC_POTFILES = $(SOURCE_CFILES) $(SOURCE_HFILES)
 BLD_POTFILES = $(BUILD_CFILES) $(BUILD_HFILES)
 
@@ -1197,8 +1202,6 @@ libbfd_la_LIBADD = `cat ofiles` @SHARED_LIBADD@ $(LIBDL) $(ZLIB)
 # everything else starts using libtool.  FIXME.
 noinst_LIBRARIES = libbfd.a
 libbfd_a_SOURCES = 
-BFD_H_DEPS = $(INCDIR)/ansidecl.h $(INCDIR)/symcat.h
-LOCAL_H_DEPS = libbfd.h sysdep.h config.h
 BFD_H_FILES = bfd-in.h init.c opncls.c libbfd.c \
 	bfdio.c bfdwin.c section.c archures.c reloc.c \
 	syms.c bfd.c archive.c corefile.c targets.c format.c \
@@ -1638,6 +1641,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/osf-core.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pc532-mach.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pdp11.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pe-aarch64igen.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pe-arm-wince.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pe-arm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pe-i386.Plo@am__quote@
@@ -1647,6 +1651,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pe-sh.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pe-x86_64.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pef.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pei-aarch64.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pei-arm-wince.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pei-arm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pei-i386.Plo@am__quote@
@@ -2019,6 +2024,12 @@ uninstall-am: uninstall-bfdincludeHEADERS uninstall-bfdlibLTLIBRARIES
 	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
 	uninstall-bfdincludeHEADERS uninstall-bfdlibLTLIBRARIES
 
+$(BFD32_LIBS) \
+ $(BFD64_LIBS) \
+ $(ALL_MACHINES) \
+ $(BFD32_BACKENDS) \
+ $(BFD64_BACKENDS) \
+ $(OPTIONAL_BACKENDS): $(BFD_H) $(BFD_H_DEPS) $(LOCAL_H_DEPS)
 
 po/SRC-POTFILES.in: @MAINT@ Makefile $(SRC_POTFILES)
 	for file in $(SRC_POTFILES); do echo $$file; done \
@@ -2148,12 +2159,10 @@ pex64igen.c: peXXigen.c
 	rm -f pex64igen.c
 	$(SED) -e s/XX/pex64/g < $(srcdir)/peXXigen.c > pex64igen.new
 	mv -f pex64igen.new pex64igen.c
-$(BFD32_LIBS) \
- $(BFD64_LIBS) \
- $(ALL_MACHINES) \
- $(BFD32_BACKENDS) \
- $(BFD64_BACKENDS) \
- $(OPTIONAL_BACKENDS): $(BFD_H) $(BFD_H_DEPS) $(LOCAL_H_DEPS)
+
+pe-aarch64igen.c: peXXigen.c
+	echo "#line 1 \"peXXigen.c\"" > $@
+	$(SED) -e s/XX/peAArch64/g < $< >> $@
 
 host-aout.lo: Makefile
 
