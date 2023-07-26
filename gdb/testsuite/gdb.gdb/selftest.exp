@@ -53,6 +53,9 @@ proc test_with_self { } {
 	-re ".\[0-9\]+ = +.+ +0x.*\[0-9.\]+.*$gdb_prompt $" {
 	    pass "printed version with cast"
 	}
+	-re ".\[0-9\]+ = .(Fedora|Red Hat Enterprise Linux) \[\\(\\)0-9.a-z\\-\]+.*$gdb_prompt $" {
+	    pass "printed version Fedora or Red Hat Enterprise Linux only"
+	}
     }
 
     # start the "xgdb" process
