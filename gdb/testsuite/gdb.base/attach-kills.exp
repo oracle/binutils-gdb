@@ -1,0 +1,49 @@
+# Copyright (C) 2015 Free Software Foundation, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+if { ![can_spawn_for_attach] } {
+    return 0
+}
+
+standard_testfile
+
+if { [build_executable ${testfile}.exp $testfile] == -1 } {
+    return -1
+}
+
+# Start the program running and then wait for a bit, to be sure
+# that it can be attached to.
+
+set test_spawn_id [spawn_wait_for_attach $binfile]
+set testpid [spawn_id_get_pid $test_spawn_id]
+
+remote_exec target "cp -pf -- $binfile $binfile-copy"
+remote_exec target "rm -f -- $binfile"
+
+set test "start gdb"
+set res [gdb_spawn_with_cmdline_opts \
+	 "-iex \"set height 0\" -iex \"set width 0\" /DoEsNoTeXySt $testpid"]
+if { $res != 0} {
+    fail "$test (spawn)"
+    kill_wait_spawned_process $test_spawn_id
+    return -1
+}
+gdb_test_multiple "" $test {
+    -re "\r\nAttaching to .*\r\n$gdb_prompt $" {
+	pass $test
+    }
+}
+
+kill_wait_spawned_process $test_spawn_id
