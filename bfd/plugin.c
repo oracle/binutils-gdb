@@ -349,7 +349,7 @@ try_claim (bfd *abfd)
 }
 
 static int
-try_load_plugin (const char *pname, bfd *abfd, int *has_plugin_p)
+try_load_plugin (const char *pname, bfd *abfd, int *has_plugin_p, bfd_boolean build_list_p)
 {
   void *plugin_handle;
   struct ld_plugin_tv tv[4];
@@ -362,7 +362,11 @@ try_load_plugin (const char *pname, bfd *abfd, int *has_plugin_p)
   plugin_handle = dlopen (pname, RTLD_NOW);
   if (!plugin_handle)
     {
-      _bfd_error_handler ("%s\n", dlerror ());
+      /* If we are building a list of viable plugins, then
+	 we do not bother the user with the details of any
+	 plugins that cannot be loaded.  */
+      if (! build_list_p)
+	_bfd_error_handler ("%s\n", dlerror ());
       return 0;
     }
 
@@ -477,7 +481,7 @@ load_plugin (bfd *abfd)
     return found;
 
   if (plugin_name)
-    return try_load_plugin (plugin_name, abfd, &has_plugin);
+    return try_load_plugin (plugin_name, abfd, &has_plugin, FALSE);
 
   if (plugin_program_name == NULL)
     return found;
@@ -501,7 +505,7 @@ load_plugin (bfd *abfd)
 
       full_name = concat (p, "/", ent->d_name, NULL);
       if (stat(full_name, &s) == 0 && S_ISREG (s.st_mode))
-	found = try_load_plugin (full_name, abfd, &valid_plugin);
+	found = try_load_plugin (full_name, abfd, &valid_plugin, TRUE);
       if (has_plugin <= 0)
 	has_plugin = valid_plugin;
       free (full_name);
