@@ -1,0 +1,61 @@
+# Copyright 2014 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+standard_testfile ".f90"
+
+if { [prepare_for_testing ${testfile}.exp ${testfile} ${srcfile} \
+    {debug f90 quiet}] } {
+    return -1
+}
+
+if ![runto MAIN__] then {
+    perror "couldn't run to breakpoint MAIN__"
+    continue
+}
+
+# Check VLA passed to first Fortran function.
+gdb_breakpoint [gdb_get_line_number "func1-vla-passed"]
+gdb_continue_to_breakpoint "func1-vla-passed"
+gdb_test "print vla" " = \\( *\\( *22, *22, *22,\[()22, .\]*\\)" \
+  "print vla (func1)"
+gdb_test "ptype vla" "type = integer\\\(kind=4\\\) \\\(10,10\\\)" \
+  "ptype vla (func1)"
+
+gdb_breakpoint [gdb_get_line_number "func1-vla-modified"]
+gdb_continue_to_breakpoint "func1-vla-modified"
+gdb_test "print vla(5,5)" " = 55" "print vla(5,5) (func1)"
+gdb_test "print vla(7,7)" " = 77" "print vla(5,5) (func1)"
+
+# Check if the values are correct after returning from func1
+gdb_breakpoint [gdb_get_line_number "func1-returned"]
+gdb_continue_to_breakpoint "func1-returned"
+gdb_test "print ret" " = .TRUE." "print ret after func1 returned"
+
+# Check VLA passed to second Fortran function
+gdb_breakpoint [gdb_get_line_number "func2-vla-passed"]
+gdb_continue_to_breakpoint "func2-vla-passed"
+gdb_test "print vla" \
+  " = \\\(44, 44, 44, 44, 44, 44, 44, 44, 44, 44\\\)" \
+  "print vla (func2)"
+gdb_test "ptype vla" "type = integer\\\(kind=4\\\) \\\(10\\\)" \
+  "ptype vla (func2)"
+
+# Check if the returned VLA has the correct values and ptype.
+gdb_breakpoint [gdb_get_line_number "func2-returned"]
+gdb_continue_to_breakpoint "func2-returned"
+gdb_test "print vla3" " = \\\(1, 2, 44, 4, 44, 44, 44, 8, 44, 44\\\)" \
+  "print vla3 (after func2)"
+gdb_test "ptype vla3" "type = integer\\\(kind=4\\\) \\\(10\\\)" \
+  "ptype vla3 (after func2)"
