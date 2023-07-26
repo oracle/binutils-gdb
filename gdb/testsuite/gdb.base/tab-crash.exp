@@ -1,0 +1,43 @@
+# This testcase is part of GDB, the GNU debugger.
+
+# Copyright 2017 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+if { ![istarget x86_64-*-* ] || ![is_lp64_target] } {
+    return
+}   
+
+standard_testfile
+
+# gcc-base-debuginfo-6.3.1-1.fc25.x86_64
+# /usr/lib/debug/lib64/libgcc_s-6.3.1-20161221.so.1.debug
+# objcopy -R .debug_loc -R .debug_ranges -R .debug_info -R .debug_abbrev -R .debug_aranges -R .debug_str -R .comment ...
+
+set debugfilebz2uu ${srcdir}/${subdir}/${testfile}.bz2.uu
+set debugfile [standard_output_file ${testfile}]
+
+if {[catch "system \"uudecode -o - ${debugfilebz2uu} | bzip2 -dc >${debugfile}\""] != 0} {
+    untested "failed uudecode or bzip2"
+    return -1
+}
+file stat ${debugfile} debugfilestat
+if {$debugfilestat(size) != 71936} {
+    untested "uudecode or bzip2 produce invalid result"
+    return -1
+}
+
+clean_restart ${debugfile}
+
+gdb_test "complete p si" "complete p si\r\np size_of_encoded_value"
