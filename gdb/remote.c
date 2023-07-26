@@ -12826,7 +12826,7 @@ remote_target::download_tracepoint (struct bp_location *loc)
 		  t->step_count, t->pass_count);
 
   if (ret < 0 || ret >= buf.size ())
-    error (err_msg);
+    error ("%s", err_msg);
 
   /* Fast tracepoints are mostly handled by the target, but we can
      tell the target how big of an instruction block should be moved
@@ -12846,7 +12846,7 @@ remote_target::download_tracepoint (struct bp_location *loc)
 			      gdb_insn_length (loc->gdbarch, tpaddr));
 
 	      if (ret < 0 || ret >= size_left)
-		error (err_msg);
+		error ("%s", err_msg);
 	    }
 	  else
 	    /* If it passed validation at definition but fails now,
@@ -12877,7 +12877,7 @@ remote_target::download_tracepoint (struct bp_location *loc)
 			      size_left, ":S");
 
 	      if (ret < 0 || ret >= size_left)
-		error (err_msg);
+		error ("%s", err_msg);
 	    }
 	  else
 	    error (_("Static tracepoint not valid during download"));
@@ -12905,14 +12905,14 @@ remote_target::download_tracepoint (struct bp_location *loc)
 			  size_left, ":X%x,", aexpr->len);
 
 	  if (ret < 0 || ret >= size_left)
-	    error (err_msg);
+	    error ("%s", err_msg);
 
 	  size_left = buf.size () - strlen (buf.data ());
 
 	  /* Two bytes to encode each aexpr byte, plus the terminating
 	     null byte.  */
 	  if (aexpr->len * 2 + 1 > size_left)
-	    error (err_msg);
+	    error ("%s", err_msg);
 
 	  pkt = buf.data () + strlen (buf.data ());
 
@@ -12933,7 +12933,7 @@ remote_target::download_tracepoint (struct bp_location *loc)
 		      size_left, "-");
 
       if (ret < 0 || ret >= size_left)
-	error (err_msg);
+	error ("%s", err_msg);
     }
 
   putpkt (buf.data ());
@@ -12956,7 +12956,7 @@ remote_target::download_tracepoint (struct bp_location *loc)
 		      has_more ? '-' : 0);
 
       if (ret < 0 || ret >= buf.size ())
-	error (err_msg);
+	error ("%s", err_msg);
 
       putpkt (buf.data ());
       remote_get_noisy_reply ();
@@ -12979,7 +12979,7 @@ remote_target::download_tracepoint (struct bp_location *loc)
 		      has_more ? "-" : "");
 
       if (ret < 0 || ret >= buf.size ())
-	error (err_msg);
+	error ("%s", err_msg);
 
       putpkt (buf.data ());
       remote_get_noisy_reply ();
@@ -12994,7 +12994,7 @@ remote_target::download_tracepoint (struct bp_location *loc)
 	  ret = snprintf (buf.data (), buf.size (), "QTDPsrc:");
 
 	  if (ret < 0 || ret >= buf.size ())
-	    error (err_msg);
+	    error ("%s", err_msg);
 
 	  encode_source_string (b->number, loc->address, "at",
 				event_location_to_string (b->location.get ()),
@@ -13010,7 +13010,7 @@ remote_target::download_tracepoint (struct bp_location *loc)
 	  ret = snprintf (buf.data (), buf.size (), "QTDPsrc:");
 
 	  if (ret < 0 || ret >= buf.size ())
-	    error (err_msg);
+	    error ("%s", err_msg);
 
 	  encode_source_string (b->number, loc->address,
 				"cond", b->cond_string,
