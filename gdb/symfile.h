@@ -537,6 +537,10 @@ void expand_symtabs_matching
 void map_symbol_filenames (symbol_filename_ftype *fun, void *data,
 			   int need_fullname);
 
+/* build-id support.  */
+extern struct bfd_build_id *build_id_addr_get (CORE_ADDR addr);
+extern void debug_print_missing (const char *binary, const char *debug);
+
 /* From dwarf2read.c */
 
 /* Names for a dwarf2 debugging section.  The field NORMAL is the normal

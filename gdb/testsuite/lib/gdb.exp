@@ -1695,6 +1695,16 @@ proc default_gdb_start { } {
 	    warning "Couldn't set the width to 0."
 	}
     }
+    # Turn off the missing warnings as the testsuite does not expect it.
+    send_gdb "set build-id-verbose 0\n"
+    gdb_expect 10 {
+	-re "$gdb_prompt $" {
+	    verbose "Disabled the missing debug infos warnings." 2
+	}
+	timeout {
+	    warning "Could not disable the missing debug infos warnings.."
+	}
+    }
     return 0
 }
 

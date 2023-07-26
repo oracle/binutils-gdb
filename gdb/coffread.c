@@ -733,7 +733,8 @@ coff_symfile_read (struct objfile *objfile, symfile_add_flags symfile_flags)
   /* Try to add separate debug file if no symbols table found.   */
   if (!objfile_has_partial_symbols (objfile))
     {
-      std::string debugfile = find_separate_debug_file_by_buildid (objfile);
+      std::string debugfile = find_separate_debug_file_by_buildid (objfile,
+								   NULL);
 
       if (debugfile.empty ())
 	debugfile = find_separate_debug_file_by_debuglink (objfile);

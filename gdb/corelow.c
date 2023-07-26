@@ -45,6 +45,10 @@
 #include "gdb_bfd.h"
 #include "completer.h"
 #include "filestuff.h"
+#include "auxv.h"
+#include "elf/common.h"
+#include "gdbcmd.h"
+#include "build-id.h"
 
 #ifndef O_LARGEFILE
 #define O_LARGEFILE 0
@@ -321,6 +325,54 @@ add_to_thread_list (bfd *abfd, asection *asect, void *reg_sect_arg)
     inferior_ptid = ptid;			/* Yes, make it current.  */
 }
 
+static int build_id_core_loads = 1;
+
+static void
+build_id_locate_exec (int from_tty)
+{
+  CORE_ADDR at_entry;
+  struct bfd_build_id *build_id;
+  char *execfilename, *debug_filename;
+  char *build_id_filename;
+  struct cleanup *back_to;
+
+  if (exec_bfd != NULL || symfile_objfile != NULL)
+    return;
+
+  if (target_auxv_search (current_top_target (), AT_ENTRY, &at_entry) <= 0)
+    return;
+
+  build_id = build_id_addr_get (at_entry);
+  if (build_id == NULL)
+    return;
+  back_to = make_cleanup (xfree, build_id);
+
+  /* SYMFILE_OBJFILE should refer to the main executable (not only to its
+     separate debug info file).  gcc44+ keeps .eh_frame only in the main
+     executable without its duplicate .debug_frame in the separate debug info
+     file - such .eh_frame would not be found if SYMFILE_OBJFILE would refer
+     directly to the separate debug info file.  */
+
+  execfilename = build_id_to_filename (build_id, &build_id_filename);
+  make_cleanup (xfree, build_id_filename);
+
+  if (execfilename != NULL)
+    {
+      make_cleanup (xfree, execfilename);
+      exec_file_attach (execfilename, from_tty);
+      symbol_file_add_main (execfilename,
+			    symfile_add_flag (!from_tty ? 0 : SYMFILE_VERBOSE));
+      if (symfile_objfile != NULL)
+        symfile_objfile->flags |= OBJF_BUILD_ID_CORE_LOADED;
+    }
+  else
+    debug_print_missing (_("the main executable file"), build_id_filename);
+
+  do_cleanups (back_to);
+
+  /* No automatic SOLIB_ADD as the libraries would get read twice.  */
+}
+
 /* Issue a message saying we have no core to debug, if FROM_TTY.  */
 
 static void
@@ -463,6 +515,14 @@ core_target_open (const char *arg, int from_tty)
       else
 	switch_to_thread (thread);
     }
+
+  /* Find the build_id identifiers.  If it gets executed after
+     POST_CREATE_INFERIOR we would clash with asking to discard the already
+     loaded VDSO symbols.  If it gets executed before bfd_map_over_sections
+     INFERIOR_PTID is still not set and libthread_db initialization crashes on
+     PID == 0 in ps_pglobal_lookup.  */
+  if (build_id_core_loads != 0)
+    build_id_locate_exec (from_tty);
 
   post_create_inferior (target, from_tty);
 
@@ -1072,4 +1132,11 @@ void
 _initialize_corelow (void)
 {
   add_target (core_target_info, core_target_open, filename_completer);
+
+  add_setshow_boolean_cmd ("build-id-core-loads", class_files,
+			   &build_id_core_loads, _("\
+Set whether CORE-FILE loads the build-id associated files automatically."), _("\
+Show whether CORE-FILE loads the build-id associated files automatically."),
+			   NULL, NULL, NULL,
+			   &setlist, &showlist);
 }

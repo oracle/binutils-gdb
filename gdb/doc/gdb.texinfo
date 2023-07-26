@@ -19570,6 +19570,27 @@ information files.
 
 @end table
 
+You can also adjust the current verbosity of the @dfn{build id} locating.
+
+@table @code
+
+@kindex set build-id-verbose
+@item set build-id-verbose 0
+No additional messages are printed.
+
+@item set build-id-verbose 1
+Missing separate debug filenames are printed.
+
+@item set build-id-verbose 2
+Missing separate debug filenames are printed and also all the parsing of the
+binaries to find their @dfn{build id} content is printed.
+
+@kindex show build-id-verbose
+@item show build-id-verbose
+Show the current verbosity value for the @dfn{build id} content locating.
+
+@end table
+
 @cindex @code{.gnu_debuglink} sections
 @cindex debug link sections
 A debug link is a special section of the executable file named

@@ -62,6 +62,7 @@ proc test_command_line_new_ui_pending_input {} {
     set options ""
     append options " -iex \"set height 0\""
     append options " -iex \"set width 0\""
+    append options " -iex \"set build-id-verbose 0\""
     append options " -iex \"new-ui console $extra_tty_name\""
     append options " -ex \"b $bpline\""
     append options " -ex \"run\""

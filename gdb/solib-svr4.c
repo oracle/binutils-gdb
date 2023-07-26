@@ -45,6 +45,7 @@
 #include "auxv.h"
 #include "gdb_bfd.h"
 #include "probe.h"
+#include "build-id.h"
 
 static struct link_map_offsets *svr4_fetch_link_map_offsets (void);
 static int svr4_have_link_map_offsets (void);
@@ -1356,9 +1357,51 @@ svr4_read_so_list (CORE_ADDR lm, CORE_ADDR prev_lm,
 	  continue;
 	}
 
-      strncpy (newobj->so_name, buffer.get (), SO_NAME_MAX_PATH_SIZE - 1);
-      newobj->so_name[SO_NAME_MAX_PATH_SIZE - 1] = '\0';
-      strcpy (newobj->so_original_name, newobj->so_name);
+      {
+	struct bfd_build_id *build_id;
+
+	strncpy (newobj->so_original_name, buffer.get (), SO_NAME_MAX_PATH_SIZE - 1);
+	newobj->so_original_name[SO_NAME_MAX_PATH_SIZE - 1] = '\0';
+	/* May get overwritten below.  */
+	strcpy (newobj->so_name, newobj->so_original_name);
+
+	build_id = build_id_addr_get (((lm_info_svr4 *) newobj->lm_info)->l_ld);
+	if (build_id != NULL)
+	  {
+	    char *name, *build_id_filename;
+
+	    /* Missing the build-id matching separate debug info file
+	       would be handled while SO_NAME gets loaded.  */
+	    name = build_id_to_filename (build_id, &build_id_filename);
+	    if (name != NULL)
+	      {
+		strncpy (newobj->so_name, name, SO_NAME_MAX_PATH_SIZE - 1);
+		newobj->so_name[SO_NAME_MAX_PATH_SIZE - 1] = '\0';
+		xfree (name);
+	      }
+	    else
+	      {
+		debug_print_missing (newobj->so_name, build_id_filename);
+
+		/* In the case the main executable was found according to
+		   its build-id (from a core file) prevent loading
+		   a different build of a library with accidentally the
+		   same SO_NAME.
+
+		   It suppresses bogus backtraces (and prints "??" there
+		   instead) if the on-disk files no longer match the
+		   running program version.  */
+
+		if (symfile_objfile != NULL
+		    && (symfile_objfile->flags
+			& OBJF_BUILD_ID_CORE_LOADED) != 0)
+		  newobj->so_name[0] = 0;
+	      }
+
+	    xfree (build_id_filename);
+	    xfree (build_id);
+	  }
+      }
 
       /* If this entry has no name, or its name matches the name
 	 for the main executable, don't include it in the list.  */
