@@ -1165,6 +1165,7 @@ objcopy [@option{-F} @var{bfdname}|@option{--target=}@var{bfdname}]
         [@option{--change-section-vma} @var{sectionpattern}@{=,+,-@}@var{val}]
         [@option{--change-warnings}] [@option{--no-change-warnings}]
         [@option{--set-section-flags} @var{sectionpattern}=@var{flags}]
+        [@option{--set-section-alignment} @var{sectionpattern}=@var{align}]
         [@option{--add-section} @var{sectionname}=@var{filename}]
         [@option{--dump-section} @var{sectionname}=@var{filename}]
         [@option{--update-section} @var{sectionname}=@var{filename}]
@@ -1606,6 +1607,11 @@ meaningful for all object file formats.  In particular the
 @samp{share} flag is only meaningful for COFF format files and not for
 ELF format files.
 
+@item --set-section-alignment @var{sectionpattern}=@var{align}
+Set the alignment for any sections matching @var{sectionpattern}.
+@var{align} specifies the alignment in bytes and must be a power of
+two, i.e. 1, 2, 4, 8@dots{}.
+
 @item --add-section @var{sectionname}=@var{filename}
 Add a new section named @var{sectionname} while copying the file.  The
 contents of the new section are taken from the file @var{filename}.  The
@@ -1960,8 +1966,9 @@ for dlls.
 [This option is specific to PE targets.]
 
 @item --section-alignment @var{num}
-Sets the section alignment.  Sections in memory will always begin at
-addresses which are a multiple of this number.  Defaults to 0x1000.
+Sets the section alignment field in the PE header.  Sections in memory
+will always begin at addresses which are a multiple of this number.
+Defaults to 0x1000.
 [This option is specific to PE targets.]
 
 @item --stack @var{reserve}

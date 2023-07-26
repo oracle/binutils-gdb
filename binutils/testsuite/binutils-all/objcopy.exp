@@ -1072,6 +1072,7 @@ run_dump_test "copy-3"
 run_dump_test "copy-4"
 run_dump_test "pr19020a"
 run_dump_test "pr19020b"
+run_dump_test "set-section-alignment"
 
 if [is_elf_format] {
     run_dump_test "strip-1"
