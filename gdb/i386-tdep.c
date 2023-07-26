@@ -8406,6 +8406,9 @@ i386_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
 
   tdep->xsave_xcr0_offset = -1;
 
+  /* Unwinding stops on i386 automatically.  */
+  tdep->outermost_frame_p = NULL;
+
   tdep->record_regmap = i386_record_regmap;
 
   set_gdbarch_type_align (gdbarch, i386_type_align);

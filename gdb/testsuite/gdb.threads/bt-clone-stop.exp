@@ -1,0 +1,61 @@
+# Copyright 2006 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  
+
+# Backtraced `clone' must not have `PC == 0' as its previous frame.
+
+if $tracelevel then {
+    strace $tracelevel
+}
+
+set testfile bt-clone-stop
+set srcfile ${testfile}.c
+set binfile [standard_output_file ${testfile}]
+if  { [gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile}" executable {debug}] != "" } {
+    untested "Couldn't compile test program"
+    return -1
+}
+
+# Get things started.
+
+gdb_exit
+gdb_start
+gdb_reinitialize_dir $srcdir/$subdir
+gdb_load ${binfile}
+
+# threader: threader.c:8: threader: Assertion `0' failed.
+# Program received signal SIGABRT, Aborted.
+
+gdb_test "run" \
+     {Thread 2 "bt-clone-stop" received signal SIGABRT.*} \
+     "run"
+
+# Former gdb unwind (the first function is `clone'):
+# #5  0x0000003421ecd62d in ?? () from /lib64/libc.so.6
+# #6  0x0000000000000000 in ?? ()
+# (gdb)
+# Tested `amd64_linux_outermost_frame' functionality should omit the line `#6'.
+# 
+# Two `-re' cases below must be in this order (1st is a subset of the 2nd one).
+# Unhandled case below should not happen and it is fortunately handled by
+# `amd64_linux_outermost_frame' as FAIL (and result `0x0 entry output invalid').
+gdb_test_multiple "bt" "0x0 entry output invalid" {
+    -re "in threader \\(.*\n#\[0-9\]* *0x0* in .*$gdb_prompt $" {
+    	fail "0x0 entry found"
+    }
+    -re "in threader \\(.*$gdb_prompt $" {
+    	pass "0x0 entry not found"
+    }
+}

@@ -291,6 +291,80 @@ amd64_linux_register_reggroup_p (struct gdbarch *gdbarch, int regnum,
 
 /* Set the program counter for process PTID to PC.  */
 
+/* Detect the outermost frame; during unwind of
+   	#5  0x000000305cec68c3 in clone () from /lib64/tls/libc.so.6
+   avoid the additional bogus frame
+   	#6  0x0000000000000000 in ??
+   We compare if the `linux_clone_code' block is _before_ unwound PC.  */
+
+static const unsigned char linux_clone_code[] =
+{
+/* libc/sysdeps/unix/sysv/linux/x86_64/clone.S */
+/* #ifdef RESET_PID */
+/* ... */
+/* 	mov	$SYS_ify(getpid), %eax */
+/* 0xb8, 0x27, 0x00, 0x00, 0x00 */
+/* OR */
+/* 	mov	$SYS_ify(getpid), %rax */
+/* 0x48, 0xc7, 0xc0, 0x27, 0x00, 0x00, 0x00 */
+/* so just: */
+  0x27, 0x00, 0x00, 0x00,
+/* 	syscall */
+  0x0f, 0x05,
+/* 	movl	%eax, %fs:PID */
+  0x64, 0x89, 0x04, 0x25, 0x94, 0x00, 0x00, 0x00,
+/* 	movl	%eax, %fs:TID */
+  0x64, 0x89, 0x04, 0x25, 0x90, 0x00, 0x00, 0x00,
+/* #endif */
+/* 	|* Set up arguments for the function call.  *| */
+/* 	popq	%rax		|* Function to call.  *| */
+  0x58,
+/* 	popq	%rdi		|* Argument.  *| */
+  0x5f,
+/* 	call	*%rax$   */
+  0xff, 0xd0
+};
+
+#define LINUX_CLONE_LEN (sizeof linux_clone_code)
+
+static int
+amd64_linux_clone_running (struct frame_info *this_frame)
+{
+  CORE_ADDR pc = get_frame_pc (this_frame);
+  unsigned char buf[LINUX_CLONE_LEN];
+
+  if (!safe_frame_unwind_memory (this_frame, pc - LINUX_CLONE_LEN, buf,
+				 LINUX_CLONE_LEN))
+    return 0;
+
+  if (memcmp (buf, linux_clone_code, LINUX_CLONE_LEN) != 0)
+    return 0;
+
+  return 1;
+}
+
+static int
+amd64_linux_outermost_frame (struct frame_info *this_frame)
+{
+  CORE_ADDR pc = get_frame_pc (this_frame);
+  const char *name;
+
+  find_pc_partial_function (pc, &name, NULL, NULL);
+
+  /* If we have NAME, we can optimize the search.
+     `clone' NAME still needs to have the code checked as its name may be
+     present in the user code.
+     `__clone' NAME should not be present in the user code but in the initial
+     parts of the `__clone' implementation the unwind still makes sense.
+     More detailed unwinding decision would be too much sensitive to possible
+     subtle changes in specific glibc revisions.  */
+  if (name == NULL || strcmp (name, "clone") == 0
+      || strcmp ("__clone", name) == 0)
+    return (amd64_linux_clone_running (this_frame) != 0);
+
+  return 0;
+}
+
 static void
 amd64_linux_write_pc (struct regcache *regcache, CORE_ADDR pc)
 {
@@ -1807,6 +1881,8 @@ amd64_linux_init_abi_common(struct gdbarch_info info, struct gdbarch *gdbarch)
   tdep->sc_num_regs = ARRAY_SIZE (amd64_linux_sc_reg_offset);
 
   tdep->xsave_xcr0_offset = I386_LINUX_XSAVE_XCR0_OFFSET;
+
+  tdep->outermost_frame_p = amd64_linux_outermost_frame;
 
   /* Add the %orig_rax register used for syscall restarting.  */
   set_gdbarch_write_pc (gdbarch, amd64_linux_write_pc);
