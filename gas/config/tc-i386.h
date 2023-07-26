@@ -174,6 +174,7 @@ extern int tc_i386_fix_adjustable (struct fix *);
   (GENERIC_FORCE_RELOCATION_LOCAL (FIX)				\
    || (FIX)->fx_r_type == BFD_RELOC_386_PLT32			\
    || (FIX)->fx_r_type == BFD_RELOC_386_GOTPC			\
+   || (FIX)->fx_r_type == BFD_RELOC_X86_64_GOTPCREL		\
    || (FIX)->fx_r_type == BFD_RELOC_X86_64_GOTPCRELX		\
    || (FIX)->fx_r_type == BFD_RELOC_X86_64_REX_GOTPCRELX)
 
@@ -205,28 +206,13 @@ if ((n)									\
     goto around;							\
   }
 
-#define MAX_MEM_FOR_RS_ALIGN_CODE  31
-
-extern void i386_align_code (fragS *, int);
-
-#define HANDLE_ALIGN(fragP)						\
-if (fragP->fr_type == rs_align_code) 					\
-  i386_align_code (fragP, (fragP->fr_next->fr_address			\
-			   - fragP->fr_address				\
-			   - fragP->fr_fix));
-
-extern void i386_cons_worker (int);
-#define md_cons_align(nbytes) i386_cons_worker (nbytes)
+#define MAX_MEM_FOR_RS_ALIGN_CODE  (alignment ? ((1 << alignment) - 1) : 1)
 
 void i386_print_statistics (FILE *);
 #define tc_print_statistics i386_print_statistics
 
 extern unsigned int i386_frag_max_var (fragS *);
 #define md_frag_max_var i386_frag_max_var
-
-extern long i386_generic_table_relax_frag (segT, fragS *, long);
-#define md_generic_table_relax_frag(segment, fragP, stretch) \
-  i386_generic_table_relax_frag (segment, fragP, stretch)
 
 #define md_number_to_chars number_to_chars_littleendian
 
@@ -262,24 +248,10 @@ extern i386_cpu_flags cpu_arch_isa_flags;
 
 struct i386_tc_frag_data
 {
-  union
-    {
-      fragS *padding_fragP;
-      fragS *branch_fragP;
-    } u;
-  addressT padding_address;
   enum processor_type isa;
   i386_cpu_flags isa_flags;
-  unsigned int max_bytes;
   enum processor_type tune;
-  signed char length;
-  signed char last_length;
-  signed char max_prefix_length;
-  signed char prefix_length;
-  signed char default_prefix;
-  signed char cmp_size;
-  unsigned int classified : 1;
-  unsigned int branch_type : 7;
+  unsigned int max_bytes;
 };
 
 /* We need to emit the right NOP pattern in .align frags.  This is
@@ -287,32 +259,35 @@ struct i386_tc_frag_data
    the isa/tune settings at the time the .align was assembled.  */
 #define TC_FRAG_TYPE struct i386_tc_frag_data
 
+/* NB: max_chars is a local variable in frag_var_init.  */
 #define TC_FRAG_INIT(FRAGP)					\
  do								\
    {								\
-     (FRAGP)->tc_frag_data.u.padding_fragP = NULL;		\
-     (FRAGP)->tc_frag_data.padding_address = 0;			\
      (FRAGP)->tc_frag_data.isa = cpu_arch_isa;			\
      (FRAGP)->tc_frag_data.isa_flags = cpu_arch_isa_flags;	\
      (FRAGP)->tc_frag_data.tune = cpu_arch_tune;		\
-     (FRAGP)->tc_frag_data.length = 0;				\
      (FRAGP)->tc_frag_data.max_bytes = max_chars;		\
-     (FRAGP)->tc_frag_data.last_length = 0;			\
-     (FRAGP)->tc_frag_data.max_prefix_length = 0;		\
-     (FRAGP)->tc_frag_data.prefix_length = 0;			\
-     (FRAGP)->tc_frag_data.default_prefix = 0;			\
-     (FRAGP)->tc_frag_data.cmp_size = 0;			\
-     (FRAGP)->tc_frag_data.classified = 0;			\
-     (FRAGP)->tc_frag_data.branch_type = 0;			\
    }								\
  while (0)
 
-#ifdef SCO_ELF
-#define tc_init_after_args() sco_id ()
-extern void sco_id (void);
-#endif
-
 #define WORKING_DOT_WORD 1
+
+/* How to generate NOPs for .nop direct directive.  */
+extern void i386_generate_nops (fragS *, char *, offsetT, int);
+#define md_generate_nops(frag, where, amount, control) \
+  i386_generate_nops ((frag), (where), (amount), (control))
+
+#define HANDLE_ALIGN(fragP)						\
+if (fragP->fr_type == rs_align_code) 					\
+  {									\
+    offsetT __count = (fragP->fr_next->fr_address			\
+		       - fragP->fr_address				\
+		       - fragP->fr_fix);				\
+    if (__count > 0							\
+	&& (unsigned int) __count <= fragP->tc_frag_data.max_bytes)	\
+      md_generate_nops (fragP, fragP->fr_literal + fragP->fr_fix,	\
+			__count, 0);					\
+  }
 
 /* We want .cfi_* pseudo-ops for generating unwind info.  */
 #define TARGET_USE_CFIPOP 1
@@ -345,11 +320,6 @@ extern bfd_vma x86_64_section_word (char *, size_t);
 extern bfd_vma x86_64_section_letter (int, const char **);
 #define md_elf_section_letter(LETTER, PTR_MSG)	x86_64_section_letter (LETTER, PTR_MSG)
 #define md_elf_section_word(STR, LEN)		x86_64_section_word (STR, LEN)
-
-#if defined (OBJ_ELF) || defined (OBJ_MAYBE_ELF)
-extern void x86_cleanup (void);
-#define md_cleanup() x86_cleanup ()
-#endif
 
 #ifdef TE_PE
 
