@@ -1573,42 +1573,34 @@ value_ind (struct value *arg1)
   if (TYPE_CODE (base_type) == TYPE_CODE_PTR)
     {
       struct type *enc_type;
-      CORE_ADDR addr;
-
-      if (type_not_associated (base_type))
-        error (_("Attempt to take contents of a not associated pointer."));
-
-      if (NULL != TYPE_DATA_LOCATION (TYPE_TARGET_TYPE (base_type)))
-	addr = value_address (arg1);
-      else
-	addr = value_as_address (arg1);
-
-      if (addr != 0)
-	TYPE_TARGET_TYPE (base_type) =
-	    resolve_dynamic_type (TYPE_TARGET_TYPE (base_type), NULL, addr);
 
       /* We may be pointing to something embedded in a larger object.
          Get the real type of the enclosing object.  */
       enc_type = check_typedef (value_enclosing_type (arg1));
       enc_type = TYPE_TARGET_TYPE (enc_type);
 
+      CORE_ADDR base_addr;
       if (TYPE_CODE (check_typedef (enc_type)) == TYPE_CODE_FUNC
 	  || TYPE_CODE (check_typedef (enc_type)) == TYPE_CODE_METHOD)
-	/* For functions, go through find_function_addr, which knows
-	   how to handle function descriptors.  */
-	arg2 = value_at_lazy (enc_type, 
-			      find_function_addr (arg1, NULL));
+	{
+	  /* For functions, go through find_function_addr, which knows
+	     how to handle function descriptors.  */
+	  base_addr = find_function_addr (arg1, NULL);
+	}
       else
-	/* Retrieve the enclosing object pointed to.  */
-	arg2 = value_at_lazy (enc_type, 
-			      (addr - value_pointed_to_offset (arg1)));
+	{
+	  /* Retrieve the enclosing object pointed to.  */
+	  base_addr = (value_as_address (arg1)
+		       - value_pointed_to_offset (arg1));
+	}
 
+      arg2 = value_at_lazy (enc_type, base_addr);
       enc_type = value_type (arg2);
-      return readjust_indirect_value_type (arg2, enc_type, base_type, arg1);
+      return readjust_indirect_value_type (arg2, enc_type, base_type,
+					   arg1, base_addr);
     }
 
   error (_("Attempt to take contents of a non-pointer value."));
-  return 0;			/* For lint -- never reached.  */
 }
 
 /* Create a value for an array by allocating space in GDB, copying the
