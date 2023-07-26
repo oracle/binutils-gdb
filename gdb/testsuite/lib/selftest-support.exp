@@ -151,18 +151,18 @@ proc do_self_tests {function body} {
     }
 
     # Remove any old copy lying around.
-    remote_file host delete $xgdb
+    #remote_file host delete $xgdb
 
     gdb_start
-    set file [remote_download host $GDB_FULLPATH $xgdb]
+    #set file [remote_download host $GDB_FULLPATH $xgdb]
 
-    set result [selftest_setup $file $function]
+    set result [selftest_setup $GDB_FULLPATH $function]
     if {$result == 0} then {
 	set result [uplevel $body]
     }
 
     gdb_exit
-    catch "remote_file host delete $file"
+    #catch "remote_file host delete $file"
 
     if {$result < 0} then {
 	warning "Couldn't test self"
