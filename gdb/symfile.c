@@ -3584,6 +3584,12 @@ default_symfile_relocate (struct objfile *objfile, asection *sectp,
      DWO file.  */
   bfd *abfd = sectp->owner;
 
+  /* Executable files have all the relocations already resolved.
+     Handle files linked with --emit-relocs.
+     http://sources.redhat.com/ml/gdb/2006-08/msg00137.html  */
+  if ((abfd->flags & EXEC_P) != 0)
+    return NULL;
+
   /* We're only interested in sections with relocation
      information.  */
   if ((sectp->flags & SEC_RELOC) == 0)
