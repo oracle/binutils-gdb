@@ -442,10 +442,7 @@ static const struct target_desc *
 aarch64_linux_core_read_description (struct gdbarch *gdbarch,
 				     struct target_ops *target, bfd *abfd)
 {
-  CORE_ADDR aarch64_hwcap = 0;
-
-  if (target_auxv_search (target, AT_HWCAP, &aarch64_hwcap) != 1)
-    return NULL;
+  CORE_ADDR hwcap = linux_get_hwcap (target);
 
   return aarch64_read_description (aarch64_linux_core_read_vq (gdbarch, abfd));
 }
