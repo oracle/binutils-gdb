@@ -156,12 +156,26 @@ set run_tests {
     {"Run with libindirect4c.so 4"
      "-Wl,--no-as-needed tmpdir/libindirect4c.so tmpdir/indirect4b.o tmpdir/indirect4a.o" ""
      {dummy.c} "indirect4d" "indirect4.out"}
-    {"Run indirect5 1"
-     "$NOPIE_LDFLAGS -Wl,--no-as-needed tmpdir/libindirect5.so" ""
-     {indirect5a.c} "indirect5a" "indirect5.out" "$NOPIE_CFLAGS"}
-    {"Run indirect5 2"
-     "$NOPIE_LDFLAGS -Wl,--no-as-needed tmpdir/indirect5a.o tmpdir/libindirect5.so" ""
-     {dummy.c} "indirect5b" "indirect5.out" "$NOPIE_CFLAGS"}
+}
+
+run_ld_link_exec_tests $run_tests
+
+# The s390x system compiler miscompiles these tests.
+if { ! [istarget s390x-*-*] } {
+    
+    set run_tests {
+	{"Run indirect5 1"
+	    "$NOPIE_LDFLAGS -Wl,--no-as-needed tmpdir/libindirect5.so" ""
+	    {indirect5a.c} "indirect5a" "indirect5.out" "$NOPIE_CFLAGS"}
+	{"Run indirect5 2"
+	    "$NOPIE_LDFLAGS -Wl,--no-as-needed tmpdir/indirect5a.o tmpdir/libindirect5.so" ""
+	    {dummy.c} "indirect5b" "indirect5.out" "$NOPIE_CFLAGS"}
+    }
+
+    run_ld_link_exec_tests $run_tests
+}
+
+set run_tests {
     {"Run indirect6 1"
      "$NOPIE_LDFLAGS -Wl,--no-as-needed tmpdir/libindirect5.so" ""
      {indirect6a.c} "indirect6a" "indirect5.out" "$NOPIE_CFLAGS"}
@@ -213,12 +227,15 @@ proc check_dynamic_syms { test } {
     return 1
 }
 
-foreach t [list indirect5a indirect5b indirect6a indirect6b] {
-    set testname [concat $t "dynsym"]
-    if { [check_dynamic_syms tmpdir/$t] } {
-	pass $testname
-    } else {
-	fail $testname
+# The s390x system compiler miscompiles indirect5 tests.
+if { ! [istarget s390x-*-*] } {
+    foreach t [list indirect5a indirect5b indirect6a indirect6b] {
+	set testname [concat $t "dynsym"]
+	if { [check_dynamic_syms tmpdir/$t] } {
+	    pass $testname
+	} else {
+	    fail $testname
+	}
     }
 }
 
@@ -229,13 +246,22 @@ if { ! [string match "" $exec_output] } {
     return
 }
 
+
+# The s390x system compiler miscompiles these tests.
+if { ! [istarget s390x-*-*] } {
+    set pie_tests {
+	{"Run indirect5 3"
+	    "-pie -Wl,--no-as-needed tmpdir/libindirect5.so" ""
+	    {indirect5a.c} "indirect5c" "indirect5.out" "-fPIE"}
+	{"Run indirect5 4"
+	    "-pie -Wl,--no-as-needed tmpdir/indirect5a.o tmpdir/libindirect5.so" ""
+	    {dummy.c} "indirect5d" "indirect5.out" "-fPIE"}
+    }
+
+    run_ld_link_exec_tests $pie_tests
+}
+
 set pie_tests {
-    {"Run indirect5 3"
-     "-pie -Wl,--no-as-needed tmpdir/libindirect5.so" ""
-     {indirect5a.c} "indirect5c" "indirect5.out" "-fPIE"}
-    {"Run indirect5 4"
-     "-pie -Wl,--no-as-needed tmpdir/indirect5a.o tmpdir/libindirect5.so" ""
-     {dummy.c} "indirect5d" "indirect5.out" "-fPIE"}
     {"Run indirect6 3"
      "-pie -Wl,--no-as-needed tmpdir/libindirect5.so" ""
      {indirect6a.c} "indirect6c" "indirect5.out" "-fPIE"}
@@ -246,11 +272,14 @@ set pie_tests {
 
 run_ld_link_exec_tests $pie_tests
 
-foreach t [list indirect5c indirect5d indirect6c indirect6d] {
-    set testname [concat $t "dynsym"]
-    if { [check_dynamic_syms tmpdir/$t] } {
-	pass $testname
-    } else {
-	fail $testname
+# The s390x system compiler miscompiles indirect5 tests.
+if { ! [istarget s390x-*-*] } {
+    foreach t [list indirect5c indirect5d indirect6c indirect6d] {
+	set testname [concat $t "dynsym"]
+	if { [check_dynamic_syms tmpdir/$t] } {
+	    pass $testname
+	} else {
+	    fail $testname
+	}
     }
 }
