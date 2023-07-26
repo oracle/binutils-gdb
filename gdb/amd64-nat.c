@@ -135,9 +135,9 @@ amd64_collect_native_gregset (const struct regcache *regcache,
     {
       num_regs = amd64_native_gregset32_num_regs;
 
-      /* Make sure %eax, %ebx, %ecx, %edx, %esi, %edi, %ebp, %esp and
+      /* Make sure %ebx, %ecx, %edx, %esi, %edi, %ebp, %esp and
          %eip get zero-extended to 64 bits.  */
-      for (i = 0; i <= I386_EIP_REGNUM; i++)
+      for (i = I386_ECX_REGNUM; i <= I386_EIP_REGNUM; i++)
 	{
 	  if (regnum == -1 || regnum == i)
 	    memset (regs + amd64_native_gregset_reg_offset (gdbarch, i), 0, 8);
@@ -161,6 +161,22 @@ amd64_collect_native_gregset (const struct regcache *regcache,
 
 	  if (offset != -1)
 	    regcache->raw_collect (i, regs + offset);
+	}
+    }
+
+  if (gdbarch_bfd_arch_info (gdbarch)->bits_per_word == 32)
+    {
+      /* Sign-extend %eax as during return from a syscall it is being checked
+	 for -ERESTART* values -512 being above 0xfffffffffffffe00; tested by
+	 interrupt.exp.  */
+
+      int i = I386_EAX_REGNUM;
+
+      if (regnum == -1 || regnum == i)
+	{
+	  void *ptr = regs + amd64_native_gregset_reg_offset (gdbarch, i);
+
+	  *(int64_t *) ptr = *(int32_t *) ptr;
 	}
     }
 }
