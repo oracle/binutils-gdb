@@ -562,7 +562,7 @@ struct target_ops
 
     /* Documentation of this routine is provided with the corresponding
        target_* macro.  */
-    virtual int region_ok_for_hw_watchpoint (CORE_ADDR, int)
+    virtual int region_ok_for_hw_watchpoint (CORE_ADDR, LONGEST)
       TARGET_DEFAULT_FUNC (default_region_ok_for_hw_watchpoint);
 
     virtual bool can_accel_watchpoint_condition (CORE_ADDR, int, int,

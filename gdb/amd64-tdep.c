@@ -727,7 +727,7 @@ amd64_return_value (struct gdbarch *gdbarch, struct value *function,
 		    gdb_byte *readbuf, const gdb_byte *writebuf)
 {
   enum amd64_reg_class theclass[2];
-  int len = TYPE_LENGTH (type);
+  LONGEST len = TYPE_LENGTH (type);
   static int integer_regnum[] = { AMD64_RAX_REGNUM, AMD64_RDX_REGNUM };
   static int sse_regnum[] = { AMD64_XMM0_REGNUM, AMD64_XMM1_REGNUM };
   int integer_reg = 0;
@@ -844,10 +844,10 @@ amd64_return_value (struct gdbarch *gdbarch, struct value *function,
       gdb_assert (regnum != -1);
 
       if (readbuf)
-	regcache->raw_read_part (regnum, offset, std::min (len, 8),
+	regcache->raw_read_part (regnum, offset, std::min (len, (LONGEST) 8),
 				 readbuf + i * 8);
       if (writebuf)
-	regcache->raw_write_part (regnum, offset, std::min (len, 8),
+	regcache->raw_write_part (regnum, offset, std::min (len, (LONGEST) 8),
 				  writebuf + i * 8);
     }
 

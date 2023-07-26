@@ -173,7 +173,7 @@ extern void ada_print_type (struct type *, const char *, struct ui_file *, int,
 extern void ada_print_typedef (struct type *type, struct symbol *new_symbol,
 			       struct ui_file *stream);
 
-extern void ada_val_print (struct type *, int, CORE_ADDR,
+extern void ada_val_print (struct type *, LONGEST, CORE_ADDR,
 			   struct ui_file *, int,
 			   struct value *,
 			   const struct value_print_options *);
@@ -188,7 +188,7 @@ extern void ada_emit_char (int, struct type *, struct ui_file *, int, int);
 extern void ada_printchar (int, struct type *, struct ui_file *);
 
 extern void ada_printstr (struct ui_file *, struct type *, const gdb_byte *,
-			  unsigned int, const char *, int,
+			  ULONGEST, const char *, int,
 			  const struct value_print_options *);
 
 struct value *ada_convert_actual (struct value *actual,
@@ -261,7 +261,7 @@ extern int ada_is_constrained_packed_array_type (struct type *);
 
 extern struct value *ada_value_primitive_packed_val (struct value *,
 						     const gdb_byte *,
-                                                     long, int, int,
+						     LONGEST, int, int,
                                                      struct type *);
 
 extern struct type *ada_coerce_to_simple_array_type (struct type *);

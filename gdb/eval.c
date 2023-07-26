@@ -295,7 +295,8 @@ evaluate_struct_tuple (struct value *struct_val,
   while (--nargs >= 0)
     {
       struct value *val = NULL;
-      int bitpos, bitsize;
+      LONGEST bitpos;
+      int bitsize;
       bfd_byte *addr;
 
       fieldno++;
@@ -356,7 +357,7 @@ init_array_element (struct value *array, struct value *element,
 		    enum noside noside, LONGEST low_bound, LONGEST high_bound)
 {
   LONGEST index;
-  int element_size = TYPE_LENGTH (value_type (element));
+  LONGEST element_size = TYPE_LENGTH (value_type (element));
 
   if (exp->elts[*pos].opcode == BINOP_COMMA)
     {
@@ -800,11 +801,11 @@ binop_promote (const struct language_defn *language, struct gdbarch *gdbarch,
     /* FIXME: Also mixed integral/booleans, with result an integer.  */
     {
       const struct builtin_type *builtin = builtin_type (gdbarch);
-      unsigned int promoted_len1 = TYPE_LENGTH (type1);
-      unsigned int promoted_len2 = TYPE_LENGTH (type2);
+      ULONGEST promoted_len1 = TYPE_LENGTH (type1);
+      ULONGEST promoted_len2 = TYPE_LENGTH (type2);
       int is_unsigned1 = TYPE_UNSIGNED (type1);
       int is_unsigned2 = TYPE_UNSIGNED (type2);
-      unsigned int result_len;
+      ULONGEST result_len;
       int unsigned_operation;
 
       /* Determine type length and signedness after promotion for
@@ -1546,7 +1547,7 @@ evaluate_subexp_standard (struct type *expect_type,
   struct value **argvec;
   int code;
   int ix;
-  long mem_offset;
+  LONGEST mem_offset;
   struct type **arg_types;
 
   pc = (*pos)++;
@@ -1729,7 +1730,7 @@ evaluate_subexp_standard (struct type *expect_type,
 	  struct type *range_type = TYPE_INDEX_TYPE (type);
 	  struct type *element_type = TYPE_TARGET_TYPE (type);
 	  struct value *array = allocate_value (expect_type);
-	  int element_size = TYPE_LENGTH (check_typedef (element_type));
+	  LONGEST element_size = TYPE_LENGTH (check_typedef (element_type));
 	  LONGEST low_bound, high_bound, index;
 
 	  if (get_discrete_bounds (range_type, &low_bound, &high_bound) < 0)

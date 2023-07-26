@@ -193,7 +193,7 @@ extern void ax_ext (struct agent_expr *EXPR, int N);
 extern void ax_zero_ext (struct agent_expr *EXPR, int N);
 
 /* Append a trace_quick instruction to EXPR, to record N bytes.  */
-extern void ax_trace_quick (struct agent_expr *EXPR, int N);
+extern void ax_trace_quick (struct agent_expr *EXPR, LONGEST N);
 
 /* Append a goto op to EXPR.  OP is the actual op (must be aop_goto or
    aop_if_goto).  We assume we don't know the target offset yet,

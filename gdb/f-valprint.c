@@ -36,7 +36,7 @@
 
 static void f77_get_dynamic_length_of_aggregate (struct type *);
 
-int f77_array_offset_tbl[MAX_FORTRAN_DIMS + 1][2];
+LONGEST f77_array_offset_tbl[MAX_FORTRAN_DIMS + 1][2];
 
 /* Array which holds offsets to be applied to get a row's elements
    for a given array.  Array also holds the size of each subarray.  */
@@ -71,8 +71,8 @@ f77_get_upperbound (struct type *type)
 static void
 f77_get_dynamic_length_of_aggregate (struct type *type)
 {
-  int upper_bound = -1;
-  int lower_bound = 1;
+  LONGEST upper_bound = -1;
+  LONGEST lower_bound = 1;
 
   /* Recursively go all the way down into a possibly multi-dimensional
      F77 array and get the bounds.  For simple arrays, this is pretty
@@ -104,7 +104,7 @@ f77_get_dynamic_length_of_aggregate (struct type *type)
 static void
 f77_print_array_1 (int nss, int ndimensions, struct type *type,
 		   const gdb_byte *valaddr,
-		   int embedded_offset, CORE_ADDR address,
+		   LONGEST embedded_offset, CORE_ADDR address,
 		   struct ui_file *stream, int recurse,
 		   const struct value *val,
 		   const struct value_print_options *options,
@@ -113,7 +113,7 @@ f77_print_array_1 (int nss, int ndimensions, struct type *type,
   struct type *range_type = TYPE_INDEX_TYPE (check_typedef (type));
   CORE_ADDR addr = address + embedded_offset;
   LONGEST lowerbound, upperbound;
-  int i;
+  LONGEST i;
 
   get_discrete_bounds (range_type, &lowerbound, &upperbound);
 
@@ -175,7 +175,7 @@ f77_print_array_1 (int nss, int ndimensions, struct type *type,
 
 static void
 f77_print_array (struct type *type, const gdb_byte *valaddr,
-		 int embedded_offset,
+		 LONGEST embedded_offset,
 		 CORE_ADDR address, struct ui_file *stream,
 		 int recurse,
 		 const struct value *val,
@@ -214,7 +214,7 @@ static const struct generic_val_print_decorations f_decorations =
    function; they are identical.  */
 
 void
-f_val_print (struct type *type, int embedded_offset,
+f_val_print (struct type *type, LONGEST embedded_offset,
 	     CORE_ADDR address, struct ui_file *stream, int recurse,
 	     struct value *original_value,
 	     const struct value_print_options *options)

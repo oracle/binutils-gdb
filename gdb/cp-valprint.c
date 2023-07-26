@@ -335,7 +335,7 @@ cp_print_value_fields (struct type *type, struct type *real_type,
 		}
 	      else if (i == vptr_fieldno && type == vptr_basetype)
 		{
-		  int i_offset = offset + TYPE_FIELD_BITPOS (type, i) / 8;
+		  LONGEST i_offset = offset + TYPE_FIELD_BITPOS (type, i) / 8;
 		  struct type *i_type = TYPE_FIELD_TYPE (type, i);
 
 		  if (valprint_check_validity (stream, i_type, i_offset, val))

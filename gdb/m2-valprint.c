@@ -35,7 +35,7 @@ static int print_unpacked_pointer (struct type *type,
 				   struct ui_file *stream);
 static void
 m2_print_array_contents (struct type *type, const gdb_byte *valaddr,
-			 int embedded_offset, CORE_ADDR address,
+			 LONGEST embedded_offset, CORE_ADDR address,
 			 struct ui_file *stream, int recurse,
 			 struct value *val,
 			 const struct value_print_options *options,
@@ -67,7 +67,7 @@ get_long_set_bounds (struct type *type, LONGEST *low, LONGEST *high)
 
 static void
 m2_print_long_set (struct type *type, const gdb_byte *valaddr,
-		   int embedded_offset, CORE_ADDR address,
+		   LONGEST embedded_offset, CORE_ADDR address,
 		   struct ui_file *stream)
 {
   int empty_set        = 1;
@@ -158,7 +158,7 @@ m2_print_long_set (struct type *type, const gdb_byte *valaddr,
 
 static void
 m2_print_unbounded_array (struct type *type, const gdb_byte *valaddr,
-			  int embedded_offset, CORE_ADDR address,
+			  LONGEST embedded_offset, CORE_ADDR address,
 			  struct ui_file *stream, int recurse,
 			  const struct value_print_options *options)
 {
@@ -260,7 +260,7 @@ print_variable_at_address (struct type *type,
 
 static void
 m2_print_array_contents (struct type *type, const gdb_byte *valaddr,
-			 int embedded_offset, CORE_ADDR address,
+			 LONGEST embedded_offset, CORE_ADDR address,
 			 struct ui_file *stream, int recurse,
 			 struct value *val,
 			 const struct value_print_options *options,
@@ -308,12 +308,12 @@ static const struct generic_val_print_decorations m2_decorations =
    function; they are identical.  */
 
 void
-m2_val_print (struct type *type, int embedded_offset,
+m2_val_print (struct type *type, LONGEST embedded_offset,
 	      CORE_ADDR address, struct ui_file *stream, int recurse,
 	      struct value *original_value,
 	      const struct value_print_options *options)
 {
-  unsigned len;
+  ULONGEST len;
   struct type *elttype;
   CORE_ADDR addr;
   const gdb_byte *valaddr = value_contents_for_printing (original_value);
@@ -339,7 +339,7 @@ m2_val_print (struct type *type, int embedded_offset,
 	         elements up to it.  */
 	      if (options->stop_print_at_null)
 		{
-		  unsigned int temp_len;
+		  ULONGEST temp_len;
 
 		  /* Look for a NULL char.  */
 		  for (temp_len = 0;
@@ -415,7 +415,7 @@ m2_val_print (struct type *type, int embedded_offset,
 	{
 	  struct type *range = elttype;
 	  LONGEST low_bound, high_bound;
-	  int i;
+	  LONGEST i;
 	  int need_comma = 0;
 
 	  fputs_filtered ("{", stream);

@@ -1799,7 +1799,7 @@ set_gdbarch_wchar_signed (struct gdbarch *gdbarch,
 }
 
 const struct floatformat **
-gdbarch_floatformat_for_type (struct gdbarch *gdbarch, const char *name, int length)
+gdbarch_floatformat_for_type (struct gdbarch *gdbarch, const char *name, LONGEST length)
 {
   gdb_assert (gdbarch != NULL);
   gdb_assert (gdbarch->floatformat_for_type != NULL);

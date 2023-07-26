@@ -380,7 +380,7 @@ x86_remove_aligned_watchpoint (struct x86_debug_reg_state *state,
 
 static int
 x86_handle_nonaligned_watchpoint (struct x86_debug_reg_state *state,
-				  x86_wp_op_t what, CORE_ADDR addr, int len,
+				  x86_wp_op_t what, CORE_ADDR addr, LONGEST len,
 				  enum target_hw_bp_type type)
 {
   int retval = 0;
@@ -548,7 +548,7 @@ x86_dr_remove_watchpoint (struct x86_debug_reg_state *state,
 
 int
 x86_dr_region_ok_for_watchpoint (struct x86_debug_reg_state *state,
-				 CORE_ADDR addr, int len)
+				 CORE_ADDR addr, LONGEST len)
 {
   int nregs;
 

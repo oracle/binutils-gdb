@@ -2059,9 +2059,9 @@ should_be_inserted (struct bp_location *bl)
 	{
 	  fprintf_unfiltered (gdb_stdlog,
 			      "infrun: stepping past non-steppable watchpoint. "
-			      "skipping watchpoint at %s:%d\n",
+			      "skipping watchpoint at %s:%s\n",
 			      paddress (bl->gdbarch, bl->address),
-			      bl->length);
+			      plongest (bl->length));
 	}
       return 0;
     }
@@ -6822,7 +6822,7 @@ breakpoint_address_match (const address_space *aspace1, CORE_ADDR addr1,
 static int
 breakpoint_address_match_range (const address_space *aspace1,
 				CORE_ADDR addr1,
-				int len1, const address_space *aspace2,
+				LONGEST len1, const address_space *aspace2,
 				CORE_ADDR addr2)
 {
   return ((gdbarch_has_global_breakpoints (target_gdbarch ())
@@ -10905,7 +10905,7 @@ can_use_hardware_watchpoint (const std::vector<value_ref_ptr> &vals)
 		      && TYPE_CODE (vtype) != TYPE_CODE_ARRAY))
 		{
 		  CORE_ADDR vaddr = value_address (v);
-		  int len;
+		  LONGEST len;
 		  int num_regs;
 
 		  len = (target_exact_watchpoints

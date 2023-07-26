@@ -879,7 +879,7 @@ generic_val_print_complex (struct type *type,
 
 void
 generic_val_print (struct type *type,
-		   int embedded_offset, CORE_ADDR address,
+		   LONGEST embedded_offset, CORE_ADDR address,
 		   struct ui_file *stream, int recurse,
 		   struct value *original_value,
 		   const struct value_print_options *options,
@@ -1773,7 +1773,7 @@ print_decimal_chars (struct ui_file *stream, const gdb_byte *valaddr,
 
 void
 print_hex_chars (struct ui_file *stream, const gdb_byte *valaddr,
-		 unsigned len, enum bfd_endian byte_order,
+		 ULONGEST len, enum bfd_endian byte_order,
 		 bool zero_pad)
 {
   const gdb_byte *p;
@@ -1926,17 +1926,17 @@ val_print_array_elements (struct type *type,
 			  int recurse,
 			  struct value *val,
 			  const struct value_print_options *options,
-			  unsigned int i)
+			  ULONGEST i)
 {
   unsigned int things_printed = 0;
-  unsigned len;
+  ULONGEST len;
   struct type *elttype, *index_type, *base_index_type;
-  unsigned eltlen;
+  ULONGEST eltlen;
   /* Position of the array element we are examining to see
      whether it is repeated.  */
-  unsigned int rep1;
+  ULONGEST rep1;
   /* Number of repetitions we have detected so far.  */
-  unsigned int reps;
+  ULONGEST reps;
   LONGEST low_bound, high_bound;
   LONGEST low_pos, high_pos;
 
@@ -2026,7 +2026,7 @@ val_print_array_elements (struct type *type,
 		     address, stream, recurse + 1, val, options,
 		     current_language);
 	  annotate_elt_rep (reps);
-	  fprintf_filtered (stream, " <repeats %u times>", reps);
+	  fprintf_filtered (stream, " <repeats %s times>", pulongest (reps));
 	  annotate_elt_rep_end ();
 
 	  i = rep1 - 1;
@@ -2669,7 +2669,7 @@ print_converted_chars_to_obstack (struct obstack *obstack,
 
 void
 generic_printstr (struct ui_file *stream, struct type *type, 
-		  const gdb_byte *string, unsigned int length, 
+		  const gdb_byte *string, ULONGEST length,
 		  const char *encoding, int force_ellipses,
 		  int quote_char, int c_style_terminator,
 		  const struct value_print_options *options)

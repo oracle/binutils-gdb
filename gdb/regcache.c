@@ -795,7 +795,7 @@ regcache::cooked_write (int regnum, const gdb_byte *buf)
 /* See regcache.h.  */
 
 enum register_status
-readable_regcache::read_part (int regnum, int offset, int len,
+readable_regcache::read_part (int regnum, LONGEST offset, LONGEST len,
 			      gdb_byte *out, bool is_raw)
 {
   int reg_size = register_size (arch (), regnum);
@@ -862,7 +862,7 @@ reg_buffer::raw_collect_part (int regnum, int offset, int len,
 /* See regcache.h.  */
 
 enum register_status
-regcache::write_part (int regnum, int offset, int len,
+regcache::write_part (int regnum, LONGEST offset, LONGEST len,
 		      const gdb_byte *in, bool is_raw)
 {
   int reg_size = register_size (arch (), regnum);
@@ -933,7 +933,7 @@ reg_buffer::raw_supply_part (int regnum, int offset, int len,
 }
 
 enum register_status
-readable_regcache::raw_read_part (int regnum, int offset, int len,
+readable_regcache::raw_read_part (int regnum, int offset, LONGEST len,
 				  gdb_byte *buf)
 {
   assert_regnum (regnum);
@@ -943,7 +943,7 @@ readable_regcache::raw_read_part (int regnum, int offset, int len,
 /* See regcache.h.  */
 
 void
-regcache::raw_write_part (int regnum, int offset, int len,
+regcache::raw_write_part (int regnum, int offset, LONGEST len,
 			  const gdb_byte *buf)
 {
   assert_regnum (regnum);
@@ -953,7 +953,7 @@ regcache::raw_write_part (int regnum, int offset, int len,
 /* See regcache.h.  */
 
 enum register_status
-readable_regcache::cooked_read_part (int regnum, int offset, int len,
+readable_regcache::cooked_read_part (int regnum, LONGEST offset, LONGEST len,
 				     gdb_byte *buf)
 {
   gdb_assert (regnum >= 0 && regnum < m_descr->nr_cooked_registers);
@@ -963,7 +963,7 @@ readable_regcache::cooked_read_part (int regnum, int offset, int len,
 /* See regcache.h.  */
 
 void
-regcache::cooked_write_part (int regnum, int offset, int len,
+regcache::cooked_write_part (int regnum, LONGEST offset, LONGEST len,
 			     const gdb_byte *buf)
 {
   gdb_assert (regnum >= 0 && regnum < m_descr->nr_cooked_registers);

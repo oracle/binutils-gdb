@@ -103,10 +103,10 @@ m2_printchar (int c, struct type *type, struct ui_file *stream)
 
 static void
 m2_printstr (struct ui_file *stream, struct type *type, const gdb_byte *string,
-	     unsigned int length, const char *encoding, int force_ellipses,
+	     ULONGEST length, const char *encoding, int force_ellipses,
 	     const struct value_print_options *options)
 {
-  unsigned int i;
+  ULONGEST i;
   unsigned int things_printed = 0;
   int in_quotes = 0;
   int need_comma = 0;
@@ -121,9 +121,9 @@ m2_printstr (struct ui_file *stream, struct type *type, const gdb_byte *string,
     {
       /* Position of the character we are examining
          to see whether it is repeated.  */
-      unsigned int rep1;
+      ULONGEST rep1;
       /* Number of repetitions we have detected so far.  */
-      unsigned int reps;
+      ULONGEST reps;
 
       QUIT;
 
@@ -149,7 +149,7 @@ m2_printstr (struct ui_file *stream, struct type *type, const gdb_byte *string,
 	      in_quotes = 0;
 	    }
 	  m2_printchar (string[i], type, stream);
-	  fprintf_filtered (stream, " <repeats %u times>", reps);
+	  fprintf_filtered (stream, " <repeats %s times>", pulongest (reps));
 	  i = rep1 - 1;
 	  things_printed += options->repeat_count_threshold;
 	  need_comma = 1;

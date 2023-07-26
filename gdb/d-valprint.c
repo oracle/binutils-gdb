@@ -73,7 +73,7 @@ dynamic_array_type (struct type *type,
 
 /* Implements the la_val_print routine for language D.  */
 void
-d_val_print (struct type *type, int embedded_offset,
+d_val_print (struct type *type, LONGEST embedded_offset,
              CORE_ADDR address, struct ui_file *stream, int recurse,
 	     struct value *val,
              const struct value_print_options *options)

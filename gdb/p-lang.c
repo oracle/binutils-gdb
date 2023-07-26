@@ -93,8 +93,8 @@ pascal_main_name (void)
    are not multiple of TARGET_CHAR_BIT then the results are wrong
    but this does not happen for Free Pascal nor for GPC.  */
 int
-is_pascal_string_type (struct type *type,int *length_pos,
-                       int *length_size, int *string_pos,
+is_pascal_string_type (struct type *type, LONGEST *length_pos,
+		       LONGEST *length_size, LONGEST *string_pos,
 		       struct type **char_type,
 		       const char **arrayname)
 {
@@ -214,12 +214,12 @@ pascal_printchar (int c, struct type *type, struct ui_file *stream)
 
 void
 pascal_printstr (struct ui_file *stream, struct type *type,
-		 const gdb_byte *string, unsigned int length,
+		 const gdb_byte *string, ULONGEST length,
 		 const char *encoding, int force_ellipses,
 		 const struct value_print_options *options)
 {
   enum bfd_endian byte_order = gdbarch_byte_order (get_type_arch (type));
-  unsigned int i;
+  ULONGEST i;
   unsigned int things_printed = 0;
   int in_quotes = 0;
   int need_comma = 0;
@@ -247,9 +247,9 @@ pascal_printstr (struct ui_file *stream, struct type *type,
     {
       /* Position of the character we are examining
          to see whether it is repeated.  */
-      unsigned int rep1;
+      ULONGEST rep1;
       /* Number of repetitions we have detected so far.  */
-      unsigned int reps;
+      ULONGEST reps;
       unsigned long int current_char;
 
       QUIT;
@@ -281,7 +281,7 @@ pascal_printstr (struct ui_file *stream, struct type *type,
 	      in_quotes = 0;
 	    }
 	  pascal_printchar (current_char, type, stream);
-	  fprintf_filtered (stream, " <repeats %u times>", reps);
+	  fprintf_filtered (stream, " <repeats %s times>", pulongest (reps));
 	  i = rep1 - 1;
 	  things_printed += options->repeat_count_threshold;
 	  need_comma = 1;

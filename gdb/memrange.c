@@ -22,8 +22,8 @@
 #include <algorithm>
 
 int
-mem_ranges_overlap (CORE_ADDR start1, int len1,
-		    CORE_ADDR start2, int len2)
+mem_ranges_overlap (CORE_ADDR start1, LONGEST len1,
+		    CORE_ADDR start2, LONGEST len2)
 {
   ULONGEST h, l;
 

@@ -385,7 +385,7 @@ v;int;wchar_signed;;;1;-1;1
 # Returns the floating-point format to be used for values of length LENGTH.
 # NAME, if non-NULL, is the type name, which may be used to distinguish
 # different target formats of the same length.
-m;const struct floatformat **;floatformat_for_type;const char *name, int length;name, length;0;default_floatformat_for_type;;0
+m;const struct floatformat **;floatformat_for_type;const char *name, LONGEST length;name, length;0;default_floatformat_for_type;;0
 
 # For most targets, a pointer on the target and its representation as an
 # address in GDB have the same size and "look the same".  For such a

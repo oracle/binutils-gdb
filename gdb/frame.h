@@ -620,7 +620,7 @@ extern void put_frame_register (struct frame_info *frame, int regnum,
    contents are optimized out or unavailable, set *OPTIMIZEDP,
    *UNAVAILABLEP accordingly.  */
 extern int get_frame_register_bytes (struct frame_info *frame, int regnum,
-				     CORE_ADDR offset, int len,
+				     CORE_ADDR offset, LONGEST len,
 				     gdb_byte *myaddr,
 				     int *optimizedp, int *unavailablep);
 

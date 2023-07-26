@@ -766,7 +766,7 @@ unk_lang_printchar (int c, struct type *type, struct ui_file *stream)
 
 static void
 unk_lang_printstr (struct ui_file *stream, struct type *type,
-		   const gdb_byte *string, unsigned int length,
+		   const gdb_byte *string, ULONGEST length,
 		   const char *encoding, int force_ellipses,
 		   const struct value_print_options *options)
 {
@@ -785,7 +785,7 @@ unk_lang_print_type (struct type *type, const char *varstring,
 
 static void
 unk_lang_val_print (struct type *type,
-		    int embedded_offset, CORE_ADDR address,
+		    LONGEST embedded_offset, CORE_ADDR address,
 		    struct ui_file *stream, int recurse,
 		    struct value *val,
 		    const struct value_print_options *options)

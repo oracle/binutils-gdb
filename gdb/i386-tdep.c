@@ -8155,7 +8155,7 @@ i386_fast_tracepoint_valid_at (struct gdbarch *gdbarch, CORE_ADDR addr,
 
 const struct floatformat **
 i386_floatformat_for_type (struct gdbarch *gdbarch,
-			   const char *name, int len)
+			   const char *name, LONGEST len)
 {
   if (len == 128 && name)
     if (strcmp (name, "__float128") == 0

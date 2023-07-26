@@ -1817,7 +1817,7 @@ rw_pieced_value (struct value *v, struct value *from)
   for (; i < c->pieces.size () && offset < max_offset; i++)
     {
       struct dwarf_expr_piece *p = &c->pieces[i];
-      size_t this_size_bits, this_size;
+      ULONGEST this_size_bits, this_size;
 
       this_size_bits = p->size - bits_to_skip;
       if (this_size_bits > max_offset - offset)
@@ -2064,7 +2064,7 @@ write_pieced_value (struct value *to, struct value *from)
 
 static int
 check_pieced_synthetic_pointer (const struct value *value, LONGEST bit_offset,
-				int bit_length)
+				LONGEST bit_length)
 {
   struct piece_closure *c
     = (struct piece_closure *) value_computed_closure (value);
@@ -2077,7 +2077,7 @@ check_pieced_synthetic_pointer (const struct value *value, LONGEST bit_offset,
   for (i = 0; i < c->pieces.size () && bit_length > 0; i++)
     {
       struct dwarf_expr_piece *p = &c->pieces[i];
-      size_t this_size_bits = p->size;
+      ULONGEST this_size_bits = p->size;
 
       if (bit_offset > 0)
 	{
@@ -2179,8 +2179,8 @@ indirect_pieced_value (struct value *value)
     = (struct piece_closure *) value_computed_closure (value);
   struct type *type;
   struct frame_info *frame;
-  int i, bit_length;
-  LONGEST bit_offset;
+  int i;
+  LONGEST bit_length, bit_offset;
   struct dwarf_expr_piece *piece = NULL;
   LONGEST byte_offset;
   enum bfd_endian byte_order;
@@ -2197,7 +2197,7 @@ indirect_pieced_value (struct value *value)
   for (i = 0; i < c->pieces.size () && bit_length > 0; i++)
     {
       struct dwarf_expr_piece *p = &c->pieces[i];
-      size_t this_size_bits = p->size;
+      ULONGEST this_size_bits = p->size;
 
       if (bit_offset > 0)
 	{
@@ -2486,9 +2486,9 @@ if (frame != NULL) select_frame (frame);
 	case DWARF_VALUE_STACK:
 	  {
 	    struct value *value = ctx.fetch (0);
-	    size_t n = TYPE_LENGTH (value_type (value));
-	    size_t len = TYPE_LENGTH (subobj_type);
-	    size_t max = TYPE_LENGTH (type);
+	    ULONGEST n = TYPE_LENGTH (value_type (value));
+	    ULONGEST len = TYPE_LENGTH (subobj_type);
+	    ULONGEST max = TYPE_LENGTH (type);
 	    struct gdbarch *objfile_gdbarch = get_objfile_arch (objfile);
 
 	    if (subobj_byte_offset + len > max)

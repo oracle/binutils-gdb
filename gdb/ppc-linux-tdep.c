@@ -1706,7 +1706,7 @@ ppc_init_linux_record_tdep (struct linux_record_tdep *record_tdep,
 
 const struct floatformat **
 ppc_floatformat_for_type (struct gdbarch *gdbarch,
-                          const char *name, int len)
+                          const char *name, LONGEST len)
 {
   if (len == 128 && name)
     {

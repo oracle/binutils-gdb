@@ -3358,7 +3358,7 @@ procfs_target::remove_watchpoint (CORE_ADDR addr, int len,
 }
 
 int
-procfs_target::region_ok_for_hw_watchpoint (CORE_ADDR addr, int len)
+procfs_target::region_ok_for_hw_watchpoint (CORE_ADDR addr, LONGEST len)
 {
   /* The man page for proc(4) on Solaris 2.6 and up says that the
      system can support "thousands" of hardware watchpoints, but gives

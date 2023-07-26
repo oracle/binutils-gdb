@@ -234,9 +234,12 @@ static void m2_array (struct type *type, struct ui_file *stream,
 	  m2_print_bounds (TYPE_INDEX_TYPE (type), stream, show, -1, 1);
 	}
       else
-	fprintf_filtered (stream, "%d",
-			  (TYPE_LENGTH (type)
-			   / TYPE_LENGTH (TYPE_TARGET_TYPE (type))));
+        {
+	  ULONGEST val = (TYPE_LENGTH (type)
+			  / TYPE_LENGTH (TYPE_TARGET_TYPE (type)));
+
+	  fprintf_filtered (stream, "%s", pulongest (val));
+	}
     }
   fprintf_filtered (stream, "] OF ");
   m2_print_type (TYPE_TARGET_TYPE (type), "", stream, show, level, flags);

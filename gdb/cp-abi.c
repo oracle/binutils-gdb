@@ -64,12 +64,12 @@ is_operator_name (const char *name)
   return (*current_cp_abi.is_operator_name) (name);
 }
 
-int
+LONGEST
 baseclass_offset (struct type *type, int index, const gdb_byte *valaddr,
 		  LONGEST embedded_offset, CORE_ADDR address,
 		  const struct value *val)
 {
-  int res = 0;
+  LONGEST res = 0;
 
   gdb_assert (current_cp_abi.baseclass_offset != NULL);
 
@@ -96,7 +96,7 @@ baseclass_offset (struct type *type, int index, const gdb_byte *valaddr,
 struct value *
 value_virtual_fn_field (struct value **arg1p,
 			struct fn_field *f, int j,
-			struct type *type, int offset)
+			struct type *type, LONGEST offset)
 {
   if ((current_cp_abi.virtual_fn_field) == NULL)
     return NULL;

@@ -383,7 +383,8 @@ value_bytes_available (const struct value *value,
 }
 
 int
-value_bits_any_optimized_out (const struct value *value, int bit_offset, int bit_length)
+value_bits_any_optimized_out (const struct value *value, LONGEST bit_offset,
+			      LONGEST bit_length)
 {
   gdb_assert (!value->lazy);
 
@@ -831,8 +832,8 @@ find_first_range_overlap_and_match (struct ranges_and_idx *rp1,
    Return true if the available bits match.  */
 
 static bool
-value_contents_bits_eq (const struct value *val1, int offset1,
-			const struct value *val2, int offset2,
+value_contents_bits_eq (const struct value *val1, LONGEST offset1,
+			const struct value *val2, LONGEST offset2,
 			int length)
 {
   /* Each array element corresponds to a ranges source (unavailable,
@@ -1423,7 +1424,8 @@ value_optimized_out (struct value *value)
    the following LENGTH bytes.  */
 
 void
-mark_value_bytes_optimized_out (struct value *value, int offset, int length)
+mark_value_bytes_optimized_out (struct value *value, LONGEST offset,
+				LONGEST length)
 {
   mark_value_bits_optimized_out (value,
 				 offset * TARGET_CHAR_BIT,

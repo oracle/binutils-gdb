@@ -177,7 +177,7 @@ ax_zero_ext (struct agent_expr *x, int n)
 
 /* Append a trace_quick instruction to EXPR, to record N bytes.  */
 void
-ax_trace_quick (struct agent_expr *x, int n)
+ax_trace_quick (struct agent_expr *x, LONGEST n)
 {
   /* N must fit in a byte.  */
   if (n < 0 || n > 255)

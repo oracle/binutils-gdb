@@ -39,7 +39,7 @@ struct dummy_target : public target_ops
   bool have_continuable_watchpoint () override;
   bool stopped_data_address (CORE_ADDR *arg0) override;
   bool watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, int arg2) override;
-  int region_ok_for_hw_watchpoint (CORE_ADDR arg0, int arg1) override;
+  int region_ok_for_hw_watchpoint (CORE_ADDR arg0, LONGEST arg1) override;
   bool can_accel_watchpoint_condition (CORE_ADDR arg0, int arg1, int arg2, struct expression *arg3) override;
   int masked_watch_num_registers (CORE_ADDR arg0, CORE_ADDR arg1) override;
   int can_do_single_step () override;
@@ -207,7 +207,7 @@ struct debug_target : public target_ops
   bool have_continuable_watchpoint () override;
   bool stopped_data_address (CORE_ADDR *arg0) override;
   bool watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, int arg2) override;
-  int region_ok_for_hw_watchpoint (CORE_ADDR arg0, int arg1) override;
+  int region_ok_for_hw_watchpoint (CORE_ADDR arg0, LONGEST arg1) override;
   bool can_accel_watchpoint_condition (CORE_ADDR arg0, int arg1, int arg2, struct expression *arg3) override;
   int masked_watch_num_registers (CORE_ADDR arg0, CORE_ADDR arg1) override;
   int can_do_single_step () override;
@@ -1098,19 +1098,19 @@ debug_target::watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, int 
 }
 
 int
-target_ops::region_ok_for_hw_watchpoint (CORE_ADDR arg0, int arg1)
+target_ops::region_ok_for_hw_watchpoint (CORE_ADDR arg0, LONGEST arg1)
 {
   return this->beneath ()->region_ok_for_hw_watchpoint (arg0, arg1);
 }
 
 int
-dummy_target::region_ok_for_hw_watchpoint (CORE_ADDR arg0, int arg1)
+dummy_target::region_ok_for_hw_watchpoint (CORE_ADDR arg0, LONGEST arg1)
 {
   return default_region_ok_for_hw_watchpoint (this, arg0, arg1);
 }
 
 int
-debug_target::region_ok_for_hw_watchpoint (CORE_ADDR arg0, int arg1)
+debug_target::region_ok_for_hw_watchpoint (CORE_ADDR arg0, LONGEST arg1)
 {
   int result;
   fprintf_unfiltered (gdb_stdlog, "-> %s->region_ok_for_hw_watchpoint (...)\n", this->beneath ()->shortname ());
@@ -1118,7 +1118,7 @@ debug_target::region_ok_for_hw_watchpoint (CORE_ADDR arg0, int arg1)
   fprintf_unfiltered (gdb_stdlog, "<- %s->region_ok_for_hw_watchpoint (", this->beneath ()->shortname ());
   target_debug_print_CORE_ADDR (arg0);
   fputs_unfiltered (", ", gdb_stdlog);
-  target_debug_print_int (arg1);
+  target_debug_print_LONGEST (arg1);
   fputs_unfiltered (") = ", gdb_stdlog);
   target_debug_print_int (result);
   fputs_unfiltered ("\n", gdb_stdlog);

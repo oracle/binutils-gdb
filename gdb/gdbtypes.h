@@ -862,7 +862,7 @@ struct type
      type_length_units function should be used in order to get the length
      expressed in target addressable memory units.  */
 
-  unsigned int length;
+  ULONGEST length;
 
   /* * Core type, shared by a group of qualified types.  */
 
@@ -1783,7 +1783,7 @@ extern unsigned int type_length_units (struct type *type);
 
 /* * Helper function to construct objfile-owned types.  */
 
-extern struct type *init_type (struct objfile *, enum type_code, int,
+extern struct type *init_type (struct objfile *, enum type_code, LONGEST,
 			       const char *);
 extern struct type *init_integer_type (struct objfile *, int, int,
 				       const char *);
@@ -1800,7 +1800,7 @@ extern struct type *init_pointer_type (struct objfile *, int, const char *,
 				       struct type *);
 
 /* Helper functions to construct architecture-owned types.  */
-extern struct type *arch_type (struct gdbarch *, enum type_code, int,
+extern struct type *arch_type (struct gdbarch *, enum type_code, LONGEST,
 			       const char *);
 extern struct type *arch_integer_type (struct gdbarch *, int, int,
 				       const char *);

@@ -173,7 +173,7 @@ x86_remove_watchpoint (CORE_ADDR addr, int len,
    address ADDR and whose length is LEN bytes.  */
 
 int
-x86_region_ok_for_hw_watchpoint (CORE_ADDR addr, int len)
+x86_region_ok_for_hw_watchpoint (CORE_ADDR addr, LONGEST len)
 {
   struct x86_debug_reg_state *state
     = x86_debug_reg_state (inferior_ptid.pid ());

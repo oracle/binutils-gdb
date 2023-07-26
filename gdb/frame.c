@@ -1396,7 +1396,7 @@ deprecated_frame_register_read (struct frame_info *frame, int regnum,
 
 int
 get_frame_register_bytes (struct frame_info *frame, int regnum,
-			  CORE_ADDR offset, int len, gdb_byte *myaddr,
+			  CORE_ADDR offset, LONGEST len, gdb_byte *myaddr,
 			  int *optimizedp, int *unavailablep)
 {
   struct gdbarch *gdbarch = get_frame_arch (frame);
@@ -1425,7 +1425,7 @@ get_frame_register_bytes (struct frame_info *frame, int regnum,
     }
   if (len > maxsize)
     error (_("Bad debug information detected: "
-	     "Attempt to read %d bytes from registers."), len);
+	     "Attempt to read %s bytes from registers."), plongest (len));
 
   /* Copy the data.  */
   while (len > 0)

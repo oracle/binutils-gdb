@@ -952,7 +952,8 @@ s390_linux_nat_target::remove_hw_breakpoint (struct gdbarch *gdbarch,
 }
 
 int
-s390_linux_nat_target::region_ok_for_hw_watchpoint (CORE_ADDR addr, int cnt)
+s390_linux_nat_target::region_ok_for_hw_watchpoint (CORE_ADDR addr,
+						    LONGEST cnt)
 {
   return 1;
 }

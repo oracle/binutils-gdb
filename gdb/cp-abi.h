@@ -108,7 +108,7 @@ extern struct value *value_virtual_fn_field (struct value **valuep,
 					     struct fn_field *f,
 					     int j,
 					     struct type *type,
-					     int offset);
+					     LONGEST offset);
 
 
 /* Try to find the run-time type of VALUE, using C++ run-time type
@@ -144,11 +144,11 @@ extern struct type *value_rtti_type (struct value *value,
    contents of VAL.  The result is the offset of the baseclass value
    relative to (the address of)(ARG) + OFFSET.  */
 
-extern int baseclass_offset (struct type *type,
-			     int index, const gdb_byte *valaddr,
-			     LONGEST embedded_offset,
-			     CORE_ADDR address,
-			     const struct value *val);
+extern LONGEST baseclass_offset (struct type *type,
+				 int index, const gdb_byte *valaddr,
+				 LONGEST embedded_offset,
+				 CORE_ADDR address,
+				 const struct value *val);
 
 /* Describe the target of a pointer to method.  CONTENTS is the byte
    pattern representing the pointer to method.  TYPE is the pointer to
@@ -226,12 +226,12 @@ struct cp_abi_ops
   struct value *(*virtual_fn_field) (struct value **arg1p,
 				     struct fn_field * f,
 				     int j, struct type * type,
-				     int offset);
+				     LONGEST offset);
   struct type *(*rtti_type) (struct value *v, int *full,
 			     LONGEST *top, int *using_enc);
-  int (*baseclass_offset) (struct type *type, int index,
-			   const bfd_byte *valaddr, LONGEST embedded_offset,
-			   CORE_ADDR address, const struct value *val);
+  LONGEST (*baseclass_offset) (struct type *type, int index,
+			       const bfd_byte *valaddr, LONGEST embedded_offset,
+			       CORE_ADDR address, const struct value *val);
   void (*print_method_ptr) (const gdb_byte *contents,
 			    struct type *type,
 			    struct ui_file *stream);

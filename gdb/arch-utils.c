@@ -228,7 +228,7 @@ legacy_virtual_frame_pointer (struct gdbarch *gdbarch,
 
 const struct floatformat **
 default_floatformat_for_type (struct gdbarch *gdbarch,
-			      const char *name, int len)
+			      const char *name, LONGEST len)
 {
   const struct floatformat **format = NULL;
 

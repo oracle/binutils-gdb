@@ -256,8 +256,8 @@ public:
   enum register_status raw_read (int regnum, T *val);
 
   /* Partial transfer of raw registers.  Return the status of the register.  */
-  enum register_status raw_read_part (int regnum, int offset, int len,
-				      gdb_byte *buf);
+  enum register_status raw_read_part (int regnum, int offset,
+				      LONGEST len, gdb_byte *buf);
 
   /* Make certain that the register REGNUM is up-to-date.  */
   virtual void raw_update (int regnum) = 0;
@@ -269,8 +269,8 @@ public:
   enum register_status cooked_read (int regnum, T *val);
 
   /* Partial transfer of a cooked register.  */
-  enum register_status cooked_read_part (int regnum, int offset, int len,
-					 gdb_byte *buf);
+  enum register_status cooked_read_part (int regnum, LONGEST offset,
+					 LONGEST len, gdb_byte *buf);
 
   /* Read register REGNUM from the regcache and return a new value.  This
      will call mark_value_bytes_unavailable as appropriate.  */
@@ -280,7 +280,7 @@ protected:
 
   /* Perform a partial register transfer using a read, modify, write
      operation.  Will fail if register is currently invalid.  */
-  enum register_status read_part (int regnum, int offset, int len,
+  enum register_status read_part (int regnum, LONGEST offset, LONGEST len,
 				  gdb_byte *out, bool is_raw);
 };
 
@@ -338,11 +338,12 @@ public:
 
   /* Partial transfer of raw registers.  Perform read, modify, write style
      operations.  */
-  void raw_write_part (int regnum, int offset, int len, const gdb_byte *buf);
+  void raw_write_part (int regnum, int offset, LONGEST len,
+		       const gdb_byte *buf);
 
   /* Partial transfer of a cooked register.  Perform read, modify, write style
      operations.  */
-  void cooked_write_part (int regnum, int offset, int len,
+  void cooked_write_part (int regnum, LONGEST offset, LONGEST len,
 			  const gdb_byte *buf);
 
   void supply_regset (const struct regset *regset,
@@ -393,7 +394,7 @@ private:
 
   /* Perform a partial register transfer using a read, modify, write
      operation.  */
-  enum register_status write_part (int regnum, int offset, int len,
+  enum register_status write_part (int regnum, LONGEST offset, LONGEST len,
 				   const gdb_byte *in, bool is_raw);
 
   /* The address space of this register cache (for registers where it

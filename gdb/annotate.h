@@ -102,8 +102,8 @@ extern void annotate_frame_source_end (void);
 extern void annotate_frame_where (void);
 extern void annotate_frame_end (void);
 
-extern void annotate_array_section_begin (int, struct type *);
-extern void annotate_elt_rep (unsigned int);
+extern void annotate_array_section_begin (LONGEST, struct type *);
+extern void annotate_elt_rep (ULONGEST);
 extern void annotate_elt_rep_end (void);
 extern void annotate_elt (void);
 extern void annotate_array_section_end (void);

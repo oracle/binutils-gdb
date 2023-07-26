@@ -190,7 +190,7 @@ print_stack_frame (struct frame_info *frame, int print_level,
    argument (not just the first nameless argument).  */
 
 static void
-print_frame_nameless_args (struct frame_info *frame, long start, int num,
+print_frame_nameless_args (struct frame_info *frame, LONGEST start, int num,
 			   int first, struct ui_file *stream)
 {
   struct gdbarch *gdbarch = get_frame_arch (frame);
@@ -540,7 +540,7 @@ print_frame_args (struct symbol *func, struct frame_info *frame,
   /* Offset of next stack argument beyond the one we have seen that is
      at the highest offset, or -1 if we haven't come to a stack
      argument yet.  */
-  long highest_offset = -1;
+  LONGEST highest_offset = -1;
   /* Number of ints of arguments that we have printed so far.  */
   int args_printed = 0;
   /* True if we should print arguments, false otherwise.  */
@@ -569,8 +569,8 @@ print_frame_args (struct symbol *func, struct frame_info *frame,
 	    case LOC_ARG:
 	    case LOC_REF_ARG:
 	      {
-		long current_offset = SYMBOL_VALUE (sym);
-		int arg_size = TYPE_LENGTH (SYMBOL_TYPE (sym));
+		LONGEST current_offset = SYMBOL_VALUE (sym);
+		LONGEST arg_size = TYPE_LENGTH (SYMBOL_TYPE (sym));
 
 		/* Compute address of next argument by adding the size of
 		   this argument and rounding to an int boundary.  */
@@ -705,7 +705,7 @@ print_frame_args (struct symbol *func, struct frame_info *frame,
      enough about the stack to find them.  */
   if (num != -1)
     {
-      long start;
+      LONGEST start;
 
       if (highest_offset == -1)
 	start = gdbarch_frame_args_skip (get_frame_arch (frame));

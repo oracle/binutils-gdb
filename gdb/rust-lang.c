@@ -288,7 +288,7 @@ rust_printchar (int c, struct type *type, struct ui_file *stream)
 
 static void
 rust_printstr (struct ui_file *stream, struct type *type,
-	       const gdb_byte *string, unsigned int length,
+	       const gdb_byte *string, ULONGEST length,
 	       const char *user_encoding, int force_ellipses,
 	       const struct value_print_options *options)
 {
@@ -497,7 +497,7 @@ static const struct generic_val_print_decorations rust_decorations =
 /* la_val_print implementation for Rust.  */
 
 static void
-rust_val_print (struct type *type, int embedded_offset,
+rust_val_print (struct type *type, LONGEST embedded_offset,
 		CORE_ADDR address, struct ui_file *stream, int recurse,
 		struct value *val,
 		const struct value_print_options *options)

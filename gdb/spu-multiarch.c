@@ -66,7 +66,7 @@ struct spu_multiarch_target final : public target_ops
 		     const gdb_byte *pattern, ULONGEST pattern_len,
 		     CORE_ADDR *found_addrp) override;
 
-  int region_ok_for_hw_watchpoint (CORE_ADDR, int) override;
+  int region_ok_for_hw_watchpoint (CORE_ADDR, LONGEST) override;
 
   struct gdbarch *thread_architecture (ptid_t) override;
 };
@@ -163,7 +163,7 @@ spu_multiarch_target::thread_architecture (ptid_t ptid)
 /* Override the to_region_ok_for_hw_watchpoint routine.  */
 
 int
-spu_multiarch_target::region_ok_for_hw_watchpoint (CORE_ADDR addr, int len)
+spu_multiarch_target::region_ok_for_hw_watchpoint (CORE_ADDR addr, LONGEST len)
 {
   /* We cannot watch SPU local store.  */
   if (SPUADDR_SPU (addr) != -1)

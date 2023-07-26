@@ -1308,7 +1308,7 @@ ppc_linux_nat_target::can_use_hw_breakpoint (enum bptype type, int cnt, int ot)
 }
 
 int
-ppc_linux_nat_target::region_ok_for_hw_watchpoint (CORE_ADDR addr, int len)
+ppc_linux_nat_target::region_ok_for_hw_watchpoint (CORE_ADDR addr, LONGEST len)
 {
   /* Handle sub-8-byte quantities.  */
   if (len <= 0)

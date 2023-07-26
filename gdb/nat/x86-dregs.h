@@ -116,7 +116,7 @@ extern int x86_dr_remove_watchpoint (struct x86_debug_reg_state *state,
 /* Return non-zero if we can watch a memory region that starts at
    address ADDR and whose length is LEN bytes.  */
 extern int x86_dr_region_ok_for_watchpoint (struct x86_debug_reg_state *state,
-					    CORE_ADDR addr, int len);
+					    CORE_ADDR addr, LONGEST len);
 
 /* If the inferior has some break/watchpoint that triggered, set the
    address associated with that break/watchpoint and return true.

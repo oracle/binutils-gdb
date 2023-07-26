@@ -59,7 +59,7 @@ static int default_watchpoint_addr_within_range (struct target_ops *,
 						 CORE_ADDR, CORE_ADDR, int);
 
 static int default_region_ok_for_hw_watchpoint (struct target_ops *,
-						CORE_ADDR, int);
+						CORE_ADDR, LONGEST);
 
 static void default_rcmd (struct target_ops *, const char *, struct ui_file *);
 
@@ -3181,7 +3181,7 @@ target_fileio_read_stralloc (struct inferior *inf, const char *filename)
 
 static int
 default_region_ok_for_hw_watchpoint (struct target_ops *self,
-				     CORE_ADDR addr, int len)
+				     CORE_ADDR addr, LONGEST len)
 {
   return (len <= gdbarch_ptr_bit (target_gdbarch ()) / TARGET_CHAR_BIT);
 }

@@ -265,7 +265,7 @@ public:
   void add_register (unsigned int regno);
   void add_memrange (struct gdbarch *gdbarch,
 		     int type, bfd_signed_vma base,
-		     unsigned long len);
+		     ULONGEST len);
   void collect_symbol (struct symbol *sym,
 		       struct gdbarch *gdbarch,
 		       long frame_regno, long frame_offset,

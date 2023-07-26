@@ -531,21 +531,21 @@ annotate_frame_end (void)
 }
 
 void
-annotate_array_section_begin (int idx, struct type *elttype)
+annotate_array_section_begin (LONGEST idx, struct type *elttype)
 {
   if (annotation_level == 2)
     {
-      printf_filtered (("\n\032\032array-section-begin %d "), idx);
+      printf_filtered (("\n\032\032array-section-begin %s "), plongest (idx));
       print_value_flags (elttype);
       printf_filtered (("\n"));
     }
 }
 
 void
-annotate_elt_rep (unsigned int repcount)
+annotate_elt_rep (ULONGEST repcount)
 {
   if (annotation_level == 2)
-    printf_filtered (("\n\032\032elt-rep %u\n"), repcount);
+    printf_filtered (("\n\032\032elt-rep %s\n"), pulongest (repcount));
 }
 
 void

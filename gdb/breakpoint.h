@@ -252,7 +252,7 @@ struct bp_target_info
 
   /* If this is a ranged breakpoint, then this field contains the
      length of the range that will be watched for execution.  */
-  int length;
+  LONGEST length;
 
   /* If the breakpoint lives in memory and reading that memory would
      give back the breakpoint, instead of the original contents, then
@@ -429,7 +429,7 @@ public:
   /* For hardware watchpoints, the size of the memory region being
      watched.  For hardware ranged breakpoints, the size of the
      breakpoint range.  */
-  int length = 0;
+  LONGEST length = 0;
 
   /* Type of hardware watchpoint.  */
   target_hw_bp_type watchpoint_type {};

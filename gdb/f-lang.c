@@ -101,7 +101,7 @@ f_printchar (int c, struct type *type, struct ui_file *stream)
 
 static void
 f_printstr (struct ui_file *stream, struct type *type, const gdb_byte *string,
-	    unsigned int length, const char *encoding, int force_ellipses,
+	    ULONGEST length, const char *encoding, int force_ellipses,
 	    const struct value_print_options *options)
 {
   const char *type_encoding = f_get_encoding (type);

@@ -808,7 +808,7 @@ aarch64_linux_nat_target::remove_watchpoint (CORE_ADDR addr, int len,
 /* Implement the "region_ok_for_hw_watchpoint" target_ops method.  */
 
 int
-aarch64_linux_nat_target::region_ok_for_hw_watchpoint (CORE_ADDR addr, int len)
+aarch64_linux_nat_target::region_ok_for_hw_watchpoint (CORE_ADDR addr, LONGEST len)
 {
   return aarch64_linux_region_ok_for_watchpoint (addr, len);
 }

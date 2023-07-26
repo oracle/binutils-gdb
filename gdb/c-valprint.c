@@ -247,7 +247,7 @@ c_val_print_array (struct type *type, const gdb_byte *valaddr,
   if (TYPE_LENGTH (type) > 0 && TYPE_LENGTH (unresolved_elttype) > 0)
     {
       LONGEST low_bound, high_bound;
-      int eltlen, len;
+      LONGEST eltlen, len;
       struct gdbarch *gdbarch = get_type_arch (type);
       enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);
       unsigned int i = 0;	/* Number of characters printed.  */
@@ -321,8 +321,8 @@ c_val_print_array (struct type *type, const gdb_byte *valaddr,
 	  if (cp_is_vtbl_ptr_type (elttype))
 	    {
 	      i = 1;
-	      fprintf_filtered (stream, _("%d vtable entries"),
-				len - 1);
+	      fprintf_filtered (stream, _("%s vtable entries"),
+				plongest (len - 1));
 	    }
 	  else
 	    {
@@ -399,7 +399,7 @@ c_val_print_struct (struct type *type, const gdb_byte *valaddr,
 	 -fvtable_thunks.  (Otherwise, look under
 	 TYPE_CODE_PTR.)  */
       struct gdbarch *gdbarch = get_type_arch (type);
-      int offset = (embedded_offset
+      LONGEST offset = (embedded_offset
 		    + TYPE_FIELD_BITPOS (type,
 					 VTBL_FNADDR_OFFSET) / 8);
       struct type *field_type = TYPE_FIELD_TYPE (type, VTBL_FNADDR_OFFSET);
@@ -498,7 +498,7 @@ c_val_print_memberptr (struct type *type, const gdb_byte *valaddr,
 
 void
 c_val_print (struct type *type,
-	     int embedded_offset, CORE_ADDR address,
+	     LONGEST embedded_offset, CORE_ADDR address,
 	     struct ui_file *stream, int recurse,
 	     struct value *original_value,
 	     const struct value_print_options *options)

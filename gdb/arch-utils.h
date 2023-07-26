@@ -131,7 +131,7 @@ extern gdbarch_virtual_frame_pointer_ftype legacy_virtual_frame_pointer;
 /* Default implementation of gdbarch_floatformat_for_type.  */
 extern const struct floatformat **
   default_floatformat_for_type (struct gdbarch *gdbarch,
-				const char *name, int len);
+				const char *name, LONGEST len);
 
 extern CORE_ADDR generic_skip_trampoline_code (struct frame_info *frame,
 					       CORE_ADDR pc);
