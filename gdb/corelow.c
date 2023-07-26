@@ -1388,6 +1388,6 @@ Show whether CORE-FILE loads the build-id associated files automatically."),
 			   &setlist, &showlist);
   add_cmd ("core-file-backed-mappings", class_maintenance,
            maintenance_print_core_file_backed_mappings,
-	   _("Print core file's file-backed mappings"),
+	   _("Print core file's file-backed mappings."),
 	   &maintenanceprintlist);
 }
