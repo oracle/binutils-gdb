@@ -1104,6 +1104,8 @@ value_assign (struct value *toval, struct value *fromval)
 	struct gdbarch *gdbarch;
 	int value_reg;
 
+	value_reg = VALUE_REGNUM (toval);
+
 	/* Figure out which frame this is in currently.
 	
 	   We use VALUE_FRAME_ID for obtaining the value's frame id instead of
@@ -1113,8 +1115,14 @@ value_assign (struct value *toval, struct value *fromval)
 	   frame.  */
 	frame = frame_find_by_id (VALUE_FRAME_ID (toval));
 
-	value_reg = VALUE_REGNUM (toval);
-
+	/* "set $reg+=1" should work on programs with no debug info,
+	   but frame_find_by_id returns NULL here (RH bug 436037).
+	   Use current frame, it represents CPU state in this case.
+	   If frame_find_by_id is changed to do it internally
+	   (it is contemplated there), remove this.  */
+	if (!frame)
+	  frame = get_current_frame ();
+	/* Probably never happens.  */
 	if (!frame)
 	  error (_("Value being assigned to is no longer active."));
 
