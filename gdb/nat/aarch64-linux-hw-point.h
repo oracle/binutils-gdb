@@ -176,7 +176,7 @@ int aarch64_handle_breakpoint (enum target_hw_bp_type type, CORE_ADDR addr,
 			       int len, int is_insert,
 			       struct aarch64_debug_reg_state *state);
 int aarch64_handle_watchpoint (enum target_hw_bp_type type, CORE_ADDR addr,
-			       int len, int is_insert,
+			       LONGEST len, int is_insert,
 			       struct aarch64_debug_reg_state *state);
 
 void aarch64_linux_set_debug_regs (struct aarch64_debug_reg_state *state,
@@ -184,12 +184,12 @@ void aarch64_linux_set_debug_regs (struct aarch64_debug_reg_state *state,
 
 void aarch64_show_debug_reg_state (struct aarch64_debug_reg_state *state,
 				   const char *func, CORE_ADDR addr,
-				   int len, enum target_hw_bp_type type);
+				   LONGEST len, enum target_hw_bp_type type);
 
 void aarch64_linux_get_debug_reg_capacity (int tid);
 
 struct aarch64_debug_reg_state *aarch64_get_debug_reg_state (pid_t pid);
 
-int aarch64_linux_region_ok_for_watchpoint (CORE_ADDR addr, int len);
+int aarch64_linux_region_ok_for_watchpoint (CORE_ADDR addr, LONGEST len);
 
 #endif /* AARCH64_LINUX_HW_POINT_H */

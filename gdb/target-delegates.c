@@ -38,9 +38,9 @@ struct dummy_target : public target_ops
   int have_steppable_watchpoint () override;
   bool have_continuable_watchpoint () override;
   bool stopped_data_address (CORE_ADDR *arg0) override;
-  bool watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, int arg2) override;
+  bool watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, LONGEST arg2) override;
   int region_ok_for_hw_watchpoint (CORE_ADDR arg0, LONGEST arg1) override;
-  bool can_accel_watchpoint_condition (CORE_ADDR arg0, int arg1, int arg2, struct expression *arg3) override;
+  bool can_accel_watchpoint_condition (CORE_ADDR arg0, LONGEST arg1, int arg2, struct expression *arg3) override;
   int masked_watch_num_registers (CORE_ADDR arg0, CORE_ADDR arg1) override;
   int can_do_single_step () override;
   bool supports_terminal_ours () override;
@@ -206,9 +206,9 @@ struct debug_target : public target_ops
   int have_steppable_watchpoint () override;
   bool have_continuable_watchpoint () override;
   bool stopped_data_address (CORE_ADDR *arg0) override;
-  bool watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, int arg2) override;
+  bool watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, LONGEST arg2) override;
   int region_ok_for_hw_watchpoint (CORE_ADDR arg0, LONGEST arg1) override;
-  bool can_accel_watchpoint_condition (CORE_ADDR arg0, int arg1, int arg2, struct expression *arg3) override;
+  bool can_accel_watchpoint_condition (CORE_ADDR arg0, LONGEST arg1, int arg2, struct expression *arg3) override;
   int masked_watch_num_registers (CORE_ADDR arg0, CORE_ADDR arg1) override;
   int can_do_single_step () override;
   bool supports_terminal_ours () override;
@@ -1068,19 +1068,19 @@ debug_target::stopped_data_address (CORE_ADDR *arg0)
 }
 
 bool
-target_ops::watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, int arg2)
+target_ops::watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, LONGEST arg2)
 {
   return this->beneath ()->watchpoint_addr_within_range (arg0, arg1, arg2);
 }
 
 bool
-dummy_target::watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, int arg2)
+dummy_target::watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, LONGEST arg2)
 {
   return default_watchpoint_addr_within_range (this, arg0, arg1, arg2);
 }
 
 bool
-debug_target::watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, int arg2)
+debug_target::watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, LONGEST arg2)
 {
   bool result;
   fprintf_unfiltered (gdb_stdlog, "-> %s->watchpoint_addr_within_range (...)\n", this->beneath ()->shortname ());
@@ -1090,7 +1090,7 @@ debug_target::watchpoint_addr_within_range (CORE_ADDR arg0, CORE_ADDR arg1, int 
   fputs_unfiltered (", ", gdb_stdlog);
   target_debug_print_CORE_ADDR (arg1);
   fputs_unfiltered (", ", gdb_stdlog);
-  target_debug_print_int (arg2);
+  target_debug_print_LONGEST (arg2);
   fputs_unfiltered (") = ", gdb_stdlog);
   target_debug_print_bool (result);
   fputs_unfiltered ("\n", gdb_stdlog);
@@ -1126,19 +1126,19 @@ debug_target::region_ok_for_hw_watchpoint (CORE_ADDR arg0, LONGEST arg1)
 }
 
 bool
-target_ops::can_accel_watchpoint_condition (CORE_ADDR arg0, int arg1, int arg2, struct expression *arg3)
+target_ops::can_accel_watchpoint_condition (CORE_ADDR arg0, LONGEST arg1, int arg2, struct expression *arg3)
 {
   return this->beneath ()->can_accel_watchpoint_condition (arg0, arg1, arg2, arg3);
 }
 
 bool
-dummy_target::can_accel_watchpoint_condition (CORE_ADDR arg0, int arg1, int arg2, struct expression *arg3)
+dummy_target::can_accel_watchpoint_condition (CORE_ADDR arg0, LONGEST arg1, int arg2, struct expression *arg3)
 {
   return false;
 }
 
 bool
-debug_target::can_accel_watchpoint_condition (CORE_ADDR arg0, int arg1, int arg2, struct expression *arg3)
+debug_target::can_accel_watchpoint_condition (CORE_ADDR arg0, LONGEST arg1, int arg2, struct expression *arg3)
 {
   bool result;
   fprintf_unfiltered (gdb_stdlog, "-> %s->can_accel_watchpoint_condition (...)\n", this->beneath ()->shortname ());
@@ -1146,7 +1146,7 @@ debug_target::can_accel_watchpoint_condition (CORE_ADDR arg0, int arg1, int arg2
   fprintf_unfiltered (gdb_stdlog, "<- %s->can_accel_watchpoint_condition (", this->beneath ()->shortname ());
   target_debug_print_CORE_ADDR (arg0);
   fputs_unfiltered (", ", gdb_stdlog);
-  target_debug_print_int (arg1);
+  target_debug_print_LONGEST (arg1);
   fputs_unfiltered (", ", gdb_stdlog);
   target_debug_print_int (arg2);
   fputs_unfiltered (", ", gdb_stdlog);

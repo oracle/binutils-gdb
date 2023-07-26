@@ -282,7 +282,7 @@ struct ppc_linux_nat_target final : public linux_nat_target
   int remove_hw_breakpoint (struct gdbarch *, struct bp_target_info *)
     override;
 
-  int region_ok_for_hw_watchpoint (CORE_ADDR, int) override;
+  int region_ok_for_hw_watchpoint (CORE_ADDR, LONGEST) override;
 
   int insert_watchpoint (CORE_ADDR, int, enum target_hw_bp_type,
 			 struct expression *) override;
@@ -300,9 +300,9 @@ struct ppc_linux_nat_target final : public linux_nat_target
 
   bool stopped_data_address (CORE_ADDR *) override;
 
-  bool watchpoint_addr_within_range (CORE_ADDR, CORE_ADDR, int) override;
+  bool watchpoint_addr_within_range (CORE_ADDR, CORE_ADDR, LONGEST) override;
 
-  bool can_accel_watchpoint_condition (CORE_ADDR, int, int, struct expression *)
+  bool can_accel_watchpoint_condition (CORE_ADDR, LONGEST, int, struct expression *)
     override;
 
   int masked_watch_num_registers (CORE_ADDR, CORE_ADDR) override;
@@ -1659,11 +1659,11 @@ can_use_watchpoint_cond_accel (void)
    CONDITION_VALUE will hold the value which should be put in the
    DVC register.  */
 static void
-calculate_dvc (CORE_ADDR addr, int len, CORE_ADDR data_value,
+calculate_dvc (CORE_ADDR addr, LONGEST len, CORE_ADDR data_value,
 	       uint32_t *condition_mode, uint64_t *condition_value)
 {
-  int i, num_byte_enable, align_offset, num_bytes_off_dvc,
-      rightmost_enabled_byte;
+  LONGEST i, num_byte_enable;
+  int align_offset, num_bytes_off_dvc, rightmost_enabled_byte;
   CORE_ADDR addr_end_data, addr_end_dvc;
 
   /* The DVC register compares bytes within fixed-length windows which
@@ -1751,7 +1751,7 @@ num_memory_accesses (const std::vector<value_ref_ptr> &chain)
    of the constant.  */
 static int
 check_condition (CORE_ADDR watch_addr, struct expression *cond,
-		 CORE_ADDR *data_value, int *len)
+		 CORE_ADDR *data_value, LONGEST *len)
 {
   int pc = 1, num_accesses_left, num_accesses_right;
   struct value *left_val, *right_val;
@@ -1802,7 +1802,8 @@ check_condition (CORE_ADDR watch_addr, struct expression *cond,
    the condition expression, thus only triggering the watchpoint when it is
    true.  */
 bool
-ppc_linux_nat_target::can_accel_watchpoint_condition (CORE_ADDR addr, int len,
+ppc_linux_nat_target::can_accel_watchpoint_condition (CORE_ADDR addr,
+						      LONGEST len,
 						      int rw,
 						      struct expression *cond)
 {
@@ -1820,7 +1821,7 @@ ppc_linux_nat_target::can_accel_watchpoint_condition (CORE_ADDR addr, int len,
 
 static void
 create_watchpoint_request (struct ppc_hw_breakpoint *p, CORE_ADDR addr,
-			   int len, enum target_hw_bp_type type,
+			   LONGEST len, enum target_hw_bp_type type,
 			   struct expression *cond, int insert)
 {
   if (len == 1
@@ -2086,7 +2087,7 @@ ppc_linux_nat_target::stopped_by_watchpoint ()
 bool
 ppc_linux_nat_target::watchpoint_addr_within_range (CORE_ADDR addr,
 						    CORE_ADDR start,
-						    int length)
+						    LONGEST length)
 {
   int mask;
 

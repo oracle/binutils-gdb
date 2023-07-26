@@ -56,7 +56,7 @@ static void generic_tls_error (void) ATTRIBUTE_NORETURN;
 static void default_terminal_info (struct target_ops *, const char *, int);
 
 static int default_watchpoint_addr_within_range (struct target_ops *,
-						 CORE_ADDR, CORE_ADDR, int);
+						 CORE_ADDR, CORE_ADDR, LONGEST);
 
 static int default_region_ok_for_hw_watchpoint (struct target_ops *,
 						CORE_ADDR, LONGEST);
@@ -3189,7 +3189,7 @@ default_region_ok_for_hw_watchpoint (struct target_ops *self,
 static int
 default_watchpoint_addr_within_range (struct target_ops *target,
 				      CORE_ADDR addr,
-				      CORE_ADDR start, int length)
+				      CORE_ADDR start, LONGEST length)
 {
   return addr >= start && addr < start + length;
 }

@@ -137,7 +137,7 @@ aarch64_point_encode_ctrl_reg (enum target_hw_bp_type type, int offset, int len)
    Return 0 for any non-compliant ADDR and/or LEN; return 1 otherwise.  */
 
 static int
-aarch64_point_is_aligned (int is_watchpoint, CORE_ADDR addr, int len)
+aarch64_point_is_aligned (int is_watchpoint, CORE_ADDR addr, LONGEST len)
 {
   unsigned int alignment = 0;
 
@@ -212,9 +212,10 @@ aarch64_point_is_aligned (int is_watchpoint, CORE_ADDR addr, int len)
    an address within the latter. */
 
 static void
-aarch64_align_watchpoint (CORE_ADDR addr, int len, CORE_ADDR *aligned_addr_p,
+aarch64_align_watchpoint (CORE_ADDR addr, LONGEST len,
+			  CORE_ADDR *aligned_addr_p,
 			  int *aligned_offset_p, int *aligned_len_p,
-			  CORE_ADDR *next_addr_p, int *next_len_p,
+			  CORE_ADDR *next_addr_p, LONGEST *next_len_p,
 			  CORE_ADDR *next_addr_orig_p)
 {
   int aligned_len;
@@ -611,7 +612,7 @@ aarch64_handle_aligned_watchpoint (enum target_hw_bp_type type,
 
 static int
 aarch64_handle_unaligned_watchpoint (enum target_hw_bp_type type,
-				     CORE_ADDR addr, int len, int is_insert,
+				     CORE_ADDR addr, LONGEST len, int is_insert,
 				     struct aarch64_debug_reg_state *state)
 {
   CORE_ADDR addr_orig = addr;
@@ -641,12 +642,12 @@ aarch64_handle_unaligned_watchpoint (enum target_hw_bp_type type,
 		      "                                "
 		      "addr_orig: %s\n"
 		      "                                "
-		      "next_addr: %s,    next_len: %d\n"
+		      "next_addr: %s,    next_len: %s\n"
 		      "                           "
 		      "addr_orig_next: %s\n",
 		      is_insert, core_addr_to_string_nz (aligned_addr),
 		      aligned_len, core_addr_to_string_nz (addr_orig),
-		      core_addr_to_string_nz (addr), len,
+		      core_addr_to_string_nz (addr), plongest (len),
 		      core_addr_to_string_nz (addr_orig_next));
 
       addr_orig = addr_orig_next;
@@ -660,7 +661,7 @@ aarch64_handle_unaligned_watchpoint (enum target_hw_bp_type type,
 
 int
 aarch64_handle_watchpoint (enum target_hw_bp_type type, CORE_ADDR addr,
-			   int len, int is_insert,
+			   LONGEST len, int is_insert,
 			   struct aarch64_debug_reg_state *state)
 {
   if (aarch64_point_is_aligned (1 /* is_watchpoint */ , addr, len))
@@ -722,14 +723,14 @@ aarch64_linux_set_debug_regs (struct aarch64_debug_reg_state *state,
 void
 aarch64_show_debug_reg_state (struct aarch64_debug_reg_state *state,
 			      const char *func, CORE_ADDR addr,
-			      int len, enum target_hw_bp_type type)
+			      LONGEST len, enum target_hw_bp_type type)
 {
   int i;
 
   debug_printf ("%s", func);
   if (addr || len)
-    debug_printf (" (addr=0x%08lx, len=%d, type=%s)",
-		  (unsigned long) addr, len,
+    debug_printf (" (addr=0x%08lx, len=%s, type=%s)",
+		  (unsigned long) addr, plongest (len),
 		  type == hw_write ? "hw-write-watchpoint"
 		  : (type == hw_read ? "hw-read-watchpoint"
 		     : (type == hw_access ? "hw-access-watchpoint"
@@ -812,7 +813,7 @@ aarch64_linux_get_debug_reg_capacity (int tid)
    ADDR and whose length is LEN in bytes.  */
 
 int
-aarch64_linux_region_ok_for_watchpoint (CORE_ADDR addr, int len)
+aarch64_linux_region_ok_for_watchpoint (CORE_ADDR addr, LONGEST len)
 {
   CORE_ADDR aligned_addr;
 

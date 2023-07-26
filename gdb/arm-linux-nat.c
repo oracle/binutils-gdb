@@ -80,7 +80,7 @@ public:
 
   int remove_hw_breakpoint (struct gdbarch *, struct bp_target_info *) override;
 
-  int region_ok_for_hw_watchpoint (CORE_ADDR, int) override;
+  int region_ok_for_hw_watchpoint (CORE_ADDR, LONGEST) override;
 
   int insert_watchpoint (CORE_ADDR, int, enum target_hw_bp_type,
 			 struct expression *) override;
@@ -91,7 +91,7 @@ public:
 
   bool stopped_data_address (CORE_ADDR *) override;
 
-  bool watchpoint_addr_within_range (CORE_ADDR, CORE_ADDR, int) override;
+  bool watchpoint_addr_within_range (CORE_ADDR, CORE_ADDR, LONGEST) override;
 
   const struct target_desc *read_description () override;
 
@@ -1207,7 +1207,7 @@ arm_linux_nat_target::stopped_by_watchpoint ()
 bool
 arm_linux_nat_target::watchpoint_addr_within_range (CORE_ADDR addr,
 						    CORE_ADDR start,
-						    int length)
+						    LONGEST length)
 {
   return start <= addr && start + length - 1 >= addr;
 }

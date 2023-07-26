@@ -557,7 +557,7 @@ struct target_ops
       TARGET_DEFAULT_RETURN (false);
     virtual bool stopped_data_address (CORE_ADDR *)
       TARGET_DEFAULT_RETURN (false);
-    virtual bool watchpoint_addr_within_range (CORE_ADDR, CORE_ADDR, int)
+    virtual bool watchpoint_addr_within_range (CORE_ADDR, CORE_ADDR, LONGEST)
       TARGET_DEFAULT_FUNC (default_watchpoint_addr_within_range);
 
     /* Documentation of this routine is provided with the corresponding
@@ -565,7 +565,7 @@ struct target_ops
     virtual int region_ok_for_hw_watchpoint (CORE_ADDR, LONGEST)
       TARGET_DEFAULT_FUNC (default_region_ok_for_hw_watchpoint);
 
-    virtual bool can_accel_watchpoint_condition (CORE_ADDR, int, int,
+    virtual bool can_accel_watchpoint_condition (CORE_ADDR, LONGEST, int,
 						 struct expression *)
       TARGET_DEFAULT_RETURN (false);
     virtual int masked_watch_num_registers (CORE_ADDR, CORE_ADDR)
