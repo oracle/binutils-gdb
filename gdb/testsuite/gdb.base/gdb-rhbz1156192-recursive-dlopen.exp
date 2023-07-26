@@ -1,0 +1,137 @@
+# Copyright 2014 Free Software Foundation, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+if { [skip_shlib_tests] } {
+  return 0
+}
+
+# Library foo
+set libname1 "gdb-rhbz1156192-recursive-dlopen-libfoo"
+set srcfile_lib1 ${srcdir}/${subdir}/${libname1}.c
+set binfile_lib1 [standard_output_file ${libname1}.so]
+# Library bar
+set libname2 "gdb-rhbz1156192-recursive-dlopen-libbar"
+set srcfile_lib2 ${srcdir}/${subdir}/${libname2}.c
+set binfile_lib2 [standard_output_file ${libname2}.so]
+
+set testfile "gdb-rhbz1156192-recursive-dlopen"
+set srcfile ${testfile}.c
+set executable ${testfile}
+set binfile [standard_output_file ${executable}]
+
+if { [gdb_compile_shlib ${srcfile_lib1} ${binfile_lib1} \
+	{ debug "additional_flags=-fPIC" }] != "" } {
+    untested "Could not compile ${binfile_lib1}"
+    return -1
+}
+
+if { [gdb_compile_shlib ${srcfile_lib2} ${binfile_lib2} \
+	{ debug "additional_flags=-fPIC" }] != "" } {
+    untested "Could not compile ${binfile_lib2}"
+    return -1
+}
+
+if { [prepare_for_testing ${testfile}.exp ${executable} ${srcfile} \
+	[ list debug shlib_load "additional_flags=-Wno-deprecated-declarations" ]] } {
+    untested "Could not compile ${executable}"
+    return -1
+}
+
+proc do_test { has_libfoo has_libbar } {
+  global hex binfile_lib2 binfile_lib1 gdb_prompt
+  set libbar_match "[string_to_regexp $binfile_lib2]"
+  set libfoo_match "[string_to_regexp $binfile_lib1]"
+
+  gdb_test_multiple "info shared" "info shared" {
+    -re ".*$libfoo_match\r\n.*$libbar_match\(\r\n.*Shared library is missing\)?.*\r\n${gdb_prompt} $" {
+      if { $has_libfoo && $has_libbar } {
+	pass "matched libfoo and libbar"
+      } else {
+	fail "matched libfoo and libbar (has_libfoo = $has_libfoo, has_libbar = $has_libbar)"
+      }
+    }
+    -re ".*$libfoo_match\(\r\n.*Shared library is missing\)?.*\r\n${gdb_prompt} $" {
+      if { $has_libfoo && !$has_libbar } {
+	pass "matched libfoo"
+      } else {
+	fail "matched libfoo (has_libfoo = $has_libfoo, has_libbar = $has_libbar)"
+      }
+    }
+    -re ".*$libbar_match\(\r\n.*Shared library is missing\)?.*\r\n${gdb_prompt} $" {
+      if { $has_libbar && !$has_libfoo } {
+	pass "matched libbar"
+      } else {
+	fail "matched libbar (has_libfoo = $has_libfoo, has_libbar = $has_libbar)"
+      }
+    }
+    "\r\n${gdb_prompt} $" {
+      if { !$has_libfoo && !$has_libbar } {
+	pass "did not match libfoo nor libbar"
+      } else {
+	fail "did not match libfoo nor libbar (has_libfoo = $has_libfoo, has_libbar = $has_libbar)"
+      }
+    }
+  }
+}
+
+proc test_stop_on_solib_events { } {
+  set pass 0
+  # This variable holds the information about whether libfoo and
+  # libbar (respectively) are expected in the "info shared" output.
+  set solib_event_order { { 0 0 } { 0 0   } { 0 0   } { 0 1 } \
+			  { 0 1 } { 0 0   } { 0 0   } { 0 1 } \
+			  { 0 1 } { 0 0   } { 0 0   } { 0 1 } \
+			  { 0 1 } { 0 0   } { 0 0 1 } { 1 1 } \
+			  { 1 1 } { 1 0   } { 1 0   } { 1 1 } \
+			  { 1 1 } { 1 0 1 } { 1 0   } { 1 0 } }
+
+  with_test_prefix "stop-on-solib-events" {
+    gdb_test_no_output "set stop-on-solib-events 1" "setting stop-on-solib-events"
+
+    gdb_run_cmd
+    foreach l $solib_event_order {
+      incr pass
+      with_test_prefix "pass #$pass" {
+	set should_be_corrupted [expr 0+0[lindex $l 2]]
+	do_test [lindex $l 0] [lindex $l 1]
+	set test "continue"
+	global gdb_prompt
+	gdb_test_multiple $test $test {
+	  -re "\r\nwarning: Corrupted shared library list:.*\r\nStopped due to shared library event.*\r\n$gdb_prompt $" {
+	    set corrupted 1
+	    pass $test
+	  }
+	  -re "\r\nStopped due to shared library event.*\r\n$gdb_prompt $" {
+	    set corrupted 0
+	    pass $test
+	  }
+	}
+	set test "corrupted=$corrupted but should_be_corrupted=$should_be_corrupted"
+	if {$corrupted == $should_be_corrupted} {
+	  pass $test
+	} else {
+	  fail $test
+	}
+      }
+    }
+    # In the last pass we do not expect to see libfoo or libbar.
+    incr pass
+    with_test_prefix "pass #$pass" {
+      do_test 0 0
+    }
+  }
+}
+
+test_stop_on_solib_events
