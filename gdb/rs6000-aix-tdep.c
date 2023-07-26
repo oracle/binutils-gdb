@@ -177,9 +177,9 @@ rs6000_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
   struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);
   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);
   int ii;
-  int len = 0;
+  LONGEST len = 0;
   int argno;			/* current argument number */
-  int argbytes;			/* current argument byte */
+  LONGEST argbytes;		/* current argument byte */
   gdb_byte tmp_buffer[50];
   int f_argno = 0;		/* current floating point argno */
   int wordsize = gdbarch_tdep (gdbarch)->wordsize;
@@ -307,7 +307,7 @@ ran_out_of_registers_for_arguments:
 
   if ((argno < nargs) || argbytes)
     {
-      int space = 0, jj;
+      LONGEST space = 0, jj;
 
       if (argbytes)
 	{

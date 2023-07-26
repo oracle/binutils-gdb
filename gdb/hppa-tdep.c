@@ -984,7 +984,7 @@ hppa64_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
     {
       struct value *arg = args[i];
       struct type *type = value_type (arg);
-      int len = TYPE_LENGTH (type);
+      LONGEST len = TYPE_LENGTH (type);
       const bfd_byte *valbuf;
       bfd_byte fptrbuf[8];
       int regnum;
@@ -1177,7 +1177,7 @@ hppa64_return_value (struct gdbarch *gdbarch, struct value *function,
 		     struct type *type, struct regcache *regcache,
 		     gdb_byte *readbuf, const gdb_byte *writebuf)
 {
-  int len = TYPE_LENGTH (type);
+  LONGEST len = TYPE_LENGTH (type);
   int regnum, offset;
 
   if (len > 16)

@@ -1019,7 +1019,7 @@ v850_push_dummy_call (struct gdbarch *gdbarch,
   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);
   int argreg;
   int argnum;
-  int len = 0;
+  LONGEST len = 0;
   int stack_offset;
 
   if (gdbarch_tdep (gdbarch)->abi == V850_ABI_RH850)
@@ -1047,7 +1047,7 @@ v850_push_dummy_call (struct gdbarch *gdbarch,
      in four registers available.  Loop thru args from first to last.  */
   for (argnum = 0; argnum < nargs; argnum++)
     {
-      int len;
+      LONGEST len;
       gdb_byte *val;
       gdb_byte valbuf[v850_reg_size];
 

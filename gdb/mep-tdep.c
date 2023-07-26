@@ -2239,7 +2239,7 @@ push_large_arguments (CORE_ADDR sp, int argc, struct value **argv,
 
   for (i = 0; i < argc; i++)
     {
-      unsigned arg_len = TYPE_LENGTH (value_type (argv[i]));
+      ULONGEST arg_len = TYPE_LENGTH (value_type (argv[i]));
 
       if (arg_len > MEP_GPR_SIZE)
         {

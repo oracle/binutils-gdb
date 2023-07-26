@@ -299,17 +299,17 @@ alpha_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
 {
   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);
   int i;
-  int accumulate_size = struct_return ? 8 : 0;
+  ssize_t accumulate_size = struct_return ? 8 : 0;
   struct alpha_arg
     {
       const gdb_byte *contents;
-      int len;
-      int offset;
+      ssize_t len;
+      ssize_t offset;
     };
   struct alpha_arg *alpha_args = XALLOCAVEC (struct alpha_arg, nargs);
   struct alpha_arg *m_arg;
   gdb_byte arg_reg_buffer[ALPHA_REGISTER_SIZE * ALPHA_NUM_ARG_REGS];
-  int required_arg_regs;
+  ssize_t required_arg_regs;
   CORE_ADDR func_addr = find_function_addr (function, NULL);
 
   /* The ABI places the address of the called function in T12.  */
@@ -429,8 +429,8 @@ alpha_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
   for (i = nargs; m_arg--, --i >= 0;)
     {
       const gdb_byte *contents = m_arg->contents;
-      int offset = m_arg->offset;
-      int len = m_arg->len;
+      ssize_t offset = m_arg->offset;
+      ssize_t len = m_arg->len;
 
       /* Copy the bytes destined for registers into arg_reg_buffer.  */
       if (offset < sizeof(arg_reg_buffer))
@@ -442,7 +442,7 @@ alpha_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
 	    }
 	  else
 	    {
-	      int tlen = sizeof(arg_reg_buffer) - offset;
+	      ssize_t tlen = sizeof(arg_reg_buffer) - offset;
 	      memcpy (arg_reg_buffer + offset, contents, tlen);
 	      offset += tlen;
 	      contents += tlen;

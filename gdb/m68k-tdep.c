@@ -372,7 +372,7 @@ m68k_reg_struct_return_p (struct gdbarch *gdbarch, struct type *type)
 {
   struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);
   enum type_code code = TYPE_CODE (type);
-  int len = TYPE_LENGTH (type);
+  LONGEST len = TYPE_LENGTH (type);
 
   gdb_assert (code == TYPE_CODE_STRUCT || code == TYPE_CODE_UNION
 	      || code == TYPE_CODE_COMPLEX);
@@ -504,9 +504,9 @@ m68k_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
   for (i = nargs - 1; i >= 0; i--)
     {
       struct type *value_type = value_enclosing_type (args[i]);
-      int len = TYPE_LENGTH (value_type);
-      int container_len = (len + 3) & ~3;
-      int offset;
+      LONGEST len = TYPE_LENGTH (value_type);
+      LONGEST container_len = (len + 3) & ~3;
+      LONGEST offset;
 
       /* Non-scalars bigger than 4 bytes are left aligned, others are
 	 right aligned.  */

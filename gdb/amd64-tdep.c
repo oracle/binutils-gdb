@@ -878,8 +878,8 @@ amd64_push_arguments (struct regcache *regcache, int nargs,
   };
   struct value **stack_args = XALLOCAVEC (struct value *, nargs);
   int num_stack_args = 0;
-  int num_elements = 0;
-  int element = 0;
+  LONGEST num_elements = 0;
+  LONGEST element = 0;
   int integer_reg = 0;
   int sse_reg = 0;
   int i;
@@ -891,7 +891,7 @@ amd64_push_arguments (struct regcache *regcache, int nargs,
   for (i = 0; i < nargs; i++)
     {
       struct type *type = value_type (args[i]);
-      int len = TYPE_LENGTH (type);
+      LONGEST len = TYPE_LENGTH (type);
       enum amd64_reg_class theclass[2];
       int needed_integer_regs = 0;
       int needed_sse_regs = 0;
@@ -955,7 +955,7 @@ amd64_push_arguments (struct regcache *regcache, int nargs,
 
 	      gdb_assert (regnum != -1);
 	      memset (buf, 0, sizeof buf);
-	      memcpy (buf, valbuf + j * 8, std::min (len, 8));
+	      memcpy (buf, valbuf + j * 8, std::min (len, (LONGEST) 8));
 	      regcache->raw_write_part (regnum, offset, 8, buf);
 	    }
 	}

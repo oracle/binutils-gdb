@@ -166,7 +166,7 @@ i386_darwin_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
 
   for (write_pass = 0; write_pass < 2; write_pass++)
     {
-      int args_space = 0;
+      LONGEST args_space = 0;
       int num_m128 = 0;
 
       if (struct_return)

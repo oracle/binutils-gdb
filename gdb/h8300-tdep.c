@@ -637,7 +637,7 @@ h8300_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
 		       int struct_return, CORE_ADDR struct_addr)
 {
   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);
-  int stack_alloc = 0, stack_offset = 0;
+  LONGEST stack_alloc = 0, stack_offset = 0;
   int wordsize = BINWORD (gdbarch);
   int reg = E_ARG0_REGNUM;
   int argument;
@@ -663,11 +663,11 @@ h8300_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
   for (argument = 0; argument < nargs; argument++)
     {
       struct type *type = value_type (args[argument]);
-      int len = TYPE_LENGTH (type);
+      ssize_t len = TYPE_LENGTH (type);
       char *contents = (char *) value_contents (args[argument]);
 
       /* Pad the argument appropriately.  */
-      int padded_len = align_up (len, wordsize);
+      ssize_t padded_len = align_up (len, wordsize);
       /* Use std::vector here to get zero initialization.  */
       std::vector<gdb_byte> padded (padded_len);
 
@@ -696,7 +696,7 @@ h8300_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
 	      /* Heavens to Betsy --- it's really going in registers!
 	         Note that on the h8/300s, there are gaps between the
 	         registers in the register file.  */
-	      int offset;
+	      ssize_t offset;
 
 	      for (offset = 0; offset < padded_len; offset += wordsize)
 		{

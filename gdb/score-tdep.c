@@ -516,7 +516,7 @@ score_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);
   int argnum;
   int argreg;
-  int arglen = 0;
+  LONGEST arglen = 0;
   CORE_ADDR stack_offset = 0;
   CORE_ADDR addr = 0;
 

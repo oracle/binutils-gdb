@@ -232,8 +232,9 @@ xstormy16_push_dummy_call (struct gdbarch *gdbarch,
   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);
   CORE_ADDR stack_dest = sp;
   int argreg = E_1ST_ARG_REGNUM;
-  int i, j;
-  int typelen, slacklen;
+  int i, slacklen;
+  LONGEST j;
+  LONGEST typelen;
   const gdb_byte *val;
   gdb_byte buf[xstormy16_pc_size];
 

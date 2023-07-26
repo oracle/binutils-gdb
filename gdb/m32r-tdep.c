@@ -671,7 +671,7 @@ m32r_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
   CORE_ADDR regval;
   gdb_byte *val;
   gdb_byte valbuf[M32R_ARG_REGISTER_SIZE];
-  int len;
+  LONGEST len;
 
   /* First force sp to a 4-byte alignment.  */
   sp = sp & ~3;

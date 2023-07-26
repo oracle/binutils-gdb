@@ -291,7 +291,7 @@ amd64_windows_return_value (struct gdbarch *gdbarch, struct value *function,
 			    struct type *type, struct regcache *regcache,
 			    gdb_byte *readbuf, const gdb_byte *writebuf)
 {
-  int len = TYPE_LENGTH (type);
+  LONGEST len = TYPE_LENGTH (type);
   int regnum = -1;
 
   /* See if our value is returned through a register.  If it is, then

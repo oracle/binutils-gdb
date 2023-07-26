@@ -504,7 +504,7 @@ bfin_push_dummy_call (struct gdbarch *gdbarch,
   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);
   int i;
   long reg_r0, reg_r1, reg_r2;
-  int total_len = 0;
+  ssize_t total_len = 0;
 
   for (i = nargs - 1; i >= 0; i--)
     {
@@ -526,7 +526,7 @@ bfin_push_dummy_call (struct gdbarch *gdbarch,
     {
       struct type *value_type = value_enclosing_type (args[i]);
       struct type *arg_type = check_typedef (value_type);
-      int container_len = (TYPE_LENGTH (value_type) + 3) & ~3;
+      ssize_t container_len = (TYPE_LENGTH (value_type) + 3) & ~3;
 
       sp -= container_len;
       write_memory (sp, value_contents (args[i]), container_len);

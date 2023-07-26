@@ -110,7 +110,7 @@ vax_store_arguments (struct regcache *regcache, int nargs,
   struct gdbarch *gdbarch = regcache->arch ();
   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);
   gdb_byte buf[4];
-  int count = 0;
+  LONGEST count = 0;
   int i;
 
   /* We create an argument list on the stack, and make the argument
@@ -119,7 +119,7 @@ vax_store_arguments (struct regcache *regcache, int nargs,
   /* Push arguments in reverse order.  */
   for (i = nargs - 1; i >= 0; i--)
     {
-      int len = TYPE_LENGTH (value_enclosing_type (args[i]));
+      LONGEST len = TYPE_LENGTH (value_enclosing_type (args[i]));
 
       sp -= (len + 3) & ~3;
       count += (len + 3) / 4;

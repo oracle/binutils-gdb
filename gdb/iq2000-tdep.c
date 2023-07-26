@@ -651,8 +651,9 @@ iq2000_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
   const bfd_byte *val;
   bfd_byte buf[4];
   struct type *type;
-  int i, argreg, typelen, slacklen;
-  int stackspace = 0;
+  int i, argreg, slacklen;
+  LONGEST typelen;
+  LONGEST stackspace = 0;
   /* Used to copy struct arguments into the stack.  */
   CORE_ADDR struct_ptr;
 

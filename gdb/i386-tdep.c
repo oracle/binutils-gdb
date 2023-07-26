@@ -2678,7 +2678,7 @@ i386_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
   gdb_byte buf[4];
   int i;
   int write_pass;
-  int args_space = 0;
+  LONGEST args_space = 0;
 
   /* BND registers can be in arbitrary values at the moment of the
      inferior call.  This can cause boundary violations that are not
@@ -2693,7 +2693,7 @@ i386_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
 
   for (write_pass = 0; write_pass < 2; write_pass++)
     {
-      int args_space_used = 0;
+      LONGEST args_space_used = 0;
 
       if (struct_return)
 	{
@@ -2710,7 +2710,7 @@ i386_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
 
       for (i = 0; i < nargs; i++)
 	{
-	  int len = TYPE_LENGTH (value_enclosing_type (args[i]));
+	  LONGEST len = TYPE_LENGTH (value_enclosing_type (args[i]));
 
 	  if (write_pass)
 	    {
@@ -2917,7 +2917,7 @@ i386_reg_struct_return_p (struct gdbarch *gdbarch, struct type *type)
 {
   struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);
   enum type_code code = TYPE_CODE (type);
-  int len = TYPE_LENGTH (type);
+  LONGEST len = TYPE_LENGTH (type);
 
   gdb_assert (code == TYPE_CODE_STRUCT
               || code == TYPE_CODE_UNION
@@ -3703,7 +3703,7 @@ static int
 i386_convert_register_p (struct gdbarch *gdbarch,
 			 int regnum, struct type *type)
 {
-  int len = TYPE_LENGTH (type);
+  LONGEST len = TYPE_LENGTH (type);
 
   /* Values may be spread across multiple registers.  Most debugging
      formats aren't expressive enough to specify the locations, so
@@ -3736,7 +3736,7 @@ i386_register_to_value (struct frame_info *frame, int regnum,
 			int *optimizedp, int *unavailablep)
 {
   struct gdbarch *gdbarch = get_frame_arch (frame);
-  int len = TYPE_LENGTH (type);
+  LONGEST len = TYPE_LENGTH (type);
 
   if (i386_fp_regnum_p (gdbarch, regnum))
     return i387_register_to_value (frame, regnum, type, to,
@@ -3772,7 +3772,7 @@ static void
 i386_value_to_register (struct frame_info *frame, int regnum,
 			struct type *type, const gdb_byte *from)
 {
-  int len = TYPE_LENGTH (type);
+  LONGEST len = TYPE_LENGTH (type);
 
   if (i386_fp_regnum_p (get_frame_arch (frame), regnum))
     {

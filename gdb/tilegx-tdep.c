@@ -288,7 +288,7 @@ tilegx_push_dummy_call (struct gdbarch *gdbarch,
   CORE_ADDR stack_dest = sp;
   int argreg = TILEGX_R0_REGNUM;
   int i, j;
-  int typelen, slacklen;
+  LONGEST typelen, slacklen;
   static const gdb_byte four_zero_words[16] = { 0 };
 
   /* If struct_return is 1, then the struct return address will

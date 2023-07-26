@@ -68,7 +68,7 @@ ppc_sysv_abi_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);
   int opencl_abi = ppc_sysv_use_opencl_abi (value_type (function));
   ULONGEST saved_sp;
-  int argspace = 0;		/* 0 is an initial wrong guess.  */
+  LONGEST argspace = 0;		/* 0 is an initial wrong guess.  */
   int write_pass;
 
   gdb_assert (tdep->wordsize == 4);
@@ -99,9 +99,9 @@ ppc_sysv_abi_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
       /* Next available vector register for vector arguments.  */
       int vreg = 2;
       /* Arguments start above the "LR save word" and "Back chain".  */
-      int argoffset = 2 * tdep->wordsize;
+      LONGEST argoffset = 2 * tdep->wordsize;
       /* Structures start after the arguments.  */
-      int structoffset = argoffset + argspace;
+      LONGEST structoffset = argoffset + argspace;
 
       /* If the function is returning a `struct', then the first word
          (which will be passed in r3) is used for struct return
@@ -120,7 +120,7 @@ ppc_sysv_abi_push_dummy_call (struct gdbarch *gdbarch, struct value *function,
 	{
 	  struct value *arg = args[argno];
 	  struct type *type = check_typedef (value_type (arg));
-	  int len = TYPE_LENGTH (type);
+	  ssize_t len = TYPE_LENGTH (type);
 	  const bfd_byte *val = value_contents (arg);
 
 	  if (TYPE_CODE (type) == TYPE_CODE_FLT && len <= 8
@@ -1246,11 +1246,11 @@ struct ppc64_sysv_argpos
 
 static void
 ppc64_sysv_abi_push_val (struct gdbarch *gdbarch,
-			 const bfd_byte *val, int len, int align,
+			 const bfd_byte *val, ssize_t len, int align,
 			 struct ppc64_sysv_argpos *argpos)
 {
   struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);
-  int offset = 0;
+  LONGEST offset = 0;
 
   /* Enforce alignment of stack location, if requested.  */
   if (align > tdep->wordsize)
@@ -1287,7 +1287,7 @@ ppc64_sysv_abi_push_val (struct gdbarch *gdbarch,
     {
       if (argpos->regcache && argpos->greg <= 10)
 	argpos->regcache->cooked_write_part
-	  (tdep->ppc_gp0_regnum + argpos->greg, offset, len, val);
+	  (tdep->ppc_gp0_regnum + argpos->greg, offset, (LONGEST) len, val);
       argpos->greg++;
     }
 }
@@ -1346,7 +1346,7 @@ ppc64_sysv_abi_push_freg (struct gdbarch *gdbarch,
       if (argpos->regcache && argpos->freg <= 13)
 	{
 	  int regnum = tdep->ppc_fp0_regnum + argpos->freg;
-	  int offset = 0;
+	  LONGEST offset = 0;
 
 	  if (gdbarch_byte_order (gdbarch) == BFD_ENDIAN_BIG)
 	    offset = 8 - TYPE_LENGTH (type);
@@ -1795,7 +1795,7 @@ ppc64_sysv_abi_return_value_base (struct gdbarch *gdbarch, struct type *valtype,
       && TYPE_CODE (valtype) == TYPE_CODE_DECFLOAT)
     {
       int regnum = tdep->ppc_fp0_regnum + 1 + index;
-      int offset = 0;
+      LONGEST offset = 0;
 
       if (gdbarch_byte_order (gdbarch) == BFD_ENDIAN_BIG)
 	offset = 8 - TYPE_LENGTH (valtype);
@@ -1871,7 +1871,7 @@ ppc64_sysv_abi_return_value_base (struct gdbarch *gdbarch, struct type *valtype,
       && TYPE_CODE (valtype) == TYPE_CODE_ARRAY && TYPE_VECTOR (valtype))
     {
       int regnum = tdep->ppc_gp0_regnum + 3 + index;
-      int offset = 0;
+      LONGEST offset = 0;
 
       if (gdbarch_byte_order (gdbarch) == BFD_ENDIAN_BIG)
 	offset = 8 - TYPE_LENGTH (valtype);
@@ -1979,7 +1979,8 @@ ppc64_sysv_abi_return_value (struct gdbarch *gdbarch, struct value *function,
       && TYPE_LENGTH (TYPE_TARGET_TYPE (valtype)) == 1)
     {
       int regnum = tdep->ppc_gp0_regnum + 3;
-      int offset = (register_size (gdbarch, regnum) - TYPE_LENGTH (valtype));
+      LONGEST offset
+	= (register_size (gdbarch, regnum) - TYPE_LENGTH (valtype));
 
       if (writebuf != NULL)
 	regcache->cooked_write_part (regnum, offset, TYPE_LENGTH (valtype),
