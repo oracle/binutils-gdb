@@ -1479,6 +1479,19 @@ struct elf_backend_data
   /* Opcode representing no unwind.  */
   int (*cant_unwind_opcode) (struct bfd_link_info *);
 
+  /* Called when a section has extra reloc sections.  */
+  bfd_boolean (*init_secondary_reloc_section) (bfd *, Elf_Internal_Shdr *, const char *, unsigned int);
+
+  /* Called when after loading the normal relocs for a section.  */
+  bfd_boolean (*slurp_secondary_relocs) (bfd *, asection *, asymbol **);
+
+  /* Called after writing the normal relocs for a section.  */
+  bfd_boolean (*write_secondary_relocs) (bfd *, asection *);
+
+  /* Called to return the value to set in the ST_SHNDX field of an ELF symbol
+     from an iternal symbol which does not map to any known section.  */
+  unsigned int (*symbol_section_index) (bfd *, elf_symbol_type *);
+  
   /* This is non-zero if static TLS segments require a special alignment.  */
   unsigned static_tls_alignment;
 
@@ -2695,6 +2708,19 @@ extern bfd_vma elf64_r_info (bfd_vma, bfd_vma);
 extern bfd_vma elf64_r_sym (bfd_vma);
 extern bfd_vma elf32_r_info (bfd_vma, bfd_vma);
 extern bfd_vma elf32_r_sym (bfd_vma);
+
+
+extern bfd_boolean _bfd_elf_init_secondary_reloc_section
+  (bfd *, Elf_Internal_Shdr *, const char *, unsigned int);
+extern bfd_boolean _bfd_elf_slurp_secondary_reloc_section
+  (bfd *, asection *, asymbol **);
+extern bfd_boolean _bfd_elf_copy_special_section_fields
+  (const bfd *, bfd *, const Elf_Internal_Shdr *, Elf_Internal_Shdr *);
+extern bfd_boolean _bfd_elf_write_secondary_reloc_section
+  (bfd *, asection *);
+extern unsigned int _bfd_elf_symbol_section_index
+  (bfd *, elf_symbol_type *);
+
 
 /* Large common section.  */
 extern asection _bfd_elf_large_com_section;
