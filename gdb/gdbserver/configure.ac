@@ -486,6 +486,10 @@ if $want_ipa ; then
    fi
 fi
 
+dnl Check security_get_boolean_active availability.
+AC_CHECK_HEADERS(selinux/selinux.h)
+AC_CHECK_LIB(selinux, security_get_boolean_active)
+
 AC_SUBST(GDBSERVER_DEPFILES)
 AC_SUBST(GDBSERVER_LIBS)
 AC_SUBST(srv_xmlbuiltin)

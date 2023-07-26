@@ -126,6 +126,9 @@
 /* Define to 1 if you have the `mcheck' library (-lmcheck). */
 #undef HAVE_LIBMCHECK
 
+/* Define to 1 if you have the `selinux' library (-lselinux). */
+#undef HAVE_LIBSELINUX
+
 /* Define if the target supports branch tracing. */
 #undef HAVE_LINUX_BTRACE
 
@@ -201,6 +204,9 @@
 
 /* Define to 1 if you have the `pwrite' function. */
 #undef HAVE_PWRITE
+
+/* Define to 1 if you have the <selinux/selinux.h> header file. */
+#undef HAVE_SELINUX_SELINUX_H
 
 /* Define to 1 if you have the `setns' function. */
 #undef HAVE_SETNS

@@ -25,6 +25,10 @@
 #include <sys/procfs.h>
 #endif
 
+#ifdef HAVE_SELINUX_SELINUX_H
+# include <selinux/selinux.h>
+#endif /* HAVE_SELINUX_SELINUX_H */
+
 /* Stores the ptrace options supported by the running kernel.
    A value of -1 means we did not check for features yet.  A value
    of 0 means there are no supported features.  */
@@ -49,6 +53,8 @@ linux_ptrace_attach_fail_reason (pid_t pid)
 		    _("process %d is a zombie - the process has already "
 		      "terminated"),
 		    (int) pid);
+
+  result += linux_ptrace_create_warnings ();
 
   return result;
 }
@@ -581,6 +587,25 @@ linux_ptrace_init_warnings (void)
   warned = 1;
 
   linux_ptrace_test_ret_to_nx ();
+}
+
+/* Print all possible reasons we could fail to create a traced process.  */
+
+std::string
+linux_ptrace_create_warnings ()
+{
+  std::string result;
+
+#ifdef HAVE_LIBSELINUX
+  /* -1 is returned for errors, 0 if it has no effect, 1 if PTRACE_ATTACH is
+     forbidden.  */
+  if (security_get_boolean_active ("deny_ptrace") == 1)
+    string_appendf (result,
+		    _("the SELinux boolean 'deny_ptrace' is enabled, "
+		      "you can disable this process attach protection by: "
+		      "(gdb) shell sudo setsebool deny_ptrace=0\n"));
+#endif /* HAVE_LIBSELINUX */
+  return result;
 }
 
 /* Extract extended ptrace event from wait status.  */
