@@ -1,3 +1,9 @@
+2021-02-04  Nick Alcock  <nick.alcock@oracle.com>
+
+	* configure.ac (SHARED_LIBADD): Remove explicit -lintl population in
+	favour of LIBINTL.
+	* configure: Regenerated.
+
 2020-07-10  Lili Cui  <lili.cui@intel.com>
 
 	* i386-dis.c (TMM): New.

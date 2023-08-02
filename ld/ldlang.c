@@ -132,7 +132,7 @@ struct lang_phdr *lang_phdr_list;
 struct lang_nocrossrefs *nocrossref_list;
 struct asneeded_minfo **asneeded_list_tail;
 #ifdef ENABLE_LIBCTF
-static ctf_file_t *ctf_output;
+static ctf_dict_t *ctf_output;
 #endif
 
 /* Functions that traverse the linker script and might evaluate
@@ -3674,6 +3674,34 @@ open_input_bfds (lang_statement_union_type *s, enum open_bfd_mode mode)
 }
 
 #ifdef ENABLE_LIBCTF
+/* Emit CTF errors and warnings.  fp can be NULL to report errors/warnings
+   that happened specifically at CTF open time.  */
+static void
+lang_ctf_errs_warnings (ctf_dict_t *fp)
+{
+  ctf_next_t *i = NULL;
+  char *text;
+  int is_warning;
+  int err;
+
+  while ((text = ctf_errwarning_next (fp, &i, &is_warning, &err)) != NULL)
+    {
+      einfo (_("%s: %s\n"), is_warning ? _("CTF warning"): _("CTF error"),
+	     text);
+      free (text);
+    }
+  if (err != ECTF_NEXT_END)
+    {
+      einfo (_("CTF error: cannot get CTF errors: `%s'\n"),
+	     ctf_errmsg (err));
+    }
+
+  /* `err' returns errors from the error/warning iterator in particular.
+     These never assert.  But if we have an fp, that could have recorded
+     an assertion failure: assert if it has done so.  */
+  ASSERT (!fp || ctf_errno (fp) != ECTF_INTERNAL);
+}
+
 /* Open the CTF sections in the input files with libctf: if any were opened,
    create a fake input file that we'll write the merged CTF data to later
    on.  */
@@ -3688,7 +3716,7 @@ ldlang_open_ctf (void)
     {
       asection *sect;
 
-      /* Incoming files from the compiler have a single ctf_file_t in them
+      /* Incoming files from the compiler have a single ctf_dict_t in them
 	 (which is presented to us by the libctf API in a ctf_archive_t
 	 wrapper): files derived from a previous relocatable link have a CTF
 	 archive containing possibly many CTF files.  */
@@ -3696,19 +3724,25 @@ ldlang_open_ctf (void)
       if ((file->the_ctf = ctf_bfdopen (file->the_bfd, &err)) == NULL)
 	{
 	  if (err != ECTF_NOCTFDATA)
-	    einfo (_("%P: warning: CTF section in `%pI' not loaded: "
-		     "its types will be discarded: `%s'\n"), file,
+	    {
+	      lang_ctf_errs_warnings (NULL);
+	      einfo (_("%P: warning: CTF section in %pB not loaded; "
+		       "its types will be discarded: %s\n"), file->the_bfd,
 		     ctf_errmsg (err));
+	    }
 	  continue;
 	}
 
       /* Prevent the contents of this section from being written, while
-	 requiring the section itself to be duplicated in the output.  */
+	 requiring the section itself to be duplicated in the output, but only
+	 once.  */
       /* This section must exist if ctf_bfdopen() succeeded.  */
       sect = bfd_get_section_by_name (file->the_bfd, ".ctf");
       sect->size = 0;
       sect->flags |= SEC_NEVER_LOAD | SEC_HAS_CONTENTS | SEC_LINKER_CREATED;
 
+      if (any_ctf)
+	sect->flags |= SEC_EXCLUDE;
       any_ctf = 1;
     }
 
@@ -3735,6 +3769,7 @@ static void
 lang_merge_ctf (void)
 {
   asection *output_sect;
+  int flags = 0;
 
   if (!ctf_output)
     return;
@@ -3744,7 +3779,7 @@ lang_merge_ctf (void)
   /* If the section was discarded, don't waste time merging.  */
   if (output_sect == NULL)
     {
-      ctf_file_close (ctf_output);
+      ctf_dict_close (ctf_output);
       ctf_output = NULL;
 
       LANG_FOR_EACH_INPUT_STATEMENT (file)
@@ -3760,20 +3795,31 @@ lang_merge_ctf (void)
       if (!file->the_ctf)
 	continue;
 
-      /* Takes ownership of file->u.the_ctfa.  */
+      /* Takes ownership of file->the_ctf.  */
       if (ctf_link_add_ctf (ctf_output, file->the_ctf, file->filename) < 0)
 	{
-	  einfo (_("%F%P: cannot link with CTF in %pB: %s\n"), file->the_bfd,
-		 ctf_errmsg (ctf_errno (ctf_output)));
+	  einfo (_("%P: warning: CTF section in %pB cannot be linked: `%s'\n"),
+		 file->the_bfd, ctf_errmsg (ctf_errno (ctf_output)));
 	  ctf_close (file->the_ctf);
 	  file->the_ctf = NULL;
 	  continue;
 	}
     }
 
-  if (ctf_link (ctf_output, CTF_LINK_SHARE_UNCONFLICTED) < 0)
+  if (!config.ctf_share_duplicated)
+    flags = CTF_LINK_SHARE_UNCONFLICTED;
+  else
+    flags = CTF_LINK_SHARE_DUPLICATED;
+  if (!config.ctf_variables)
+    flags |= CTF_LINK_OMIT_VARIABLES_SECTION;
+  if (bfd_link_relocatable (&link_info))
+    flags |= CTF_LINK_NO_FILTER_REPORTED_SYMS;
+
+  if (ctf_link (ctf_output, flags) < 0)
     {
-      einfo (_("%F%P: CTF linking failed; output will have no CTF section: %s\n"),
+      lang_ctf_errs_warnings (ctf_output);
+      einfo (_("%P: warning: CTF linking failed; "
+	       "output will have no CTF section: %s\n"),
 	     ctf_errmsg (ctf_errno (ctf_output)));
       if (output_sect)
 	{
@@ -3781,16 +3827,24 @@ lang_merge_ctf (void)
 	  output_sect->flags |= SEC_EXCLUDE;
 	}
     }
+  /* Output any lingering errors that didn't come from ctf_link.  */
+  lang_ctf_errs_warnings (ctf_output);
 }
 
-/* Let the emulation examine the symbol table and strtab to help it optimize the
-   CTF, if supported.  */
+/* Let the emulation acquire strings from the dynamic strtab to help it optimize
+   the CTF, if supported.  */
 
 void
-ldlang_ctf_apply_strsym (struct elf_sym_strtab *syms, bfd_size_type symcount,
-			 struct elf_strtab_hash *symstrtab)
+ldlang_ctf_acquire_strings (struct elf_strtab_hash *dynstrtab)
 {
-  ldemul_examine_strtab_for_ctf (ctf_output, syms, symcount, symstrtab);
+  ldemul_acquire_strings_for_ctf (ctf_output, dynstrtab);
+}
+
+/* Inform the emulation about the addition of a new dynamic symbol, in BFD
+   internal format.  */
+void ldlang_ctf_new_dynsym (int symidx, struct elf_internal_sym *sym)
+{
+  ldemul_new_dynsym_for_ctf (ctf_output, symidx, sym);
 }
 
 /* Write out the CTF section.  Called early, if the emulation isn't going to
@@ -3817,6 +3871,11 @@ lang_write_ctf (int late)
 	return;
     }
 
+  /* Inform the emulation that all the symbols that will be received have
+     been.  */
+
+  ldemul_new_dynsym_for_ctf (ctf_output, 0, NULL);
+
   /* Emit CTF.  */
 
   output_sect = bfd_get_section_by_name (link_info.output_bfd, ".ctf");
@@ -3827,17 +3886,19 @@ lang_write_ctf (int late)
       output_sect->size = output_size;
       output_sect->flags |= SEC_IN_MEMORY | SEC_KEEP;
 
+      lang_ctf_errs_warnings (ctf_output);
       if (!output_sect->contents)
 	{
-	  einfo (_("%F%P: CTF section emission failed; output will have no "
-		   "CTF section: %s\n"), ctf_errmsg (ctf_errno (ctf_output)));
+	  einfo (_("%P: warning: CTF section emission failed; "
+		   "output will have no CTF section: %s\n"),
+		 ctf_errmsg (ctf_errno (ctf_output)));
 	  output_sect->size = 0;
 	  output_sect->flags |= SEC_EXCLUDE;
 	}
     }
 
   /* This also closes every CTF input file used in the link.  */
-  ctf_file_close (ctf_output);
+  ctf_dict_close (ctf_output);
   ctf_output = NULL;
 
   LANG_FOR_EACH_INPUT_STATEMENT (file)
@@ -3867,8 +3928,8 @@ ldlang_open_ctf (void)
 
       if ((sect = bfd_get_section_by_name (file->the_bfd, ".ctf")) != NULL)
 	{
-	    einfo (_("%P: warning: CTF section in `%pI' not linkable: "
-		     "%P was built without support for CTF\n"), file);
+	    einfo (_("%P: warning: CTF section in %pB not linkable: "
+		     "%P was built without support for CTF\n"), file->the_bfd);
 	    sect->size = 0;
 	    sect->flags |= SEC_EXCLUDE;
 	}
@@ -3877,11 +3938,11 @@ ldlang_open_ctf (void)
 
 static void lang_merge_ctf (void) {}
 void
-ldlang_ctf_apply_strsym (struct elf_sym_strtab *syms ATTRIBUTE_UNUSED,
-			 bfd_size_type symcount ATTRIBUTE_UNUSED,
-			 struct elf_strtab_hash *symstrtab ATTRIBUTE_UNUSED)
-{
-}
+ldlang_ctf_acquire_strings (struct elf_strtab_hash *dynstrtab
+			    ATTRIBUTE_UNUSED) {}
+void
+ldlang_ctf_new_dynsym (int symidx ATTRIBUTE_UNUSED,
+		       struct elf_internal_sym *sym ATTRIBUTE_UNUSED) {}
 static void lang_write_ctf (int late ATTRIBUTE_UNUSED) {}
 void ldlang_write_ctf_late (void) {}
 #endif

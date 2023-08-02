@@ -1,3 +1,45 @@
+2021-09-27  Nick Alcock  <nick.alcock@oracle.com>
+
+	PR libctf/27967
+	* libtool.m4 (LT_PATH_NM): Try BSDization flags with a user-provided
+	NM, if there is one.  Run nm on itself, not on /dev/null, to avoid
+	errors from nms that refuse to work on non-regular files.  Remove
+	other workarounds for this problem.  Strip out blank lines from the
+	nm output.
+
+2021-09-27  Nick Alcock  <nick.alcock@oracle.com>
+
+	PR libctf/27967
+	* libtool.m4 (lt_cv_sys_global_symbol_pipe): Augment symcode for
+	Solaris 11.
+
+2021-03-18  Nick Alcock  <nick.alcock@oracle.com>
+
+	PR libctf/27482
+	* Makefile.def: Add install-bfd dependencies for install-libctf and
+	install-ld, and install-strip-bfd dependencies for
+	install-strip-libctf and install-strip-ld; move the install-ld
+	dependency on install-libctf to join it.
+	* Makefile.in: Regenerated.
+
+2021-01-26  Nick Alcock  <nick.alcock@oracle.com>
+
+	* Makefile.def: Add install-libctf dependency to install-ld.
+	* Makefile.in: Regenerated.
+
+2021-01-05  Nick Alcock  <nick.alcock@oracle.com>
+
+	* Makefile.def (libctf): No longer no_check.  Checking depends on
+	all-ld.
+	* Makefile.in: Regenerated.
+
+2020-07-24  Aaron Merey  <amerey@redhat.com>
+
+	* config/debuginfod.m4: use PKG_CHECK_MODULES.
+	* config/pkg.m4: New file.
+	* configure: Rebuild.
+	* configure.ac: Remove AC_DEBUGINFOD.
+
 2020-07-04  Nick Clifton  <nickc@redhat.com>
 
 	Binutils 2.35 branch created.

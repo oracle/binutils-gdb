@@ -34761,6 +34761,12 @@ maybe-check-libctf:
 maybe-check-libctf: check-libctf
 
 check-libctf:
+	@: $(MAKE); $(unstage)
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS) $(EXTRA_HOST_EXPORTS) \
+	(cd $(HOST_SUBDIR)/libctf && \
+	  $(MAKE) $(FLAGS_TO_PASS)  $(EXTRA_BOOTSTRAP_FLAGS) check)
 
 @endif libctf
 
@@ -52107,6 +52113,12 @@ all-stageprofile-ld: maybe-all-stageprofile-libctf
 all-stagefeedback-ld: maybe-all-stagefeedback-libctf
 install-binutils: maybe-install-opcodes
 install-strip-binutils: maybe-install-strip-opcodes
+install-libctf: maybe-install-bfd
+install-ld: maybe-install-bfd
+install-ld: maybe-install-libctf
+install-strip-libctf: maybe-install-strip-bfd
+install-strip-ld: maybe-install-strip-bfd
+install-strip-ld: maybe-install-strip-libctf
 install-opcodes: maybe-install-bfd
 install-strip-opcodes: maybe-install-strip-bfd
 configure-gas: maybe-configure-intl
@@ -52366,6 +52378,15 @@ configure-stage3-libctf: maybe-all-stage3-libiconv
 configure-stage4-libctf: maybe-all-stage4-libiconv
 configure-stageprofile-libctf: maybe-all-stageprofile-libiconv
 configure-stagefeedback-libctf: maybe-all-stagefeedback-libiconv
+check-libctf: maybe-all-ld
+check-stage1-libctf: maybe-all-stage1-ld
+check-stage2-libctf: maybe-all-stage2-ld
+check-stage3-libctf: maybe-all-stage3-ld
+check-stage4-libctf: maybe-all-stage4-ld
+check-stageprofile-libctf: maybe-all-stageprofile-ld
+check-stagefeedback-libctf: maybe-all-stagefeedback-ld
+distclean-gnulib: maybe-distclean-gdb
+distclean-gnulib: maybe-distclean-gdbserver
 all-bison: maybe-all-build-texinfo
 all-flex: maybe-all-build-bison
 all-flex: maybe-all-m4
