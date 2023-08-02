@@ -3032,7 +3032,7 @@ pe_find_cdecl_alias_match (struct bfd_link_info *linfo, char *name)
 	  if (pe_details->underscored)
 	    lname[0] = '_';
 	  else
-	    strcpy (lname, lname + 1);
+	    memmove (lname, lname + 1, strlen (lname));
 	  key.key = lname;
 	  kv = bsearch (&key, udef_table, undef_count,
 			sizeof (struct key_value), undef_sort_cmp);
