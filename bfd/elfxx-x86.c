@@ -107,7 +107,7 @@ elf_x86_allocate_dynrelocs (struct elf_link_hash_entry *h, void *inf)
   plt_entry_size = htab->plt.plt_entry_size;
 
   resolved_to_zero = UNDEFINED_WEAK_RESOLVED_TO_ZERO (info, eh);
-
+#if 0
   /* We can't use the GOT PLT if pointer equality is needed since
      finish_dynamic_symbol won't clear symbol value and the dynamic
      linker won't update the GOT slot.  We will get into an infinite
@@ -125,7 +125,7 @@ elf_x86_allocate_dynrelocs (struct elf_link_hash_entry *h, void *inf)
       /* Use the GOT PLT.  */
       eh->plt_got.refcount = 1;
     }
-
+#endif
   /* Since STT_GNU_IFUNC symbol must go through PLT, we handle it
      here if it is defined and referenced in a non-shared object.  */
   if (h->type == STT_GNU_IFUNC

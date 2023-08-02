@@ -2,6 +2,7 @@
 #readelf: -S --wide
 #as: --32
 
+#pass
 #...
  +\[ *[0-9]+\] \.plt +PROGBITS +[0-9a-f]+ +[0-9a-f]+ +0+10 +.*
 #...

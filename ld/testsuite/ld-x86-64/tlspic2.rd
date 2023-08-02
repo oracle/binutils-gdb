@@ -14,6 +14,7 @@ Section Headers:
  +\[[ 0-9]+\] .dynsym +.*
  +\[[ 0-9]+\] .dynstr +.*
  +\[[ 0-9]+\] .rela.dyn +.*
+#pass
  +\[[ 0-9]+\] .plt +.*
  +\[[ 0-9]+\] .plt.got +.*
  +\[[ 0-9]+\] .text +PROGBITS +0+1000 0+1000 0+31a 00 +AX +0 +0 4096

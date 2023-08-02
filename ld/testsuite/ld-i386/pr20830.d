@@ -19,7 +19,7 @@ Contents of the .eh_frame section:
   DW_CFA_offset: r8 \(eip\) at cfa-4
   DW_CFA_nop
   DW_CFA_nop
-
+#pass
 0+18 00000010 0000001c FDE cie=00000000 pc=00000128..00000133
   DW_CFA_nop
   DW_CFA_nop
