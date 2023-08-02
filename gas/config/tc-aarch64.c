@@ -9206,7 +9206,7 @@ aarch64_parse_features (const char *str, const aarch64_feature_set **opt_p,
 	    break;
 	  }
 
-      if (opt->name == NULL)
+      if (opt->name == NULL && adding_value)
 	{
 	  as_bad (_("unknown architectural extension `%s'"), str);
 	  return 0;
