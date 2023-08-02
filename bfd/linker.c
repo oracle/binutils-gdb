@@ -1672,7 +1672,7 @@ _bfd_generic_link_add_one_symbol (struct bfd_link_info *info,
 	case MIND:
 	  /* Multiple indirect symbols.  This is OK if they both point
 	     to the same symbol.  */
-	  if (strcmp (h->u.i.link->root.string, string) == 0)
+	  if (string != NULL && strcmp (h->u.i.link->root.string, string) == 0)
 	    break;
 	  /* Fall through.  */
 	case MDEF:
