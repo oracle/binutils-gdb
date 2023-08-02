@@ -41,7 +41,7 @@ dnl Or for updating the whole tree at once with the definition above.
 AC_DEFUN([_GCC_AUTOCONF_VERSION_CHECK],
 [m4_if(m4_defn([_GCC_AUTOCONF_VERSION]),
   m4_defn([m4_PACKAGE_VERSION]), [],
-  [m4_fatal([Please use exactly Autoconf ]_GCC_AUTOCONF_VERSION[ instead of ]m4_defn([m4_PACKAGE_VERSION])[.])])
+  [])
 ])
 m4_define([AC_INIT], m4_defn([AC_INIT])[
 _GCC_AUTOCONF_VERSION_CHECK
