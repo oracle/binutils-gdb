@@ -5287,7 +5287,12 @@ allocate_dynrelocs (struct elf_link_hash_entry *h, void *inf)
       for (ent = h->plt.plist; ent != NULL; ent = ent->next)
 	if (ent->plt.refcount > 0)
 	  {
-	    asection *s = htab->elf.splt;
+	    asection *s;
+
+	    if (!ensure_undef_dynamic (info, h))
+	      return FALSE;
+
+	    s = htab->elf.splt;
 
 	    if (!dyn)
 	      {
