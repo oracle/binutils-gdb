@@ -4477,7 +4477,12 @@ elf_link_add_object_symbols (bfd *abfd, struct bfd_link_info *info)
 	      h = (struct elf_link_hash_entry *) p;
 	      entsize += htab->root.table.entsize;
 	      if (h->root.type == bfd_link_hash_warning)
-		entsize += htab->root.table.entsize;
+		{
+		  entsize += htab->root.table.entsize;
+		  h = (struct elf_link_hash_entry *) h->root.u.i.link;
+		}
+	      if (h->root.type == bfd_link_hash_common)
+		entsize += sizeof (*h->root.u.c.p);
 	    }
 	}
 
@@ -4521,13 +4526,19 @@ elf_link_add_object_symbols (bfd *abfd, struct bfd_link_info *info)
 
 	  for (p = htab->root.table.table[i]; p != NULL; p = p->next)
 	    {
-	      memcpy (old_ent, p, htab->root.table.entsize);
-	      old_ent = (char *) old_ent + htab->root.table.entsize;
 	      h = (struct elf_link_hash_entry *) p;
+	      memcpy (old_ent, h, htab->root.table.entsize);
+	      old_ent = (char *) old_ent + htab->root.table.entsize;
 	      if (h->root.type == bfd_link_hash_warning)
 		{
-		  memcpy (old_ent, h->root.u.i.link, htab->root.table.entsize);
+		  h = (struct elf_link_hash_entry *) h->root.u.i.link;
+		  memcpy (old_ent, h, htab->root.table.entsize);
 		  old_ent = (char *) old_ent + htab->root.table.entsize;
+		}
+	      if (h->root.type == bfd_link_hash_common)
+		{
+		  memcpy (old_ent, h->root.u.c.p, sizeof (*h->root.u.c.p));
+		  old_ent = (char *) old_ent + sizeof (*h->root.u.c.p);
 		}
 	    }
 	}
@@ -4899,7 +4910,8 @@ elf_link_add_object_symbols (bfd *abfd, struct bfd_link_info *info)
 	}
 
       if (! (_bfd_generic_link_add_one_symbol
-	     (info, abfd, name, flags, sec, value, NULL, FALSE, bed->collect,
+	     (info, abfd, name, flags, sec, value,
+	      NULL, FALSE, bed->collect,
 	      (struct bfd_link_hash_entry **) sym_hash)))
 	goto error_free_vers;
 
@@ -4970,11 +4982,10 @@ elf_link_add_object_symbols (bfd *abfd, struct bfd_link_info *info)
 	     object and a shared object.  */
 	  bfd_boolean dynsym = FALSE;
 
-	  /* Plugin symbols aren't normal.  Don't set def_regular or
-	     ref_regular for them, or make them dynamic.  */
+	  /* Plugin symbols aren't normal.  Don't set def/ref flags.  */
 	  if ((abfd->flags & BFD_PLUGIN) != 0)
 	    ;
-	  else if (! dynamic)
+	  else if (!dynamic)
 	    {
 	      if (! definition)
 		{
@@ -4991,14 +5002,6 @@ elf_link_add_object_symbols (bfd *abfd, struct bfd_link_info *info)
 		      h->ref_dynamic = 1;
 		    }
 		}
-
-	      /* If the indirect symbol has been forced local, don't
-		 make the real symbol dynamic.  */
-	      if ((h == hi || !hi->forced_local)
-		  && (bfd_link_dll (info)
-		      || h->def_dynamic
-		      || h->ref_dynamic))
-		dynsym = TRUE;
 	    }
 	  else
 	    {
@@ -5012,14 +5015,25 @@ elf_link_add_object_symbols (bfd *abfd, struct bfd_link_info *info)
 		  h->def_dynamic = 1;
 		  hi->def_dynamic = 1;
 		}
+	    }
 
-	      /* If the indirect symbol has been forced local, don't
-		 make the real symbol dynamic.  */
-	      if ((h == hi || !hi->forced_local)
-		  && (h->def_regular
-		      || h->ref_regular
-		      || (h->is_weakalias
-			  && weakdef (h)->dynindx != -1)))
+	  /* If an indirect symbol has been forced local, don't
+	     make the real symbol dynamic.  */
+	  if (h != hi && hi->forced_local)
+	    ;
+	  else if (!dynamic)
+	    {
+	      if (bfd_link_dll (info)
+		  || h->def_dynamic
+		  || h->ref_dynamic)
+		dynsym = TRUE;
+	    }
+	  else
+	    {
+	      if (h->def_regular
+		  || h->ref_regular
+		  || (h->is_weakalias
+		      && weakdef (h)->dynindx != -1))
 		dynsym = TRUE;
 	    }
 
@@ -5214,6 +5228,9 @@ elf_link_add_object_symbols (bfd *abfd, struct bfd_link_info *info)
 	      && definition
 	      && ((dynsym
 		   && h->ref_regular_nonweak)
+		  || (old_bfd != NULL
+		      && (old_bfd->flags & BFD_PLUGIN) != 0
+		      && bind != STB_WEAK)
 		  || (h->ref_dynamic_nonweak
 		      && (elf_dyn_lib_class (abfd) & DYN_AS_NEEDED) != 0
 		      && !on_needed_list (elf_dt_name (abfd),
@@ -5338,49 +5355,31 @@ elf_link_add_object_symbols (bfd *abfd, struct bfd_link_info *info)
 	{
 	  struct bfd_hash_entry *p;
 	  struct elf_link_hash_entry *h;
-	  bfd_size_type size;
-	  unsigned int alignment_power;
 	  unsigned int non_ir_ref_dynamic;
 
 	  for (p = htab->root.table.table[i]; p != NULL; p = p->next)
 	    {
-	      h = (struct elf_link_hash_entry *) p;
-	      if (h->root.type == bfd_link_hash_warning)
-		h = (struct elf_link_hash_entry *) h->root.u.i.link;
-
-	      /* Preserve the maximum alignment and size for common
-		 symbols even if this dynamic lib isn't on DT_NEEDED
-		 since it can still be loaded at run time by another
-		 dynamic lib.  */
-	      if (h->root.type == bfd_link_hash_common)
-		{
-		  size = h->root.u.c.size;
-		  alignment_power = h->root.u.c.p->alignment_power;
-		}
-	      else
-		{
-		  size = 0;
-		  alignment_power = 0;
-		}
 	      /* Preserve non_ir_ref_dynamic so that this symbol
 		 will be exported when the dynamic lib becomes needed
 		 in the second pass.  */
-	      non_ir_ref_dynamic = h->root.non_ir_ref_dynamic;
-	      memcpy (p, old_ent, htab->root.table.entsize);
-	      old_ent = (char *) old_ent + htab->root.table.entsize;
 	      h = (struct elf_link_hash_entry *) p;
 	      if (h->root.type == bfd_link_hash_warning)
+		h = (struct elf_link_hash_entry *) h->root.u.i.link;
+	      non_ir_ref_dynamic = h->root.non_ir_ref_dynamic;
+
+	      h = (struct elf_link_hash_entry *) p;
+	      memcpy (h, old_ent, htab->root.table.entsize);
+	      old_ent = (char *) old_ent + htab->root.table.entsize;
+	      if (h->root.type == bfd_link_hash_warning)
 		{
-		  memcpy (h->root.u.i.link, old_ent, htab->root.table.entsize);
-		  old_ent = (char *) old_ent + htab->root.table.entsize;
 		  h = (struct elf_link_hash_entry *) h->root.u.i.link;
+		  memcpy (h, old_ent, htab->root.table.entsize);
+		  old_ent = (char *) old_ent + htab->root.table.entsize;
 		}
 	      if (h->root.type == bfd_link_hash_common)
 		{
-		  if (size > h->root.u.c.size)
-		    h->root.u.c.size = size;
-		  if (alignment_power > h->root.u.c.p->alignment_power)
-		    h->root.u.c.p->alignment_power = alignment_power;
+		  memcpy (h->root.u.c.p, old_ent, sizeof (*h->root.u.c.p));
+		  old_ent = (char *) old_ent + sizeof (*h->root.u.c.p);
 		}
 	      h->root.non_ir_ref_dynamic = non_ir_ref_dynamic;
 	    }
