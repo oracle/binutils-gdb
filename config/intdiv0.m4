@@ -31,10 +31,10 @@ sigfpe_handler (sig) int sig;
   exit (sig != SIGFPE);
 }
 
-int x = 1;
-int y = 0;
-int z;
-int nan;
+volatile int x = 1;
+volatile int y = 0;
+volatile int z;
+volatile int nan;
 
 int main ()
 {

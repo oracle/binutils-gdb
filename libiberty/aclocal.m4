@@ -149,7 +149,7 @@ if test $ac_cv_os_cray = yes; then
 fi
 
 AC_CACHE_CHECK(stack direction for C alloca, ac_cv_c_stack_direction,
-[AC_TRY_RUN([find_stack_direction ()
+[AC_TRY_RUN([__attribute__ ((noclone,noinline)) find_stack_direction ()
 {
   static char *addr = 0;
   auto char dummy;
