@@ -7421,7 +7421,7 @@ lang_reset_memory_regions (void)
 
 static void
 gc_section_callback (lang_wild_statement_type *ptr,
-		     struct wildcard_list *sec ATTRIBUTE_UNUSED,
+		     struct wildcard_list *sec,
 		     asection *section,
 		     struct flag_info *sflag_info ATTRIBUTE_UNUSED,
 		     lang_input_statement_type *file ATTRIBUTE_UNUSED,
@@ -7431,6 +7431,8 @@ gc_section_callback (lang_wild_statement_type *ptr,
      should be as well.  */
   if (ptr->keep_sections)
     section->flags |= SEC_KEEP;
+  if (sec)
+    section->pattern = sec->spec.name;
 }
 
 /* Iterate over sections marking them against GC.  */
