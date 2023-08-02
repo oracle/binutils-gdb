@@ -205,6 +205,18 @@ static const struct objdump_private_desc * const objdump_private_vectors[] =
 
 /* The list of detected jumps inside a function.  */
 static struct jump_info *detected_jumps = NULL;
+
+typedef enum unicode_display_type
+{
+  unicode_default = 0,
+  unicode_locale,
+  unicode_escape,
+  unicode_hex,
+  unicode_highlight,
+  unicode_invalid
+} unicode_display_type;
+
+static unicode_display_type unicode_display = unicode_default;
 
 static void usage (FILE *, int) ATTRIBUTE_NORETURN;
 static void
@@ -247,6 +259,9 @@ usage (FILE *stream, int status)
   -r, --reloc              Display the relocation entries in the file\n\
   -R, --dynamic-reloc      Display the dynamic relocation entries in the file\n\
   @<file>                  Read options from <file>\n\
+  -U[d|l|i|x|e|h]          Controls the display of UTF-8 unicode characters\n\
+  --unicode=[default|locale|invalid|hex|escape|highlight]\n"));
+      fprintf (stream, _("\
   -v, --version            Display this program's version number\n\
   -i, --info               List object formats and architectures supported\n\
   -H, --help               Display this information\n\
@@ -395,6 +410,7 @@ static struct option long_options[]=
   {"stop-address", required_argument, NULL, OPTION_STOP_ADDRESS},
   {"syms", no_argument, NULL, 't'},
   {"target", required_argument, NULL, 'b'},
+  {"unicode", required_argument, NULL, 'U'},
   {"version", no_argument, NULL, 'V'},
   {"wide", no_argument, NULL, 'w'},
   {"prefix", required_argument, NULL, OPTION_PREFIX},
@@ -415,9 +431,123 @@ nonfatal (const char *msg)
   exit_status = 1;
 }
 
+/* Convert a potential UTF-8 encoded sequence in IN into characters in OUT.
+   The conversion format is controlled by the unicode_display variable.
+   Returns the number of characters added to OUT.
+   Returns the number of bytes consumed from IN in CONSUMED.
+   Always consumes at least one byte and displays at least one character.  */
+   
+static unsigned int
+display_utf8 (const unsigned char * in, char * out, unsigned int * consumed)
+{
+  char *        orig_out = out;
+  unsigned int  nchars = 0;
+
+  if (unicode_display == unicode_default)
+    goto invalid;
+
+  if (in[0] < 0xc0)
+    goto invalid;
+
+  if ((in[1] & 0xc0) != 0x80)
+    goto invalid;
+
+  if ((in[0] & 0x20) == 0)
+    {
+      nchars = 2;
+      goto valid;
+    }
+
+  if ((in[2] & 0xc0) != 0x80)
+    goto invalid;
+
+  if ((in[0] & 0x10) == 0)
+    {
+      nchars = 3;
+      goto valid;
+    }
+
+  if ((in[3] & 0xc0) != 0x80)
+    goto invalid;
+
+  nchars = 4;
+
+ valid:
+  switch (unicode_display)
+    {
+    case unicode_locale:
+      /* Copy the bytes into the output buffer as is.  */
+      memcpy (out, in, nchars);
+      out += nchars;
+      break;
+
+    case unicode_invalid:
+    case unicode_hex:
+      {
+      unsigned int j;
+
+      out += sprintf (out, "%c", unicode_display == unicode_hex ? '<' : '{');
+      for (j = 0; j < nchars; j++)
+	out += sprintf (out, "%02x", in [j]);
+      out += sprintf (out, "%c", unicode_display == unicode_hex ? '>' : '}');
+      }
+      break;
+      
+    case unicode_highlight:
+      if (isatty (1))
+	out += sprintf (out, "\x1B[31;47m"); /* Red.  */
+      /* Fall through.  */
+    case unicode_escape:
+      switch (nchars)
+	{
+	case 2:
+	  out += sprintf (out, "\\u%02x%02x",
+		  ((in[0] & 0x1c) >> 2), 
+		  ((in[0] & 0x03) << 6) | (in[1] & 0x3f));
+	  break;
+
+	case 3:
+	  out += sprintf (out, "\\u%02x%02x",
+		  ((in[0] & 0x0f) << 4) | ((in[1] & 0x3c) >> 2),
+		  ((in[1] & 0x03) << 6) | ((in[2] & 0x3f)));
+	  break;
+
+	case 4:
+	  out += sprintf (out, "\\u%02x%02x%02x",
+		  ((in[0] & 0x07) << 6) | ((in[1] & 0x3c) >> 2),
+		  ((in[1] & 0x03) << 6) | ((in[2] & 0x3c) >> 2),
+		  ((in[2] & 0x03) << 6) | ((in[3] & 0x3f)));
+	  break;
+	default:
+	  /* URG.  */
+	  break;
+	}
+
+      if (unicode_display == unicode_highlight && isatty (1))
+	out += sprintf (out, "\033[0m"); /* Default colour.  */
+      break;
+
+    default:
+      /* URG */
+      break;
+    }
+
+  * consumed = nchars;
+  return out - orig_out;
+
+ invalid:
+  /* Not a valid UTF-8 sequence.  */
+  *out = *in;
+  * consumed = 1;
+  return 1;
+}
+
 /* Returns a version of IN with any control characters
    replaced by escape sequences.  Uses a static buffer
-   if necessary.  */
+   if necessary.
+
+   If unicode display is enabled, then also handles the
+   conversion of unicode characters.  */
 
 static const char *
 sanitize_string (const char * in)
@@ -435,40 +565,50 @@ sanitize_string (const char * in)
      of cases it will not be needed.  */
   do
     {
-      char c = *in++;
+      unsigned char c = *in++;
 
       if (c == 0)
 	return original;
 
       if (ISCNTRL (c))
 	break;
+
+      if (unicode_display != unicode_default && c >= 0xc0)
+	break;
     }
   while (1);
 
   /* Copy the input, translating as needed.  */
   in = original;
-  if (buffer_len < (strlen (in) * 2))
+  if (buffer_len < (strlen (in) * 9))
     {
       free ((void *) buffer);
-      buffer_len = strlen (in) * 2;
+      buffer_len = strlen (in) * 9;
       buffer = xmalloc (buffer_len + 1);
     }
 
   out = buffer;
   do
     {
-      char c = *in++;
+      unsigned char c = *in++;
 
       if (c == 0)
 	break;
 
-      if (!ISCNTRL (c))
-	*out++ = c;
-      else
+      if (ISCNTRL (c))
 	{
 	  *out++ = '^';
 	  *out++ = c + 0x40;
 	}
+      else if (unicode_display != unicode_default && c >= 0xc0)
+	{
+	  unsigned int num_consumed;
+
+	  out += display_utf8 ((const unsigned char *)(in - 1), out, & num_consumed);
+	  in += num_consumed - 1;
+	}
+      else
+	*out++ = c;
     }
   while (1);
 
@@ -476,7 +616,6 @@ sanitize_string (const char * in)
   return buffer;
 }
 
-
 /* Returns TRUE if the specified section should be dumped.  */
 
 static bfd_boolean
@@ -1052,6 +1191,8 @@ objdump_print_symname (bfd *abfd, struct disassemble_info *inf,
 
   if (bfd_is_und_section (bfd_asymbol_section (sym)))
     hidden = TRUE;
+
+  name = sanitize_string (name);
 
   name = sanitize_string (name);
 
@@ -3136,7 +3277,7 @@ disassemble_section (bfd *abfd, asection *section, void *inf)
   if (!bfd_malloc_and_get_section (abfd, section, &data))
     {
       non_fatal (_("Reading section %s failed because: %s"),
-		 section->name, bfd_errmsg (bfd_get_error ()));
+		 sanitize_string (section->name), bfd_errmsg (bfd_get_error ()));
       return;
     }
 
@@ -4307,7 +4448,7 @@ dump_section (bfd *abfd, asection *section, void *dummy ATTRIBUTE_UNUSED)
   if (!bfd_get_full_section_contents (abfd, section, &data))
     {
       non_fatal (_("Reading section %s failed because: %s"),
-		 section->name, bfd_errmsg (bfd_get_error ()));
+		 sanitize_string (section->name), bfd_errmsg (bfd_get_error ()));
       return;
     }
 
@@ -4446,6 +4587,24 @@ dump_symbols (bfd *abfd ATTRIBUTE_UNUSED, bfd_boolean dynamic)
 		  (*current)->name = name;
 		  free (alloc);
 		}
+	    }
+	  else if (unicode_display != unicode_default
+		   && name != NULL && *name != '\0')
+	    {
+	      const char * sanitized_name;
+
+	      /* If we want to sanitize the name, we do it here, and
+		 temporarily clobber it while calling bfd_print_symbol.
+		 FIXME: This is a gross hack.  */
+	      sanitized_name = sanitize_string (name);
+	      if (sanitized_name != name)
+		(*current)->name = sanitized_name;
+	      else
+		sanitized_name = NULL;
+	      bfd_print_symbol (cur_bfd, stdout, *current,
+				bfd_print_symbol_all);
+	      if (sanitized_name != NULL)
+		(*current)->name = name;
 	    }
 	  else
 	    bfd_print_symbol (cur_bfd, stdout, *current,
@@ -5128,7 +5287,7 @@ main (int argc, char **argv)
   set_default_bfd_target ();
 
   while ((c = getopt_long (argc, argv,
-			   "pP:ib:m:M:VvCdDlfFaHhrRtTxsSI:j:wE:zgeGW::",
+			   "pP:ib:m:M:VvCdDlfFaHhrRtTxsSI:j:wE:zgeGW::U:",
 			   long_options, (int *) 0))
 	 != EOF)
     {
@@ -5405,6 +5564,23 @@ main (int argc, char **argv)
 	case 'V':
 	  show_version = TRUE;
 	  seenflag = TRUE;
+	  break;
+
+	case 'U':
+	  if (streq (optarg, "default") || streq (optarg, "d"))
+	    unicode_display = unicode_default;
+	  else if (streq (optarg, "locale") || streq (optarg, "l"))
+	    unicode_display = unicode_locale;
+	  else if (streq (optarg, "escape") || streq (optarg, "e"))
+	    unicode_display = unicode_escape;
+	  else if (streq (optarg, "invalid") || streq (optarg, "i"))
+	    unicode_display = unicode_invalid;
+	  else if (streq (optarg, "hex") || streq (optarg, "x"))
+	    unicode_display = unicode_hex;
+	  else if (streq (optarg, "highlight") || streq (optarg, "h"))
+	    unicode_display = unicode_highlight;
+	  else
+	    fatal (_("invalid argument to -U/--unicode: %s"), optarg);
 	  break;
 
 	case 'H':
