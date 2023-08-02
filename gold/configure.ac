@@ -181,7 +181,7 @@ for targ in $target $canon_targets; do
     . ${srcdir}/configure.tgt
 
     if test "$targ_obj" = "UNKNOWN"; then
-      AC_MSG_ERROR("unsupported target $targ")
+      AC_MSG_WARN("unsupported target $targ")
     else
       targetobjs="$targetobjs ${targ_obj}.\$(OBJEXT)"
       if test "$targ_extra_obj" != ""; then

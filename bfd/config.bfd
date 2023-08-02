@@ -468,7 +468,7 @@ case "${targ}" in
     ;;
 
 #ifdef BFD64
-  bpf-*-none)
+  bpf-*-none | bpf-*)
     targ_defvec=bpf_elf64_le_vec
     targ_selvecs=bpf_elf64_be_vec
     targ_underscore=yes
@@ -1411,7 +1411,7 @@ case "${targ}" in
     ;;
 
   *)
-    echo 1>&2 "*** BFD does not support target ${targ}."
+    echo 1>&2 "*** BFD does not support target '${targ}'.  Honest."
     echo 1>&2 "*** Look in bfd/config.bfd for supported targets."
     exit 1
     ;;

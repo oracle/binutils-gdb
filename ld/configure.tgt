@@ -216,7 +216,7 @@ bfin-*-linux-uclibc*)	targ_emul=elf32bfinfd;
 			targ_extra_emuls="elf32bfin"
 			targ_extra_libpath=$targ_extra_emuls
 			;;
-bpf-*-*)		targ_emul=elf64bpf
+bpf-* | bpf-*-*)	targ_emul=elf64bpf
 			;;
 cr16-*-elf*)		targ_emul=elf32cr16
 			;;
@@ -1011,7 +1011,7 @@ z8k-*-coff)		targ_emul=z8002
 			targ_extra_ofiles=
 			;;
 *)
-  echo 2>&1 "*** ld does not support target ${targ}"
+  echo 2>&1 "*** ld does not support target '${targ}' NO REALLY"
   echo 2>&1 "*** see ld/configure.tgt for supported targets"
   exit 1
 
