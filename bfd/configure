@@ -18921,11 +18921,6 @@ _LT_EOF
       esac
     done ;;
     "bfd_stdint.h":C)
-if test "$GCC" = yes; then
-  echo "/* generated for " `$CC --version | sed 1q` "*/" > tmp-stdint.h
-else
-  echo "/* generated for $CC */" > tmp-stdint.h
-fi
 
 sed 's/^ *//' >> tmp-stdint.h <<EOF
 

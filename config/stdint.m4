@@ -192,11 +192,6 @@ fi
 
 # ----------------- done all checks, emit header -------------
 AC_CONFIG_COMMANDS(_GCC_STDINT_H, [
-if test "$GCC" = yes; then
-  echo "/* generated for " `$CC --version | sed 1q` "*/" > tmp-stdint.h
-else
-  echo "/* generated for $CC */" > tmp-stdint.h
-fi
 
 sed 's/^ *//' >> tmp-stdint.h <<EOF
 
