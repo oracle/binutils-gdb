@@ -259,7 +259,7 @@ proc default_ld_compile { cc source object } {
 	append flags " [board_info [target_info name] multilib_flags]"
     }
 
-    set cmd "$cc $flags $ccflags -c $source -o $object"
+    set cmd "$cc $flags $ccflags -c $source -o $object -fno-lto"
     verbose -log "$cmd"
 
     set status [remote_exec host [concat sh -c [list "$cmd 2>&1"]] "" "/dev/null" "ld.tmp"]
@@ -713,9 +713,9 @@ proc run_ld_link_exec_tests { ldtests args } {
 	    lappend objfiles $objfile
 
 	    if { [ string match "c++" $lang ] } {
-		set cmd "$CXX -c $CXXFLAGS $cflags"
+		set cmd "$CXX -c $CXXFLAGS $cflags -fno-lto"
 	    } else {
-		set cmd "$CC -c $CFLAGS $cflags"
+		set cmd "$CC -c $CFLAGS $cflags -fno-lto"
 	    }
 	    if ![ld_compile $cmd $srcdir/$subdir/$src_file $objfile] {
 		set failed 1
@@ -898,9 +898,9 @@ proc run_cc_link_tests { ldtests } {
 	    lappend objfiles $objfile
 
 	    if { [ string match "c++" $lang ] } {
-		set cmd "$CXX -c $CXXFLAGS $cflags"
+		set cmd "$CXX -c $CXXFLAGS $cflags -fno-lto"
 	    } else {
-		set cmd "$CC -c $CFLAGS $cflags"
+		set cmd "$CC -c $CFLAGS $cflags -fno-lto"
 	    }
 	    if ![ld_compile $cmd $srcdir/$subdir/$src_file $objfile] {
 		set failed 1

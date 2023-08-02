@@ -37,24 +37,24 @@ Symbol table '\.symtab' contains 26 entries:
      2: 0000000000000000     0 SECTION LOCAL  DEFAULT    3 
      3: 0000000000000000     0 SECTION LOCAL  DEFAULT    4 
      4: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS .*variant_pcs-1\.o
-     5: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT \[VARIANT_PCS\]     1 f_spec_local
-     6: 0000000000000000     0 IFUNC   LOCAL  DEFAULT \[VARIANT_PCS\]     1 f_spec_local_ifunc
+     5: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT    1 f_spec_local[ 	]+\[VARIANT_PCS\]
+     6: 0000000000000000     0 IFUNC   LOCAL  DEFAULT    1 f_spec_local_ifunc[ 	]+\[VARIANT_PCS\]
      7: 0000000000000000     0 IFUNC   LOCAL  DEFAULT    1 f_base_local_ifunc
      8: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT    1 f_base_local
      9: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT    1 \$x
     10: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS .*variant_pcs-2\.o
-    11: 0000000000000038     0 NOTYPE  LOCAL  DEFAULT \[VARIANT_PCS\]     1 f_spec_local2
-    12: 0000000000000038     0 IFUNC   LOCAL  DEFAULT \[VARIANT_PCS\]     1 f_spec_local2_ifunc
+    11: 0000000000000038     0 NOTYPE  LOCAL  DEFAULT    1 f_spec_local2[ 	]+\[VARIANT_PCS\]
+    12: 0000000000000038     0 IFUNC   LOCAL  DEFAULT    1 f_spec_local2_ifunc[ 	]+\[VARIANT_PCS\]
     13: 0000000000000038     0 IFUNC   LOCAL  DEFAULT    1 f_base_local2_ifunc
     14: 0000000000000038     0 NOTYPE  LOCAL  DEFAULT    1 f_base_local2
     15: 0000000000000038     0 NOTYPE  LOCAL  DEFAULT    1 \$x
     16: 0000000000000000     0 NOTYPE  GLOBAL DEFAULT  UND f_base_global_default_undef
-    17: 0000000000000000     0 NOTYPE  GLOBAL DEFAULT \[VARIANT_PCS\]   UND f_spec_global_default_undef
-    18: 0000000000000000     0 NOTYPE  GLOBAL HIDDEN  \[VARIANT_PCS\]     1 f_spec_global_hidden_def
+    17: 0000000000000000     0 NOTYPE  GLOBAL DEFAULT  UND f_spec_global_default_undef[ 	]+\[VARIANT_PCS\]
+    18: 0000000000000000     0 NOTYPE  GLOBAL HIDDEN     1 f_spec_global_hidden_def[ 	]+\[VARIANT_PCS\]
     19: 0000000000000000     0 IFUNC   GLOBAL HIDDEN     1 f_base_global_hidden_ifunc
-    20: 0000000000000000     0 IFUNC   GLOBAL DEFAULT \[VARIANT_PCS\]     1 f_spec_global_default_ifunc
+    20: 0000000000000000     0 IFUNC   GLOBAL DEFAULT    1 f_spec_global_default_ifunc[ 	]+\[VARIANT_PCS\]
     21: 0000000000000000     0 NOTYPE  GLOBAL HIDDEN     1 f_base_global_hidden_def
-    22: 0000000000000000     0 IFUNC   GLOBAL HIDDEN  \[VARIANT_PCS\]     1 f_spec_global_hidden_ifunc
+    22: 0000000000000000     0 IFUNC   GLOBAL HIDDEN     1 f_spec_global_hidden_ifunc[ 	]+\[VARIANT_PCS\]
     23: 0000000000000000     0 NOTYPE  GLOBAL DEFAULT    1 f_base_global_default_def
-    24: 0000000000000000     0 NOTYPE  GLOBAL DEFAULT \[VARIANT_PCS\]     1 f_spec_global_default_def
+    24: 0000000000000000     0 NOTYPE  GLOBAL DEFAULT    1 f_spec_global_default_def[ 	]+\[VARIANT_PCS\]
     25: 0000000000000000     0 IFUNC   GLOBAL DEFAULT    1 f_base_global_default_ifunc

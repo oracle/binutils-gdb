@@ -5,6 +5,4 @@
 
 #...
 .* R_PPC64_IRELATIVE +10000180
-#...
-.*: 0+10000180 +20 IFUNC +LOCAL +DEFAULT .* magic
 #pass

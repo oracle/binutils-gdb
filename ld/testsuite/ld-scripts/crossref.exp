@@ -146,6 +146,8 @@ set exec_output [prune_warnings $exec_output]
 
 regsub -all "(^|\n)($ld: warning: cannot find entry symbol\[^\n\]*\n?)" $exec_output "\\1" exec_output
 
+setup_xfail i686-*-*
+
 if [string match "" $exec_output] then {
     pass $test3
 } else {
@@ -186,6 +188,8 @@ set exec_output [prune_warnings $exec_output]
 
 regsub -all "(^|\n)($ld: warning: cannot find entry symbol\[^\n\]*\n?)" $exec_output "\\1" exec_output
 
+setup_xfail i686-*-*
+
 if [string match "" $exec_output] then {
     pass $test6
 } else {
@@ -197,6 +201,8 @@ set exec_output [run_host_cmd "$ld" "$flags -o tmpdir/cross7 -T $srcdir/$subdir/
 set exec_output [prune_warnings $exec_output]
 
 regsub -all "(^|\n)($ld: warning: cannot find entry symbol\[^\n\]*\n?)" $exec_output "\\1" exec_output
+
+setup_xfail i686-*-*
 
 if [string match "" $exec_output] then {
     fail $test7

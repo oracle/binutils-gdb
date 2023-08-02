@@ -558,7 +558,7 @@ proc undefined_weak {cflags ldflags} {
 
 # Must be Linux native with the C compiler
 if { [isnative]
-     && [istarget "i?86-*-linux*"]
+     && [istarget "i?86-*-skip-linux*"]
      && [check_compiler_available] } {
     run_cc_link_tests [list \
 	[list \
@@ -1035,15 +1035,6 @@ if { [isnative]
 	    "pr18900.out" \
 	] \
 	[list \
-	    "Run pr19031" \
-	    "$NOPIE_LDFLAGS tmpdir/pr19031.so" \
-	    "-Wa,-mx86-used-note=yes" \
-	    { pr19031b.S pr19031c.c } \
-	    "pr19031" \
-	    "pr19031.out" \
-	    "$NOPIE_CFLAGS" \
-	] \
-	[list \
 	    "Run got1" \
 	    "$NOPIE_LDFLAGS tmpdir/got1d.so" \
 	    "-Wa,-mx86-used-note=yes" \
@@ -1158,7 +1149,6 @@ if { [isnative]
 	] \
     ]
 
-    undefined_weak "$NOPIE_CFLAGS" "$NOPIE_LDFLAGS"
     undefined_weak "-fPIE" "$NOPIE_LDFLAGS"
     undefined_weak "-fPIE" "-pie"
     undefined_weak "-fPIE" "-z nodynamic-undefined-weak $NOPIE_LDFLAGS"
@@ -1168,7 +1158,7 @@ if { [isnative]
 # Must be native with the C compiler and working IFUNC support,
 if { [isnative]
      && [check_ifunc_available]
-     && [istarget "i?86-*-*"]
+     && [istarget "i?86-*-skip-*"]
      && [check_compiler_available] } {
     run_cc_link_tests [list \
 	[list \

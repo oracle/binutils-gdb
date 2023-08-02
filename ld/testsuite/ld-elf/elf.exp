@@ -245,7 +245,7 @@ if [check_gc_sections_available] {
 
 set array_tests {
     {"preinit array" "" ""
-	{preinit.c} "preinit" "preinit.out"}
+	{preinit.c} "preinit" "preinit.out" "-fno-lto"}
     {"init array" "" ""
 	{init.c} "init" "init.out"}
     {"fini array" "" ""

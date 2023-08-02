@@ -83,13 +83,13 @@ if {![info exists CC]} {
     set CC [find_gcc]
 }
 if {![info exists CFLAGS]} {
-    set CFLAGS "-g -O2"
+    set CFLAGS "-g -O2 -fno-lto"
 }
 if {![info exists CXX]} {
     set CXX [find_g++]
 }
 if {![info exists CXXFLAGS]} {
-    set CXXFLAGS ""
+    set CXXFLAGS "-fno-lto"
 }
 
 # This allows us to run the linker testsuite with clang as the compilation

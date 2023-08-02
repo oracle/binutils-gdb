@@ -53,7 +53,7 @@ set build_tests {
    "" "-fno-toplevel-reorder"
    {dwarf2a.c dwarf2b.c} {{error_output "dwarf2.err"}} "dwarf2.x"}
   {"Handle no DWARF information"
-   "" "-g0"
+   "" "-g0 -fno-lto"
    {dwarf3.c} {{error_output "dwarf3.err"}} "dwarf3.x"}
 }
 

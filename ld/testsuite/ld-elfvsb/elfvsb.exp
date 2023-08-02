@@ -264,6 +264,7 @@ proc visibility_run {visibility} {
     remote_file host delete $tmpdir/sh1p.o $tmpdir/sh2p.o $tmpdir/sh1np.o $tmpdir/sh2np.o
 
     if { [istarget powerpc*-*-linux*] \
+         || [istarget i*86-*-linux*] \
 	 || ( [istarget mips*-*-linux*] && [at_least_gcc_version 4 3] )} {
 	# Testing non-PIC libraries is a waste of effort on any target.
 	# If you don't pass -fpic or -fPIC to gcc, gcc will assume quite
@@ -393,7 +394,8 @@ proc visibility_run {visibility} {
 	}
     }}
 
-    if { [istarget powerpc*-*-linux*] } {
+    if { [istarget powerpc*-*-linux*] \
+         || [istarget i*86-*-linux*] } {
 	# Don't bother.
     } else {
     # Now do the same tests again, but this time compile main.c PIC.

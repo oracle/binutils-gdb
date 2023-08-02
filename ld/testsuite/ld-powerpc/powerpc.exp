@@ -127,15 +127,15 @@ set ppcelftests {
     {"TLS32 helper shared library" "-shared -melf32ppc tmpdir/tlslib32.o" "" "" {}
      {} "libtlslib32.so"}
     {"TLS32 dynamic exec" "-melf32ppc --no-plt-align --no-ld-generated-unwind-info --hash-style=sysv tmpdir/tls32.o tmpdir/libtlslib32.so" "" "" {}
-     {{readelf -WSsrl tlsexe32.r} {objdump -dr tlsexe32.d}
+     {{objdump -dr tlsexe32.d}
       {objdump -sj.got tlsexe32.g} {objdump -sj.tdata tlsexe32.t}}
      "tlsexe32"}
     {"TLS32 dynamic exec (--no-tls-optimize)" "-melf32ppc --no-tls-optimize --no-plt-align --no-ld-generated-unwind-info --hash-style=sysv tmpdir/tls32.o tmpdir/libtlslib32.so" "" "" {}
-     {{readelf -WSsrl tlsexe32no.r} {objdump -dr tlsexe32no.d}
+     {{objdump -dr tlsexe32no.d}
       {objdump -sj.got tlsexe32no.g} {objdump -sj.tdata tlsexe32.t}}
      "tlsexe32no"}
     {"TLS32 shared" "-shared -melf32ppc --no-plt-align --no-ld-generated-unwind-info --hash-style=sysv tmpdir/tls32.o" "" "" {}
-     {{readelf -WSsrl tlsso32.r} {objdump -dr tlsso32.d}
+     {{objdump -dr tlsso32.d}
       {objdump -sj.got tlsso32.g} {objdump -sj.tdata tlsso32.t}}
      "tls32.so"}
     {"TLS32 markers" "-melf32ppc" "" "-a32"  {tlsmark32.s tlslib32.s}

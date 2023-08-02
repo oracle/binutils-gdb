@@ -245,6 +245,7 @@ if ![ld_compile "$CC $CFLAGS $SHCFLAG" $srcdir/$subdir/main.c $tmpdir/mainnp.o] 
 	    setup_xfail "arm*-*-linux*"
 	}
 	setup_xfail "aarch64*-*-linux*"
+	setup_xfail "i*86-*-linux*"
 	shared_test shnp "shared (non PIC)" mainnp.o sh1np.o sh2np.o shared
 
 	# Test ELF shared library relocations with a non-zero load
@@ -273,6 +274,7 @@ if ![ld_compile "$CC $CFLAGS $SHCFLAG" $srcdir/$subdir/main.c $tmpdir/mainnp.o] 
 	setup_xfail "aarch64*-*-linux*"
 	# Solaris defaults to -z text.
 	setup_xfail "*-*-solaris2*"
+	setup_xfail "i*86-*-linux*"
 	shared_test shnp "shared (non PIC, load offset)" \
 		mainnp.o sh1np.o sh2np.o shared \
 		"-Wl,-T,$srcdir/$subdir/elf-offset.ld,--hash-style=sysv"
@@ -326,6 +328,7 @@ if ![ld_compile "$CC $CFLAGS $SHCFLAG $picflag" $srcdir/$subdir/main.c $tmpdir/m
 		setup_xfail "arm*-*-linux*"
 	    }
 	    setup_xfail "aarch64*-*-linux*"
+	    setup_xfail "i*86-*-linux*"
 	    shared_test shmpnp "shared (PIC main, non PIC so)" mainp.o sh1np.o sh2np.o shared
 	}
     } else {

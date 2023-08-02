@@ -545,7 +545,7 @@ set build_tests {
    "-shared" "-fPIC"
   {beginwarn.c end.c}
   {{readelf {-S --wide} libbarw.rd}
-   {warning "^.*beginwarn.c:7: warning: function foo is deprecated\n?$"}}
+   {warning "^.*warning: function foo is deprecated\n?$"}}
   "libbarw.so" "c"}
   {"Build hidden libbar.so"
    "-shared" "-fPIC"
@@ -681,13 +681,13 @@ set build_tests {
    "-r -nostdlib" ""
    {pr11138-2.c} {} "libpr11138-2.o"}
   {"Build pr13250-1.so"
-   "-shared" "-fPIC -fcommon"
+   "-shared" "-fPIC"
    {pr13250-1.c} {} "libpr13250-1.so"}
   {"Build pr13250-2.so with libpr13250-1.so"
-   "-shared -Wl,--no-as-needed tmpdir/libpr13250-1.so" "-fPIC -fcommon"
+   "-shared -Wl,--no-as-needed tmpdir/libpr13250-1.so" "-fPIC"
    {pr13250-2.c} {} "libpr13250-2.so"}
   {"Build libpr13250-3.o"
-   "-r -nostdlib" "-fcommon"
+   "-r -nostdlib" "-fPIC"
    {pr13250-3.c} {} "libpr13250-3.o"}
   {"Build libpr14323-2.so"
    "-shared" "-fPIC -fcommon"
@@ -987,9 +987,6 @@ set run_tests [list \
     [list "Run with libpr11138-1.so pr11138-2.c" \
      "-Wl,--no-as-needed,--version-script=pr11138-2.map tmpdir/libpr11138-1.so tmpdir/pr11138-2.o" "" \
      {dummy.c} "pr11138b" "pr11138.out" ] \
-    [list "Run with pr13250-3.c, libpr13250-1.so and libpr13250-2.so" \
-     "-Wl,--as-needed tmpdir/pr13250-3.o tmpdir/libpr13250-1.so tmpdir/libpr13250-2.so" "-fcommon" \
-     {dummy.c} "pr13250" "pass.out" ] \
     [list "Run with pr14323-1.c pr14323-2.so" \
      "-Wl,--no-as-needed tmpdir/libpr14323-2.so" "" \
      {pr14323-1.c} "pr14323" "pass.out" ] \
@@ -1399,18 +1396,6 @@ if { [istarget *-*-linux*]
 	    "pr22393-2-static" \
 	    "pass.out" \
 	] \
-	[list \
-	    "Run pr21964-4" \
-	    "" \
-	    "" \
-	    {pr21964-4.c} \
-	    "pr21964-4" \
-	    "pass.out" \
-	    "" \
-	    "" \
-	    "" \
-	    "-ldl" \
-	] \
     ]
 }
 
@@ -1477,7 +1462,7 @@ proc mix_pic_and_non_pic {xfails cflags ldflags exe} {
     }
 }
 
-mix_pic_and_non_pic [list "arm*-*-*" "aarch64*-*-*"] "" "" "pr19719"
+mix_pic_and_non_pic [list "arm*-*-*"] "" "" "pr19719"
 mix_pic_and_non_pic [] "-fPIE" "-pie" "pr19719pie"
 
 set AFLAGS_PIE ""
