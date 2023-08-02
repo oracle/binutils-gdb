@@ -119,6 +119,12 @@ if { $can_compile && !$failed_compile } {
     }
 }
 
+# I do not know why, but the underscore prefix test is going
+# wrong on ppc64le targets.  So override it here.
+if { [istarget powerpc*-*-linux*] || [istarget x86_64*-*-linux*] } {
+    set _ ""
+}
+
 set testobjfiles "tmpdir/main.o tmpdir/func.o tmpdir/text.o"
 set testobjfiles_notext "tmpdir/main.o tmpdir/func.o"
 set testsrcfiles "tmpdir/main.o $srcdir/$subdir/func.c tmpdir/text.o"

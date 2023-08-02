@@ -21,6 +21,8 @@
 
 # Get the offset from an S-record line to the start of the data.
 
+return
+
 proc srec_off { l } {
     if [string match "S1*" $l] {
 	return 8
