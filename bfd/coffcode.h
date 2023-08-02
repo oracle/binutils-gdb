@@ -2195,6 +2195,12 @@ coff_set_arch_mach_hook (bfd *abfd, void * filehdr)
 	}
       break;
 #endif
+#ifdef AARCH64MAGIC
+    case AARCH64MAGIC:
+      arch = bfd_arch_aarch64;
+      machine = internal_f->f_flags & F_AARCH64_ARCHITECTURE_MASK;
+      break;
+#endif
 #ifdef Z80MAGIC
     case Z80MAGIC:
       arch = bfd_arch_z80;
@@ -2748,6 +2754,12 @@ coff_set_flags (bfd * abfd,
 	    }
 	}
       TICOFF_TARGET_MACHINE_SET (flagsp, bfd_get_mach (abfd));
+      return TRUE;
+#endif
+
+#ifdef AARCH64MAGIC
+    case bfd_arch_aarch64:
+      * magicp = AARCH64MAGIC;
       return TRUE;
 #endif
 
@@ -3841,7 +3853,7 @@ coff_write_object_contents (bfd * abfd)
     internal_f.f_flags |= IMAGE_FILE_LARGE_ADDRESS_AWARE;
 #endif
 
-#ifndef COFF_WITH_pex64
+#if !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peAArch64)
 #ifdef COFF_WITH_PE
   internal_f.f_flags |= IMAGE_FILE_32BIT_MACHINE;
 #else
@@ -3893,6 +3905,11 @@ coff_write_object_contents (bfd * abfd)
 #if defined(PPC_PE)
 #define __A_MAGIC_SET__
     internal_a.magic = IMAGE_NT_OPTIONAL_HDR_MAGIC;
+#endif
+
+#if defined(AARCH64)
+#define __A_MAGIC_SET__
+    internal_a.magic = ZMAGIC;
 #endif
 
 #if defined MCORE_PE

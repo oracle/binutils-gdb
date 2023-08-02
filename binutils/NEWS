@@ -1,5 +1,8 @@
 -*- text -*-
 
+* Support for efi-app-aarch64, efi-rtdrv-aarch64 and efi-bsdrv-aarch64 has been
+  added to objcopy in order to enable UEFI development using binutils.
+
 Changes in 2.35:
 
 * Changed readelf's display of symbol names when wide mode is not enabled.

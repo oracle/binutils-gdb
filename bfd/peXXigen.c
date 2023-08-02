@@ -60,8 +60,9 @@
    on this code has a chance of getting something accomplished without
    wasting too much time.  */
 
-/* This expands into COFF_WITH_pe, COFF_WITH_pep, or COFF_WITH_pex64
-   depending on whether we're compiling for straight PE or PE+.  */
+/* This expands into COFF_WITH_pe, COFF_WITH_pep, COFF_WITH_pex64 or
+   COFF_WITH_peAArch64 depending on whether we're compiling for straight
+   PE or PE+.  */
 #define COFF_WITH_XX
 
 #include "sysdep.h"
@@ -87,6 +88,8 @@
 # include "coff/x86_64.h"
 #elif defined COFF_WITH_pep
 # include "coff/ia64.h"
+#elif defined COFF_WITH_peAArch64
+# include "coff/aarch64.h"
 #else
 # include "coff/i386.h"
 #endif
@@ -96,7 +99,7 @@
 #include "libpei.h"
 #include "safe-ctype.h"
 
-#if defined COFF_WITH_pep || defined COFF_WITH_pex64
+#if defined COFF_WITH_pep || defined COFF_WITH_pex64 || defined COFF_WITH_peAArch64
 # undef AOUTSZ
 # define AOUTSZ		PEPAOUTSZ
 # define PEAOUTHDR	PEPAOUTHDR
@@ -485,7 +488,7 @@ _bfd_XXi_swap_aouthdr_in (bfd * abfd,
   aouthdr_int->text_start =
     GET_AOUTHDR_TEXT_START (abfd, aouthdr_ext->text_start);
 
-#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peAArch64)
   /* PE32+ does not have data_start member!  */
   aouthdr_int->data_start =
     GET_AOUTHDR_DATA_START (abfd, aouthdr_ext->data_start);
@@ -571,7 +574,7 @@ _bfd_XXi_swap_aouthdr_in (bfd * abfd,
   if (aouthdr_int->entry)
     {
       aouthdr_int->entry += a->ImageBase;
-#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peAArch64)
       aouthdr_int->entry &= 0xffffffff;
 #endif
     }
@@ -579,12 +582,12 @@ _bfd_XXi_swap_aouthdr_in (bfd * abfd,
   if (aouthdr_int->tsize)
     {
       aouthdr_int->text_start += a->ImageBase;
-#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peAArch64)
       aouthdr_int->text_start &= 0xffffffff;
 #endif
     }
 
-#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peAArch64)
   /* PE32+ does not have data_start member!  */
   if (aouthdr_int->dsize)
     {
@@ -653,7 +656,7 @@ _bfd_XXi_swap_aouthdr_out (bfd * abfd, void * in, void * out)
   if (aouthdr_in->tsize)
     {
       aouthdr_in->text_start -= ib;
-#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peAArch64)
       aouthdr_in->text_start &= 0xffffffff;
 #endif
     }
@@ -661,7 +664,7 @@ _bfd_XXi_swap_aouthdr_out (bfd * abfd, void * in, void * out)
   if (aouthdr_in->dsize)
     {
       aouthdr_in->data_start -= ib;
-#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peAArch64)
       aouthdr_in->data_start &= 0xffffffff;
 #endif
     }
@@ -669,7 +672,7 @@ _bfd_XXi_swap_aouthdr_out (bfd * abfd, void * in, void * out)
   if (aouthdr_in->entry)
     {
       aouthdr_in->entry -= ib;
-#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peAArch64)
       aouthdr_in->entry &= 0xffffffff;
 #endif
     }
@@ -773,7 +776,7 @@ _bfd_XXi_swap_aouthdr_out (bfd * abfd, void * in, void * out)
   PUT_AOUTHDR_TEXT_START (abfd, aouthdr_in->text_start,
 			  aouthdr_out->standard.text_start);
 
-#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peAArch64)
   /* PE32+ does not have data_start member!  */
   PUT_AOUTHDR_DATA_START (abfd, aouthdr_in->data_start,
 			  aouthdr_out->standard.data_start);
@@ -1886,7 +1889,7 @@ pe_print_edata (bfd * abfd, void * vfile)
 static bfd_boolean
 pe_print_pdata (bfd * abfd, void * vfile)
 {
-#if defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64)
+#if defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peAArch64)
 # define PDATA_ROW_SIZE	(3 * 8)
 #else
 # define PDATA_ROW_SIZE	(5 * 4)
@@ -1913,7 +1916,7 @@ pe_print_pdata (bfd * abfd, void * vfile)
 
   fprintf (file,
 	   _("\nThe Function Table (interpreted .pdata section contents)\n"));
-#if defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64)
+#if defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peAArch64)
   fprintf (file,
 	   _(" vma:\t\t\tBegin Address    End Address      Unwind Info\n"));
 #else
@@ -1950,7 +1953,7 @@ pe_print_pdata (bfd * abfd, void * vfile)
       bfd_vma eh_handler;
       bfd_vma eh_data;
       bfd_vma prolog_end_addr;
-#if !defined(COFF_WITH_pep) || defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) || defined(COFF_WITH_pex64) || defined(COFF_WITH_peAArch64)
       int em_data;
 #endif
 
@@ -1968,7 +1971,7 @@ pe_print_pdata (bfd * abfd, void * vfile)
 	/* We are probably into the padding of the section now.  */
 	break;
 
-#if !defined(COFF_WITH_pep) || defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) || defined(COFF_WITH_pex64) || defined(COFF_WITH_peAArch64)
       em_data = ((eh_handler & 0x1) << 2) | (prolog_end_addr & 0x3);
 #endif
       eh_handler &= ~(bfd_vma) 0x3;
@@ -1979,7 +1982,7 @@ pe_print_pdata (bfd * abfd, void * vfile)
       bfd_fprintf_vma (abfd, file, begin_addr); fputc (' ', file);
       bfd_fprintf_vma (abfd, file, end_addr); fputc (' ', file);
       bfd_fprintf_vma (abfd, file, eh_handler);
-#if !defined(COFF_WITH_pep) || defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) || defined(COFF_WITH_pex64) || defined(COFF_WITH_peAArch64)
       fputc (' ', file);
       bfd_fprintf_vma (abfd, file, eh_data); fputc (' ', file);
       bfd_fprintf_vma (abfd, file, prolog_end_addr);
@@ -2894,7 +2897,7 @@ _bfd_XX_print_private_bfd_data_common (bfd * abfd, void * vfile)
   bfd_fprintf_vma (abfd, file, i->AddressOfEntryPoint);
   fprintf (file, "\nBaseOfCode\t\t");
   bfd_fprintf_vma (abfd, file, i->BaseOfCode);
-#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peAArch64)
   /* PE32+ does not have BaseOfData member!  */
   fprintf (file, "\nBaseOfData\t\t");
   bfd_fprintf_vma (abfd, file, i->BaseOfData);
@@ -3163,7 +3166,7 @@ _bfd_XX_get_symbol_info (bfd * abfd, asymbol *symbol, symbol_info *ret)
   coff_get_symbol_info (abfd, symbol, ret);
 }
 
-#if !defined(COFF_WITH_pep) && defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) && defined(COFF_WITH_pex64) && defined(COFF_WITH_peAArch64)
 static int
 sort_x64_pdata (const void *l, const void *r)
 {
@@ -4595,7 +4598,7 @@ _bfd_XXi_final_link_postscript (bfd * abfd, struct coff_final_link_info *pfinfo)
 	the TLS data directory consists of 4 pointers, followed
 	by two 4-byte integer. This implies that the total size
 	is different for 32-bit and 64-bit executables.  */
-#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) && !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peAArch64)
       pe_data (abfd)->pe_opthdr.DataDirectory[PE_TLS_TABLE].Size = 0x18;
 #else
       pe_data (abfd)->pe_opthdr.DataDirectory[PE_TLS_TABLE].Size = 0x28;
@@ -4604,7 +4607,7 @@ _bfd_XXi_final_link_postscript (bfd * abfd, struct coff_final_link_info *pfinfo)
 
 /* If there is a .pdata section and we have linked pdata finally, we
      need to sort the entries ascending.  */
-#if !defined(COFF_WITH_pep) && defined(COFF_WITH_pex64)
+#if !defined(COFF_WITH_pep) && defined(COFF_WITH_pex64) && defined(COFF_WITH_peAArch64)
   {
     asection *sec = bfd_get_section_by_name (abfd, ".pdata");
 
