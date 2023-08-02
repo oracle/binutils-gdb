@@ -5333,7 +5333,7 @@ display_debug_lines_decoded (struct dwarf_section *  section,
 	      else
 		{
 		  newFileName = (char *) xmalloc (fileNameLength + 1);
-		  strncpy (newFileName, fileName, fileNameLength + 1);
+		  strcpy (newFileName, fileName);
 		}
 
 	      if (!do_wide || (fileNameLength <= MAX_FILENAME_LENGTH))
