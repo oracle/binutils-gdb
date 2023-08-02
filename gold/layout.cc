@@ -1986,7 +1986,7 @@ Layout::attach_allocated_section_to_segment(const Target* target,
   seg_flags |= os->extra_segment_flags();
 
   // Check for --section-start.
-  uint64_t addr;
+  uint64_t addr = 0;
   bool is_address_set = parameters->options().section_start(os->name(), &addr);
 
   // In general the only thing we really care about for PT_LOAD

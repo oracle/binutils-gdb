@@ -28956,9 +28956,8 @@ md_apply_fix (fixS *	fixP,
 	 perform relaxation.  */
       if (value == -2)
 	{
-	  newval = md_chars_to_number (buf, THUMB_SIZE);
 	  newval = 0xbf00; /* NOP encoding T1 */
-	  md_number_to_chars (buf, newval, THUMB_SIZE);
+	  goto jim;
 	}
       else
 	{
@@ -28969,6 +28968,7 @@ md_apply_fix (fixS *	fixP,
 	    {
 	      newval = md_chars_to_number (buf, THUMB_SIZE);
 	      newval |= ((value & 0x3e) << 2) | ((value & 0x40) << 3);
+	    jim:
 	      md_number_to_chars (buf, newval, THUMB_SIZE);
 	    }
 	}
@@ -29171,17 +29171,14 @@ md_apply_fix (fixS *	fixP,
     case BFD_RELOC_ARM_GOTFUNCDESC:
     case BFD_RELOC_ARM_GOTOFFFUNCDESC:
     case BFD_RELOC_ARM_FUNCDESC:
-      if (arm_fdpic)
-	{
-	  if (fixP->fx_done || !seg->use_rela_p)
-	    md_number_to_chars (buf, 0, 4);
-	}
-      else
+      if (!arm_fdpic)
 	{
 	  as_bad_where (fixP->fx_file, fixP->fx_line,
 			_("Relocation supported only in FDPIC mode"));
-      }
-      break;
+	  break;
+	}
+      value = 0;
+      goto fred;
 #endif
 
     case BFD_RELOC_RVA:
@@ -29193,6 +29190,7 @@ md_apply_fix (fixS *	fixP,
 #ifdef TE_PE
     case BFD_RELOC_32_SECREL:
 #endif
+    fred:
       if (fixP->fx_done || !seg->use_rela_p)
 #ifdef TE_WINCE
 	/* For WinCE we only do this for pcrel fixups.  */

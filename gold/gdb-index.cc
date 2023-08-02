@@ -817,7 +817,7 @@ Gdb_index_info_reader::get_qualified_name(Dwarf_die* die, Dwarf_die* context)
 void
 Gdb_index_info_reader::record_cu_ranges(Dwarf_die* die)
 {
-  unsigned int shndx;
+  unsigned int shndx = 0;
   unsigned int shndx2;
 
   off_t ranges_offset = die->ref_attribute(elfcpp::DW_AT_ranges, &shndx);
