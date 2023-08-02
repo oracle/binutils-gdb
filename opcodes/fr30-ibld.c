@@ -813,7 +813,7 @@ fr30_cgen_extract_operand (CGEN_CPU_DESC cd,
       break;
     case FR30_OPERAND_DIR10 :
       {
-        long value;
+        long value = 0;
         length = extract_normal (cd, ex_info, insn_value, 0, 0, 8, 8, 16, total_length, pc, & value);
         value = ((value) << (2));
         fields->f_dir10 = value;
@@ -824,7 +824,7 @@ fr30_cgen_extract_operand (CGEN_CPU_DESC cd,
       break;
     case FR30_OPERAND_DIR9 :
       {
-        long value;
+        long value = 0;
         length = extract_normal (cd, ex_info, insn_value, 0, 0, 8, 8, 16, total_length, pc, & value);
         value = ((value) << (1));
         fields->f_dir9 = value;
@@ -832,7 +832,7 @@ fr30_cgen_extract_operand (CGEN_CPU_DESC cd,
       break;
     case FR30_OPERAND_DISP10 :
       {
-        long value;
+        long value = 0;
         length = extract_normal (cd, ex_info, insn_value, 0|(1<<CGEN_IFLD_SIGNED), 0, 4, 8, 16, total_length, pc, & value);
         value = ((value) * (4));
         fields->f_disp10 = value;
@@ -843,7 +843,7 @@ fr30_cgen_extract_operand (CGEN_CPU_DESC cd,
       break;
     case FR30_OPERAND_DISP9 :
       {
-        long value;
+        long value = 0;
         length = extract_normal (cd, ex_info, insn_value, 0|(1<<CGEN_IFLD_SIGNED), 0, 4, 8, 16, total_length, pc, & value);
         value = ((value) * (2));
         fields->f_disp9 = value;
@@ -868,7 +868,7 @@ fr30_cgen_extract_operand (CGEN_CPU_DESC cd,
       break;
     case FR30_OPERAND_LABEL12 :
       {
-        long value;
+        long value = 0;
         length = extract_normal (cd, ex_info, insn_value, 0|(1<<CGEN_IFLD_SIGNED)|(1<<CGEN_IFLD_PCREL_ADDR), 0, 5, 11, 16, total_length, pc, & value);
         value = ((((value) * (2))) + (((pc) + (2))));
         fields->f_rel12 = value;
@@ -876,7 +876,7 @@ fr30_cgen_extract_operand (CGEN_CPU_DESC cd,
       break;
     case FR30_OPERAND_LABEL9 :
       {
-        long value;
+        long value = 0;
         length = extract_normal (cd, ex_info, insn_value, 0|(1<<CGEN_IFLD_SIGNED)|(1<<CGEN_IFLD_PCREL_ADDR), 0, 8, 8, 16, total_length, pc, & value);
         value = ((((value) * (2))) + (((pc) + (2))));
         fields->f_rel9 = value;
@@ -884,7 +884,7 @@ fr30_cgen_extract_operand (CGEN_CPU_DESC cd,
       break;
     case FR30_OPERAND_M4 :
       {
-        long value;
+        long value = 0;
         length = extract_normal (cd, ex_info, insn_value, 0, 0, 8, 4, 16, total_length, pc, & value);
         value = ((value) | (-16));
         fields->f_m4 = value;
@@ -906,7 +906,7 @@ fr30_cgen_extract_operand (CGEN_CPU_DESC cd,
       break;
     case FR30_OPERAND_S10 :
       {
-        long value;
+        long value = 0;
         length = extract_normal (cd, ex_info, insn_value, 0|(1<<CGEN_IFLD_SIGNED), 0, 8, 8, 16, total_length, pc, & value);
         value = ((value) * (4));
         fields->f_s10 = value;
@@ -914,7 +914,7 @@ fr30_cgen_extract_operand (CGEN_CPU_DESC cd,
       break;
     case FR30_OPERAND_U10 :
       {
-        long value;
+        long value = 0;
         length = extract_normal (cd, ex_info, insn_value, 0, 0, 8, 8, 16, total_length, pc, & value);
         value = ((value) << (2));
         fields->f_u10 = value;
@@ -931,7 +931,7 @@ fr30_cgen_extract_operand (CGEN_CPU_DESC cd,
       break;
     case FR30_OPERAND_UDISP6 :
       {
-        long value;
+        long value = 0;
         length = extract_normal (cd, ex_info, insn_value, 0, 0, 8, 4, 16, total_length, pc, & value);
         value = ((value) << (2));
         fields->f_udisp6 = value;

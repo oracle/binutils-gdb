@@ -168,7 +168,7 @@ insertExpandedMnemonic (char *opcode, char *mnemonic, char *format,
   int mask_start, i = 0, tag_found = 0, reading_number = 0;
   int number_p = 0, suffix_p = 0, prefix_p = 0;
   const struct s390_cond_ext_format *ext_table;
-  int ext_table_length;
+  int ext_table_length = 0;
 
   if (!(tag = strpbrk (mnemonic, "*$")))
     {

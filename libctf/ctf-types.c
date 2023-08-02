@@ -748,7 +748,7 @@ ctf_type_encoding (ctf_file_t *fp, ctf_id_t type, ctf_encoding_t *ep)
 	case CTF_K_SLICE:
 	  {
 	    const ctf_slice_t *slice;
-	    ctf_encoding_t underlying_en;
+	    ctf_encoding_t underlying_en = {0};
 	    slice = &dtd->dtd_u.dtu_slice;
 
 	    data = ctf_type_encoding (fp, slice->cts_type, &underlying_en);

@@ -492,6 +492,8 @@ wr_rl (struct coff_ofile *ptr ATTRIBUTE_UNUSED, struct coff_section *sec)
       rl.addr = r->offset;
       rl.bitloc = 0;
       rl.flen = 32;		/* SH Specific.  */
+      rl.dunno = 0;
+      rl.symn = 0;
 
       /* What sort of reloc ? Look in the section to find out.  */
       ref = r->symbol;

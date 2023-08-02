@@ -807,6 +807,7 @@ ctf_add_generic (ctf_file_t *fp, uint32_t flag, const char *name, int kind,
 {
   ctf_dtdef_t *dtd;
   ctf_id_t type;
+  *rp = NULL;
 
   if (flag != CTF_ADD_NONROOT && flag != CTF_ADD_ROOT)
     return (ctf_set_errno (fp, EINVAL));
@@ -880,7 +881,8 @@ ctf_add_encoded (ctf_file_t *fp, uint32_t flag,
 
   if ((type = ctf_add_generic (fp, flag, name, kind, &dtd)) == CTF_ERR)
     return CTF_ERR;		/* errno is set for us.  */
-
+  if (dtd == NULL)
+    return CTF_ERR;
   dtd->dtd_data.ctt_info = CTF_TYPE_INFO (kind, flag, 0);
   dtd->dtd_data.ctt_size = clp2 (P2ROUNDUP (ep->cte_bits, CHAR_BIT)
 				 / CHAR_BIT);
@@ -905,6 +907,8 @@ ctf_add_reftype (ctf_file_t *fp, uint32_t flag, ctf_id_t ref, uint32_t kind)
 
   if ((type = ctf_add_generic (fp, flag, NULL, kind, &dtd)) == CTF_ERR)
     return CTF_ERR;		/* errno is set for us.  */
+  if (dtd == NULL)
+    return CTF_ERR;
 
   dtd->dtd_data.ctt_info = CTF_TYPE_INFO (kind, flag, 0);
   dtd->dtd_data.ctt_type = (uint32_t) ref;
@@ -967,6 +971,8 @@ ctf_add_slice (ctf_file_t *fp, uint32_t flag, ctf_id_t ref,
 
   if ((type = ctf_add_generic (fp, flag, NULL, CTF_K_SLICE, &dtd)) == CTF_ERR)
     return CTF_ERR;		/* errno is set for us.  */
+  if (dtd == NULL)
+    return CTF_ERR;
 
   dtd->dtd_data.ctt_info = CTF_TYPE_INFO (CTF_K_SLICE, flag, 0);
   dtd->dtd_data.ctt_size = clp2 (P2ROUNDUP (ep->cte_bits, CHAR_BIT)
@@ -1017,6 +1023,8 @@ ctf_add_array (ctf_file_t *fp, uint32_t flag, const ctf_arinfo_t *arp)
 
   if ((type = ctf_add_generic (fp, flag, NULL, CTF_K_ARRAY, &dtd)) == CTF_ERR)
     return CTF_ERR;		/* errno is set for us.  */
+  if (dtd == NULL)
+    return CTF_ERR;
 
   dtd->dtd_data.ctt_info = CTF_TYPE_INFO (CTF_K_ARRAY, flag, 0);
   dtd->dtd_data.ctt_size = 0;
@@ -1084,6 +1092,8 @@ ctf_add_function (ctf_file_t *fp, uint32_t flag,
       free (vdat);
       return CTF_ERR;		   /* errno is set for us.  */
     }
+  if (dtd == NULL)
+    return CTF_ERR;
 
   dtd->dtd_data.ctt_info = CTF_TYPE_INFO (CTF_K_FUNCTION, flag, vlen);
   dtd->dtd_data.ctt_type = (uint32_t) ctc->ctc_return;
@@ -1112,6 +1122,8 @@ ctf_add_struct_sized (ctf_file_t *fp, uint32_t flag, const char *name,
   else if ((type = ctf_add_generic (fp, flag, name, CTF_K_STRUCT,
 				    &dtd)) == CTF_ERR)
     return CTF_ERR;		/* errno is set for us.  */
+  if (dtd == NULL)
+    return CTF_ERR;
 
   dtd->dtd_data.ctt_info = CTF_TYPE_INFO (CTF_K_STRUCT, flag, 0);
 
@@ -1149,6 +1161,8 @@ ctf_add_union_sized (ctf_file_t *fp, uint32_t flag, const char *name,
   else if ((type = ctf_add_generic (fp, flag, name, CTF_K_UNION,
 				    &dtd)) == CTF_ERR)
     return CTF_ERR;		/* errno is set for us */
+  if (dtd == NULL)
+    return CTF_ERR;
 
   dtd->dtd_data.ctt_info = CTF_TYPE_INFO (CTF_K_UNION, flag, 0);
 
@@ -1185,6 +1199,8 @@ ctf_add_enum (ctf_file_t *fp, uint32_t flag, const char *name)
   else if ((type = ctf_add_generic (fp, flag, name, CTF_K_ENUM,
 				    &dtd)) == CTF_ERR)
     return CTF_ERR;		/* errno is set for us.  */
+  if (dtd == NULL)
+    return CTF_ERR;
 
   dtd->dtd_data.ctt_info = CTF_TYPE_INFO (CTF_K_ENUM, flag, 0);
   dtd->dtd_data.ctt_size = fp->ctf_dmodel->ctd_int;
@@ -1241,6 +1257,8 @@ ctf_add_forward (ctf_file_t *fp, uint32_t flag, const char *name,
 
   if ((type = ctf_add_generic (fp, flag, name, kind, &dtd)) == CTF_ERR)
     return CTF_ERR;		/* errno is set for us.  */
+  if (dtd == NULL)
+    return CTF_ERR;
 
   dtd->dtd_data.ctt_info = CTF_TYPE_INFO (CTF_K_FORWARD, flag, 0);
   dtd->dtd_data.ctt_type = kind;
