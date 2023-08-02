@@ -869,6 +869,7 @@ Layout::get_output_section(const char* name, Stringpool::Key name_key,
 		  && (same_name->flags() & elfcpp::SHF_TLS) == 0)
 		os = same_name;
 	    }
+#if 0 /* BZ 1722715, PR 17556.  */
 	  else if ((flags & elfcpp::SHF_TLS) == 0)
 	    {
 	      elfcpp::Elf_Xword zero_flags = 0;
@@ -879,6 +880,7 @@ Layout::get_output_section(const char* name, Stringpool::Key name_key,
 	      if (p != this->section_name_map_.end())
 		os = p->second;
 	    }
+#endif
 	}
 
       if (os == NULL)
