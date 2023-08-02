@@ -1529,6 +1529,8 @@ lang_output_section_statement_lookup (const char *name,
 
   entry->s.output_section_statement.name = name;
   entry->s.output_section_statement.constraint = constraint;
+  entry->s.output_section_statement.dup_output = (create == 2
+                                                 || constraint == SPECIAL);
   return &entry->s.output_section_statement;
 }
 
@@ -2390,7 +2392,7 @@ init_os (lang_output_section_statement_type *s, flagword flags)
   if (strcmp (s->name, DISCARD_SECTION_NAME) == 0)
     einfo (_("%F%P: illegal use of `%s' section\n"), DISCARD_SECTION_NAME);
 
-  if (s->constraint != SPECIAL)
+  if (!s->dup_output)
     s->bfd_section = bfd_get_section_by_name (link_info.output_bfd, s->name);
   if (s->bfd_section == NULL)
     s->bfd_section = bfd_make_section_anyway_with_flags (link_info.output_bfd,
