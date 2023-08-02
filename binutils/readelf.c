@@ -19285,6 +19285,7 @@ print_gnu_build_attribute_description (Elf_Internal_Note *  pnote,
 
   if (is_open_attr)
     {
+#if 0 /* Suppressed because these gaps are no longer significant.  */
       /* FIXME: Need to properly allow for section alignment.
 	 16 is just the alignment used on x86_64.  */
       if (global_end > 0
@@ -19295,7 +19296,7 @@ print_gnu_build_attribute_description (Elf_Internal_Note *  pnote,
 	  && same_section (filedata, start, global_end))
 	warn (_("Gap in build notes detected from %#lx to %#lx\n"),
 	      global_end + 1, start - 1);
-
+#endif
       printf (_("    Applies to region from %#lx"), start);
       global_offset = start;
 
