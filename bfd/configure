@@ -12210,7 +12210,7 @@ fi
 
 
 case "${host}" in
-  sparc-*-solaris*|i[3-7]86-*-solaris*)
+  sparc-*-solaris*|i[34567]86-*-solaris*)
     # On native 32bit sparc and ia32 solaris, large-file and procfs support
     # are mutually exclusive; and without procfs support, the bfd/ elf module
     # cannot provide certain routines such as elfcore_write_prpsinfo
@@ -12426,7 +12426,7 @@ fi
 
 case "${target}" in
     vax-*-netbsdelf*) ;;
-    *-*-*aout* | i[3-7]86-*-bsd* | i[3-7]86-*-msdos* | ns32k-*-* | \
+    *-*-*aout* | i[34567]86-*-bsd* | i[34567]86-*-msdos* | ns32k-*-* | \
     pdp11-*-* | vax-*-*bsd*)
 	if test "$plugins" = "yes"; then
 	    if test "${enable_plugins+set}" = set; then
@@ -12529,7 +12529,7 @@ fi
 
 # Enable -z separate-code by default for Linux/x86.
 case "${target}" in
-i[3-7]86-*-linux-* | x86_64-*-linux-*)
+i[34567]86-*-linux-* | x86_64-*-linux-*)
   if test ${ac_default_ld_z_separate_code} = unset; then
     ac_default_ld_z_separate_code=1
   fi
@@ -15175,45 +15175,45 @@ if test "${target}" = "${host}"; then
 	COREFILE=netbsd-core.lo
 	;;
 
-  i[3-7]86-sequent-bsd*)
+  i[34567]86-sequent-bsd*)
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/symmetry.h"'
 	;;
-  i[3-7]86-sequent-sysv4*) ;;
-  i[3-7]86-sequent-sysv*)
+  i[34567]86-sequent-sysv4*) ;;
+  i[34567]86-sequent-sysv*)
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/symmetry.h"'
 	;;
-  i[3-7]86-*-bsdi)
+  i[34567]86-*-bsdi)
 	COREFILE=
 	;;
-  i[3-7]86-*-bsd* | i[3-7]86-*-freebsd[123] | i[3-7]86-*-freebsd[123]\.* | i[3-7]86-*-freebsd4\.[01234] | i[3-7]86-*-freebsd4\.[01234]\.* | i[3-7]86-*-freebsd*aout*)
+  i[34567]86-*-bsd* | i[34567]86-*-freebsd[123] | i[34567]86-*-freebsd[123]\.* | i[34567]86-*-freebsd4\.[01234] | i[34567]86-*-freebsd4\.[01234]\.* | i[34567]86-*-freebsd*aout*)
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/i386bsd.h"'
 	;;
-  i[3-7]86-*-freebsd* | i[3-7]86-*-kfreebsd*-gnu | i[3-7]86-*-dragonfly*)
+  i[34567]86-*-freebsd* | i[34567]86-*-kfreebsd*-gnu | i[34567]86-*-dragonfly*)
 	COREFILE=''
 	TRAD_HEADER='"hosts/i386bsd.h"'
 	;;
-  i[3-7]86-*-netbsd* | i[3-7]86-*-knetbsd*-gnu | i[3-7]86-*-openbsd*)
+  i[34567]86-*-netbsd* | i[34567]86-*-knetbsd*-gnu | i[34567]86-*-openbsd*)
 	COREFILE=netbsd-core.lo
 	;;
-  i[3-7]86-esix-sysv3*)
+  i[34567]86-esix-sysv3*)
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/esix.h"'
 	;;
-  i[3-7]86-*-sco3.2v5*)
+  i[34567]86-*-sco3.2v5*)
 	COREFILE=sco5-core.lo
 	;;
-  i[3-7]86-*-sco* | i[3-7]86-*-isc*)
+  i[34567]86-*-sco* | i[34567]86-*-isc*)
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/i386sco.h"'
 	;;
-  i[3-7]86-*-mach3*)
+  i[34567]86-*-mach3*)
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/i386mach3.h"'
 	;;
-  i[3-7]86-*-linux-*)
+  i[34567]86-*-linux-*)
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/i386linux.h"'
 	case "$enable_targets"-"$want64" in
@@ -15221,8 +15221,8 @@ if test "${target}" = "${host}"; then
 	  CORE_HEADER='"hosts/x86-64linux.h"'
 	esac
 	;;
-  i[3-7]86-*-isc*)	COREFILE=trad-core.lo ;;
-  i[3-7]86-*-aix*)	COREFILE=aix386-core.lo ;;
+  i[34567]86-*-isc*)	COREFILE=trad-core.lo ;;
+  i[34567]86-*-aix*)	COREFILE=aix386-core.lo ;;
   mips*-*-netbsd* | mips*-*-openbsd*)
 	COREFILE=netbsd-core.lo
 	;;

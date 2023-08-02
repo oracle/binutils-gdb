@@ -69,7 +69,7 @@ static bfd_vma opd_entry_value
 #define ELF_TARGET_ID		PPC64_ELF_DATA
 #define ELF_MACHINE_CODE	EM_PPC64
 #define ELF_MAXPAGESIZE		0x10000
-#define ELF_COMMONPAGESIZE	0x1000
+#define ELF_COMMONPAGESIZE	0x10000
 #define ELF_RELROPAGESIZE	ELF_MAXPAGESIZE
 #define elf_info_to_howto	ppc64_elf_info_to_howto
 

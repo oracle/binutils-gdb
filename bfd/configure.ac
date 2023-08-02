@@ -47,7 +47,7 @@ ACX_LARGEFILE
 changequote(,)dnl
 case "${target}" in
     vax-*-netbsdelf*) ;;
-    *-*-*aout* | i[3-7]86-*-bsd* | i[3-7]86-*-msdos* | ns32k-*-* | \
+    *-*-*aout* | i[34567]86-*-bsd* | i[34567]86-*-msdos* | ns32k-*-* | \
     pdp11-*-* | vax-*-*bsd*)
 changequote([,])dnl
 	if test "$plugins" = "yes"; then
@@ -128,7 +128,7 @@ esac])
 # Enable -z separate-code by default for Linux/x86.
 changequote(,)dnl
 case "${target}" in
-i[3-7]86-*-linux-* | x86_64-*-linux-*)
+i[34567]86-*-linux-* | x86_64-*-linux-*)
 changequote([,])dnl
   if test ${ac_default_ld_z_separate_code} = unset; then
     ac_default_ld_z_separate_code=1
@@ -873,65 +873,65 @@ if test "${target}" = "${host}"; then
 	;;
 
 changequote(,)dnl
-  i[3-7]86-sequent-bsd*)
+  i[34567]86-sequent-bsd*)
 changequote([,])dnl
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/symmetry.h"'
 	;;
 changequote(,)dnl
-  i[3-7]86-sequent-sysv4*) ;;
-  i[3-7]86-sequent-sysv*)
+  i[34567]86-sequent-sysv4*) ;;
+  i[34567]86-sequent-sysv*)
 changequote([,])dnl
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/symmetry.h"'
 	;;
 changequote(,)dnl
-  i[3-7]86-*-bsdi)
+  i[34567]86-*-bsdi)
 changequote([,])dnl
 	COREFILE=
 	;;
 changequote(,)dnl
-  i[3-7]86-*-bsd* | i[3-7]86-*-freebsd[123] | i[3-7]86-*-freebsd[123]\.* | i[3-7]86-*-freebsd4\.[01234] | i[3-7]86-*-freebsd4\.[01234]\.* | i[3-7]86-*-freebsd*aout*)
+  i[34567]86-*-bsd* | i[34567]86-*-freebsd[123] | i[34567]86-*-freebsd[123]\.* | i[34567]86-*-freebsd4\.[01234] | i[34567]86-*-freebsd4\.[01234]\.* | i[34567]86-*-freebsd*aout*)
 changequote([,])dnl
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/i386bsd.h"'
 	;;
 changequote(,)dnl
-  i[3-7]86-*-freebsd* | i[3-7]86-*-kfreebsd*-gnu | i[3-7]86-*-dragonfly*)
+  i[34567]86-*-freebsd* | i[34567]86-*-kfreebsd*-gnu | i[34567]86-*-dragonfly*)
 changequote([,])dnl
 	COREFILE=''
 	TRAD_HEADER='"hosts/i386bsd.h"'
 	;;
 changequote(,)dnl
-  i[3-7]86-*-netbsd* | i[3-7]86-*-knetbsd*-gnu | i[3-7]86-*-openbsd*)
+  i[34567]86-*-netbsd* | i[34567]86-*-knetbsd*-gnu | i[34567]86-*-openbsd*)
 changequote([,])dnl
 	COREFILE=netbsd-core.lo
 	;;
 changequote(,)dnl
-  i[3-7]86-esix-sysv3*)
+  i[34567]86-esix-sysv3*)
 changequote([,])dnl
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/esix.h"'
 	;;
 changequote(,)dnl
-  i[3-7]86-*-sco3.2v5*)
+  i[34567]86-*-sco3.2v5*)
 changequote([,])dnl
 	COREFILE=sco5-core.lo
 	;;
 changequote(,)dnl
-  i[3-7]86-*-sco* | i[3-7]86-*-isc*)
+  i[34567]86-*-sco* | i[34567]86-*-isc*)
 changequote([,])dnl
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/i386sco.h"'
 	;;
 changequote(,)dnl
-  i[3-7]86-*-mach3*)
+  i[34567]86-*-mach3*)
 changequote([,])dnl
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/i386mach3.h"'
 	;;
 changequote(,)dnl
-  i[3-7]86-*-linux-*)
+  i[34567]86-*-linux-*)
 changequote([,])dnl
 	COREFILE=trad-core.lo
 	TRAD_HEADER='"hosts/i386linux.h"'
@@ -941,8 +941,8 @@ changequote([,])dnl
 	esac
 	;;
 changequote(,)dnl
-  i[3-7]86-*-isc*)	COREFILE=trad-core.lo ;;
-  i[3-7]86-*-aix*)	COREFILE=aix386-core.lo ;;
+  i[34567]86-*-isc*)	COREFILE=trad-core.lo ;;
+  i[34567]86-*-aix*)	COREFILE=aix386-core.lo ;;
 changequote([,])dnl
   mips*-*-netbsd* | mips*-*-openbsd*)
 	COREFILE=netbsd-core.lo

@@ -301,7 +301,7 @@ do
 	  BUILD_DLLWRAP='$(DLLWRAP_PROG)$(EXEEXT)'
 	  ;;
 changequote(,)dnl
-	i[3-7]86-*-pe* | i[3-7]86-*-cygwin* | i[3-7]86-*-mingw32** | i[3-7]86-*-netbsdpe*)
+	i[34567]86-*-pe* | i[34567]86-*-cygwin* | i[34567]86-*-mingw32** | i[34567]86-*-netbsdpe*)
 changequote([,])dnl
   	  BUILD_DLLTOOL='$(DLLTOOL_PROG)$(EXEEXT)'
 	  if test -z "$DLLTOOL_DEFAULT"; then
@@ -313,7 +313,7 @@ changequote([,])dnl
 	  BUILD_DLLWRAP='$(DLLWRAP_PROG)$(EXEEXT)'
 	  ;;
 changequote(,)dnl
-	i[3-7]86-*-interix)
+	i[34567]86-*-interix)
 changequote([,])dnl
 	  BUILD_DLLTOOL='$(DLLTOOL_PROG)'
 	  if test -z "$DLLTOOL_DEFAULT"; then

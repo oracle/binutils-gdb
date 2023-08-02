@@ -12031,7 +12031,7 @@ fi
 
 
 case "${host}" in
-  sparc-*-solaris*|i[3-7]86-*-solaris*)
+  sparc-*-solaris*|i[34567]86-*-solaris*)
     # On native 32bit sparc and ia32 solaris, large-file and procfs support
     # are mutually exclusive; and without procfs support, the bfd/ elf module
     # cannot provide certain routines such as elfcore_write_prpsinfo
@@ -15307,7 +15307,7 @@ do
 	  BUILD_WINDMC='$(WINDMC_PROG)$(EXEEXT)'
 	  BUILD_DLLWRAP='$(DLLWRAP_PROG)$(EXEEXT)'
 	  ;;
-	i[3-7]86-*-pe* | i[3-7]86-*-cygwin* | i[3-7]86-*-mingw32** | i[3-7]86-*-netbsdpe*)
+	i[34567]86-*-pe* | i[34567]86-*-cygwin* | i[34567]86-*-mingw32** | i[34567]86-*-netbsdpe*)
   	  BUILD_DLLTOOL='$(DLLTOOL_PROG)$(EXEEXT)'
 	  if test -z "$DLLTOOL_DEFAULT"; then
 	    DLLTOOL_DEFAULT="-DDLLTOOL_DEFAULT_I386"
@@ -15317,7 +15317,7 @@ do
 	  BUILD_WINDMC='$(WINDMC_PROG)$(EXEEXT)'
 	  BUILD_DLLWRAP='$(DLLWRAP_PROG)$(EXEEXT)'
 	  ;;
-	i[3-7]86-*-interix)
+	i[34567]86-*-interix)
 	  BUILD_DLLTOOL='$(DLLTOOL_PROG)'
 	  if test -z "$DLLTOOL_DEFAULT"; then
 	    DLLTOOL_DEFAULT="-DDLLTOOL_DEFAULT_I386"

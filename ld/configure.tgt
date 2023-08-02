@@ -294,111 +294,111 @@ hppa*-*-netbsd*)	targ_emul=hppanbsd
 			;;
 hppa*-*-openbsd*)	targ_emul=hppaobsd
 			;;
-i[3-7]86-*-nto-qnx*)	targ_emul=i386nto
+i[34567]86-*-nto-qnx*)	targ_emul=i386nto
 			;;
-i[3-7]86-*-go32)	targ_emul=i386go32
+i[34567]86-*-go32)	targ_emul=i386go32
 			targ_extra_ofiles=
 			;;
-i[3-7]86-*-msdosdjgpp*) targ_emul=i386go32
+i[34567]86-*-msdosdjgpp*) targ_emul=i386go32
 			targ_extra_ofiles=
 			;;
-i[3-7]86-*-lynxos*)	targ_emul=i386lynx
+i[34567]86-*-lynxos*)	targ_emul=i386lynx
 			;;
-i[3-7]86-*-aros*)	targ_emul=elf_i386
+i[34567]86-*-aros*)	targ_emul=elf_i386
 			targ_extra_emuls=elf_iamcu
 			;;
-i[3-7]86-*-rdos*)	targ_emul=elf_i386
+i[34567]86-*-rdos*)	targ_emul=elf_i386
 			targ_extra_emuls=elf_iamcu
 			;;
-i[3-7]86-*-bsd)		targ_emul=i386bsd
+i[34567]86-*-bsd)		targ_emul=i386bsd
 			targ_extra_ofiles=
 			;;
-i[3-7]86-*-bsd386)	targ_emul=i386bsd
+i[34567]86-*-bsd386)	targ_emul=i386bsd
 			targ_extra_ofiles=
 			;;
-i[3-7]86-*-bsdi*)	targ_emul=i386bsd
+i[34567]86-*-bsdi*)	targ_emul=i386bsd
 			targ_extra_ofiles=
 			;;
-i[3-7]86-*-linux-*)	targ_emul=elf_i386
+i[34567]86-*-linux-*)	targ_emul=elf_i386
 			targ_extra_emuls="elf_iamcu"
 			targ64_extra_emuls="elf_x86_64 elf32_x86_64 elf_l1om elf_k1om"
 			targ64_extra_libpath="elf_x86_64 elf32_x86_64"
 			;;
-i[3-7]86-*-redox*)	targ_emul=elf_i386
+i[34567]86-*-redox*)	targ_emul=elf_i386
 			targ_extra_emuls=elf_x86_64
 			;;
-i[3-7]86-*-sysv[45]*)	targ_emul=elf_i386
+i[34567]86-*-sysv[45]*)	targ_emul=elf_i386
 			targ_extra_emuls=elf_iamcu
 			;;
-i[3-7]86-*-solaris2*)	targ_emul=elf_i386_sol2
+i[34567]86-*-solaris2*)	targ_emul=elf_i386_sol2
 			targ_extra_emuls="elf_i386_ldso elf_i386 elf_iamcu elf_x86_64_sol2 elf_x86_64 elf_l1om elf_k1om"
 			targ_extra_libpath=$targ_extra_emuls
 			;;
-i[3-7]86-*-unixware)	targ_emul=elf_i386
+i[34567]86-*-unixware)	targ_emul=elf_i386
 			targ_extra_emuls=elf_iamcu
 			;;
-i[3-7]86-*-solaris*)	targ_emul=elf_i386_ldso
+i[34567]86-*-solaris*)	targ_emul=elf_i386_ldso
 			targ_extra_emuls="elf_i386"
 			targ_extra_libpath=$targ_extra_emuls
 			;;
-i[3-7]86-*-netbsdelf* | \
-i[3-7]86-*-netbsd*-gnu* | \
-i[3-7]86-*-knetbsd*-gnu | \
-i[3-7]86-*-openbsd*)
+i[34567]86-*-netbsdelf* | \
+i[34567]86-*-netbsd*-gnu* | \
+i[34567]86-*-knetbsd*-gnu | \
+i[34567]86-*-openbsd*)
 			targ_emul=elf_i386
 			targ_extra_emuls="elf_iamcu"
 			;;
-i[3-7]86-*-netbsdpe*)	targ_emul=i386pe
+i[34567]86-*-netbsdpe*)	targ_emul=i386pe
 			targ_extra_ofiles="deffilep.o pe-dll.o"
 			;;
-i[3-7]86-*-elfiamcu)	targ_emul=elf_iamcu
+i[34567]86-*-elfiamcu)	targ_emul=elf_iamcu
 			targ_extra_emuls=elf_i386
 			;;
-i[3-7]86-*-elf* | i[3-7]86-*-rtems*)
+i[34567]86-*-elf* | i[34567]86-*-rtems*)
 			targ_emul=elf_i386
 			targ_extra_emuls=elf_iamcu
 			;;
-i[3-7]86-*-dragonfly*)	targ_emul=elf_i386
+i[34567]86-*-dragonfly*)	targ_emul=elf_i386
 			targ_extra_emuls="elf_iamcu i386bsd"
 			;;
-i[3-7]86-*-freebsd* | i[3-7]86-*-kfreebsd*-gnu)
+i[34567]86-*-freebsd* | i[34567]86-*-kfreebsd*-gnu)
 			targ_emul=elf_i386_fbsd
 			targ_extra_emuls="elf_i386 elf_iamcu i386bsd"
 			;;
-i[3-7]86-*-gnu*)	targ_emul=elf_i386
+i[34567]86-*-gnu*)	targ_emul=elf_i386
 			targ_extra_emuls=elf_iamcu
 			;;
-i[3-7]86-*-msdos*)	targ_emul=i386msdos
+i[34567]86-*-msdos*)	targ_emul=i386msdos
 			targ_extra_emuls=i386aout
 			targ_extra_ofiles=
 			;;
-i[3-7]86-*-moss*)	targ_emul=i386moss
+i[34567]86-*-moss*)	targ_emul=i386moss
 			targ_extra_emuls=i386msdos
 			;;
-i[3-7]86-*-winnt*)	targ_emul=i386pe ;
+i[34567]86-*-winnt*)	targ_emul=i386pe ;
 			targ_extra_ofiles="deffilep.o pe-dll.o"
 			;;
-i[3-7]86-*-pe)		targ_emul=i386pe ;
+i[34567]86-*-pe)		targ_emul=i386pe ;
 			targ_extra_ofiles="deffilep.o pe-dll.o"
 			;;
-i[3-7]86-*-cygwin*)	targ_emul=i386pe ;
+i[34567]86-*-cygwin*)	targ_emul=i386pe ;
 			targ_extra_ofiles="deffilep.o pe-dll.o" ;
 			test "$targ" != "$host" && LIB_PATH='${tooldir}/lib/w32api'
 			;;
-i[3-7]86-*-mingw32*)	targ_emul=i386pe ;
+i[34567]86-*-mingw32*)	targ_emul=i386pe ;
 			targ_extra_ofiles="deffilep.o pe-dll.o"
 			;;
-i[3-7]86-*-interix*)	targ_emul=i386pe_posix;
+i[34567]86-*-interix*)	targ_emul=i386pe_posix;
 			targ_extra_ofiles="deffilep.o pe-dll.o"
 			;;
-i[3-7]86-*-beospe*)	targ_emul=i386beos
+i[34567]86-*-beospe*)	targ_emul=i386beos
 			targ_extra_ofiles=
 			;;
-i[3-7]86-*-beos*)	targ_emul=elf_i386_be
+i[34567]86-*-beos*)	targ_emul=elf_i386_be
 			;;
-i[3-7]86-*-vxworks*)	targ_emul=elf_i386_vxworks
+i[34567]86-*-vxworks*)	targ_emul=elf_i386_vxworks
 			;;
-i[3-7]86-*-chaos)	targ_emul=elf_i386_chaos
+i[34567]86-*-chaos)	targ_emul=elf_i386_chaos
 			;;
 ia16-*-elf*)		targ_emul=elf_i386
 			targ_extra_emuls=i386msdos
@@ -1032,15 +1032,15 @@ hppa*64*-*-hpux11*)
   NATIVE_LIB_DIRS=/usr/lib/pa20_64
   ;;
 
-i[3-7]86-*-sysv4*)
+i[34567]86-*-sysv4*)
   NATIVE_LIB_DIRS='/usr/local/lib /usr/ccs/lib /lib /usr/lib'
   ;;
 
-i[3-7]86-*-solaris*)
+i[34567]86-*-solaris*)
   NATIVE_LIB_DIRS='/usr/local/lib /usr/ccs/lib /lib /usr/lib'
   ;;
 
-i[3-7]86-pc-interix*)
+i[34567]86-pc-interix*)
   NATIVE_LIB_DIRS='/usr/local/lib $$INTERIX_ROOT/usr/lib /lib /usr/lib'
   ;;
 
@@ -1100,7 +1100,7 @@ esac
 
 # Enable -z separate-code and --warn-textrel by default for Linux/x86.
 case "${target}" in
-i[3-7]86-*-linux-* | x86_64-*-linux-*)
+i[34567]86-*-linux-* | x86_64-*-linux-*)
   if test ${ac_default_ld_z_separate_code} = unset; then
     ac_default_ld_z_separate_code=1
   fi
