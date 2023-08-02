@@ -1081,7 +1081,7 @@ open_output_file (bfd * abfd)
 		 output_filename, base);
       output_filename = base;
     }
-  
+
   if (output_dir)
     {
       size_t len = strlen (output_dir);
@@ -1098,7 +1098,7 @@ open_output_file (bfd * abfd)
 
   if (verbose)
     printf ("x - %s\n", output_filename);
-  
+
   FILE * ostream = fopen (output_filename, FOPEN_WB);
   if (ostream == NULL)
     {
@@ -1195,20 +1195,23 @@ write_archive (bfd *iarch)
   bfd *obfd;
   char *old_name, *new_name;
   bfd *contents_head = iarch->archive_next;
+  int tmpfd = -1;
 
-  old_name = (char *) xmalloc (strlen (bfd_get_filename (iarch)) + 1);
-  strcpy (old_name, bfd_get_filename (iarch));
-  new_name = make_tempname (old_name);
+  old_name = xstrdup (bfd_get_filename (iarch));
+  new_name = make_tempname (old_name, &tmpfd);
 
   if (new_name == NULL)
     bfd_fatal (_("could not create temporary file whilst writing archive"));
 
   output_filename = new_name;
 
-  obfd = bfd_openw (new_name, bfd_get_target (iarch));
+  obfd = bfd_fdopenw (new_name, bfd_get_target (iarch), tmpfd);
 
   if (obfd == NULL)
-    bfd_fatal (old_name);
+    {
+      close (tmpfd);
+      bfd_fatal (old_name);
+    }
 
   output_bfd = obfd;
 
@@ -1237,6 +1240,7 @@ write_archive (bfd *iarch)
   if (!bfd_set_archive_head (obfd, contents_head))
     bfd_fatal (old_name);
 
+  tmpfd = dup (tmpfd);
   if (!bfd_close (obfd))
     bfd_fatal (old_name);
 
@@ -1246,7 +1250,7 @@ write_archive (bfd *iarch)
   /* We don't care if this fails; we might be creating the archive.  */
   bfd_close (iarch);
 
-  if (smart_rename (new_name, old_name, 0) != 0)
+  if (smart_rename (new_name, old_name, tmpfd, NULL, FALSE) != 0)
     xexit (1);
   free (old_name);
   free (new_name);
