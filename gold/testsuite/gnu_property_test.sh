@@ -57,8 +57,8 @@ check_count gnu_property_test.stdout "GNU\s*0x[0-9a-f]*\s*NT_GNU_PROPERTY_TYPE_0
 
 check gnu_property_test.stdout "stack size: 0x111100"
 check gnu_property_test.stdout "no copy on protected"
-check gnu_property_test.stdout "x86 ISA used: i486, SSE2, SSE4_2, AVX512CD"
-check gnu_property_test.stdout "x86 ISA needed: i486, SSE2, SSE4_2, AVX512CD"
+check gnu_property_test.stdout "x86 ISA used: x86-64-v2, <unknown: 10>, <unknown: 100>, <unknown: 1000>"
+check gnu_property_test.stdout "x86 ISA needed: x86-64-v2, <unknown: 10>, <unknown: 100>, <unknown: 1000>"
 check gnu_property_test.stdout "x86 feature: IBT"
 
 exit 0
